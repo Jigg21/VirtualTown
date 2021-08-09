@@ -1,16 +1,20 @@
-from Crops import Crop
+from Crops import Crop, convertTimeToCycles
 import time
 import math
 from enum import Enum
-
+from OverseerClass import TownOverseer
+import Utilities
 #Time Speed 1 = 1 year every week
 TIMESPEED = 1
+
+ENDLESSFOOD = True
 
 #Do not wait between time updates (for debugging)
 INSTANT = True
 #Display every cycle
 VERBOSE = False
 
+#contains all town-wide events and variables
 class Town:
     townName = ""
     townAge = -1
@@ -18,6 +22,7 @@ class Town:
     villagers = []
     buildings = []
     townHall = None
+    overseer = None
     def __init__(self,name):
         self.townName = name
 
@@ -54,13 +59,22 @@ class Town:
 
     def timeUpdate(self):
         self.townAge += 1
-        self.townAgeReadable = convertCyclesToTime(self.townAge)
+        self.townAgeReadable = Utilities.convertCyclesToTime(self.townAge)
         for v in self.villagers:
             v.update()
+
+        #New Day
         if (self.townAge%1440 == 0):
-            self.FindBuilding(Farm).startWorkDay()
+            #A dictionary of useful information
+            townData = dict()
+            townData["farm"] = self.FindBuilding(Farm)
+            self.overseer.designateDailyTasks(townData)
         self.FindBuilding(Farm).timeUpdate()
     
+    
+    def createOverseer(self):
+        self.overseer = TownOverseer(self,self.townHall,self.villagers)
+
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
@@ -81,7 +95,7 @@ class townsperson:
     vMoney = 10
     vTask = None
     offWork = False
-
+    experience = 0
     def __init__(self,name,age,gender,startLocation,town,job):
         self.vAge = age
         self.vGender = gender
@@ -91,7 +105,7 @@ class townsperson:
         self.town = town
         self.job = job
 
-
+    #called once a cycle
     def update(self):
         self.vHunger -= .208
         self.currentLocation.activate(self)
@@ -108,9 +122,12 @@ class townsperson:
         if (self.vHunger > 100):
             self.vHunger = 100
     
-    def finishWork(self):
+    def finishWork(self,pay):
         self.offWork = True
         self.vState = VillagerStates.IDLE
+        self.makeSalary(pay)
+        self.experience += 1
+
     def goTo(self,location):
         self.currentLocation.remove_occupant(self)
         self.currentLocation = location
@@ -141,7 +158,6 @@ class townsperson:
         except StopIteration:
             return True
         
-    
     def hasWork(self) -> bool:
         return self.vTask != None
     
@@ -153,7 +169,8 @@ class townsperson:
         result = self.vName
         result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
-        result += "Money: {money}".format(money=self.vMoney)
+        result += " Money: {money}".format(money=self.vMoney)
+        result += " EXP: {exp}".format(exp=self.experience)
         return result
 
 class Building:
@@ -162,6 +179,8 @@ class Building:
     buildingNumber = 0
     buildingName = ""
     town = None
+    WorkerSalary = 5
+    activeTasks = []
     def __init__(self,buidingName,IsPrivate, buildingNumber,town):
         self.buildingName = buidingName
         self.IsPrivate = IsPrivate
@@ -171,7 +190,17 @@ class Building:
         return
 
     def activate(self,Villager):
-        pass
+        if (Villager.hasWork()):
+            finishedWork = Villager.work()
+            if (finishedWork):
+                if (len(self.activeTasks) > 0):
+                    Villager.getWork(self.activeTasks.pop(0))
+                else:
+                    Villager.finishWork(self.WorkerSalary)
+        else:
+            if (len(self.activeTasks) > 0):
+                Villager.getWork(self.activeTasks.pop(0))
+
 
     def add_occupant(self,Villager):
         self.Occupants.append(Villager)
@@ -188,11 +217,16 @@ class Building:
 
 #Town Hall to coordinate villagers        
 class TownHall(Building):
-    stockPile = 0
+    stockPile = 400
     treasury = 1000
+    starving = False
+
     def addFood(self,amount):
         self.stockPile += amount
     
+    def getFood(self) -> int:
+        return self.stockPile
+
     def subtractFood(self,amount):
         self.stockPile -= amount
 
@@ -201,6 +235,11 @@ class TownHall(Building):
     
     def spendTreasury(self,amount):
         self.treasury -= amount
+
+    def enterStarving(self):
+        self.starving = True
+        print("STARVING!")
+
     
     def __str__(self) -> str:
         result = super().__str__()
@@ -214,16 +253,18 @@ class Restaurant(Building):
     hungerSatisfaction = 10
 
     def activate(self,Villager):
-        Villager.spendMoney(5)
-        Villager.eat(self.hungerSatisfaction)
         hall = self.town.getTownHall()
-        hall.subtractFood(1)
-        hall.addTreasury(5)
+        if hall.getFood() > 0 or ENDLESSFOOD:            
+            hall.subtractFood(1)
+            Villager.spendMoney(5)
+            hall.addTreasury(5)
+            Villager.eat(self.hungerSatisfaction)
+        else:
+            hall.enterStarving()
 
 class Farm(Building):
     crops = []
     maximumCrops = 100
-    activeTasks = []
     def harvestCrop(self,crop):
         neededLabor = crop.harvestLaborReq
         for i in range(neededLabor):
@@ -246,67 +287,47 @@ class Farm(Building):
     def timeUpdate(self):
         for c in self.crops:
             c.timeUpdate()
-
-    def startWorkDay(self):
-        self.activeTasks = []
-        for c in self.crops:
-            harvestPercentage = c.getHarvestPercentage()
-            if (harvestPercentage >= 1):
-                self.activeTasks.append(self.harvestCrop(c))
-        for c in self.crops:
-            self.activeTasks.append(self.maintainCrop(c))
-
-        if (len(self.crops) < self.maximumCrops):
-            for i in range(0,self.maximumCrops- len(self.crops)):
-                self.activeTasks.append(self.plantCrop(Crop(self,"WinterBerries")))
+    
+    def __str__(self) -> str:
+        result = super().__str__()
+        fields = dict()
+        for crop in self.crops:
+            if crop.cropName in fields:
+                fields[crop.cropName] += 1
+            else:
+                fields[crop.cropName] = 1
         
-    def activate(self, Villager):
-        if (Villager.hasWork()):
-            finishedWork = Villager.work()
-            if (finishedWork):
-                if (len(self.activeTasks) > 0):
-                    Villager.getWork(self.activeTasks.pop(0))
-                else:
-                    Villager.finishWork()
-        else:
-            if (len(self.activeTasks) > 0):
-                print("assigning work")
-                Villager.getWork(self.activeTasks.pop(0))
+        for cropB in fields:
+            result += "({sCrop}:{sCount})".format(sCrop = cropB,sCount = fields[cropB])
+        return result
+        
 
 class Mine(Building):
-    labor = 0
-    def activate(self, Villager):
-        self.labor += 1
-        Villager.makeSalary(5)
-        if (self.labor > 4):
-            self.labor -= 4
-            self.town.getTownHall().addTreasury(1)
+    ironStockpile = 0
+    mineEfficiency = 1
+
+    def mineGold(self):
+        for i in range(5):
+            yield False
+        self.town.townHall.addTreasury(self.mineEfficiency)
+        yield True
+
+    def mineIron(self):
+        for i in range(5):
+            yield False
+        self.ironStockpile += 1
+        yield True
 
 
-def convertTimeToCycles(timeString):
-    timeSplit = timeString.split(":")
-    cycles = 0
-    #Years
-    cycles += int(timeSplit[0])*525600
-    #Days
-    cycles += int(timeSplit[1])*1440
-    #Hours
-    cycles += int(timeSplit[2]*60)
-    #Minutes
-    cycles += int(timeSplit[3])
 
-    return cycles
 
-def convertCyclesToTime(time):
-    result = ""
-    result += str(time//525600) + ":"
-    result += str(time//1440) + ":"
-    result += str(time//60) + ":"
-    result += str(time%60)
-    return result
+
+    def __str__(self) -> str:
+        result = super().__str__()
+        result += "(Iron: {iron})".format(iron=self.ironStockpile)
+        return result
 
 def main():
-    
     testTown = Town("Nuketown")
     townHall = TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
@@ -315,13 +336,11 @@ def main():
     townMine = Mine("Mine",False,3,testTown)
     testTown.addBuilding(townTavern)
     testTown.addBuilding(townMine)
-    testTown.addBuilding(townFarm)
-
-    Villager1 = townsperson("Michael",25,'M',townHall,testTown,townFarm)
-    Villager2 = townsperson("Pichael",27,'F',townFarm,testTown,townFarm)
-    testTown.addVillager(Villager1)
-    testTown.addVillager(Villager2)
-
+    testTown.addBuilding(townFarm) 
+    testTown.addVillager(townsperson("Michael",25,'M',townHall,testTown,townFarm))
+    testTown.addVillager(townsperson("Pichael",27,'F',townFarm,testTown,townFarm))
+    testTown.addVillager(townsperson("Nickle",37,'M',townFarm,testTown,townMine))
+    testTown.createOverseer()
     try:
         for x in range(convertTimeToCycles("0:11:0:20")):
             testTown.timeUpdate()

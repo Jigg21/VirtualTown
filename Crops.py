@@ -1,7 +1,18 @@
-#from Town import convertTimeToCycles
 import json
 
 CROPDATA = None
+test = None
+
+
+def getCropData():
+    global CROPDATA
+    if (CROPDATA != None):
+        return CROPDATA
+    else:
+        with open('CropData.json') as f:
+            CROPDATA = json.load(f)
+        return CROPDATA
+        
 
 def convertTimeToCycles(timeString):
     timeSplit = timeString.split(":")
@@ -18,6 +29,7 @@ def convertTimeToCycles(timeString):
     return cycles
 
 class Crop():
+    cropName = "DefaultFood"
     plantedTime = 0
     ripeTime = "0:0:0:0"
     harvestValue = 0
@@ -28,8 +40,8 @@ class Crop():
     farm = None
 
     def __init__(self,farm,cropName):
-        with open('CropData.json') as f:
-            CROPDATA = json.load(f)
+        self.cropName = cropName
+        CROPDATA = getCropData()
         self.farm = farm
         try:
             self.ripeTime = CROPDATA[cropName]["cropRipe"]
@@ -62,9 +74,3 @@ class Crop():
     
     def maintain(self):
         self.maintained = True
-
-def main():
-    with open('CropData.json') as f:
-        CROPDATA = json.load(f)
-
-main()
