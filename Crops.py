@@ -1,7 +1,6 @@
 import json
-
+import Utilities
 CROPDATA = None
-test = None
 
 
 def getCropData():
@@ -14,19 +13,6 @@ def getCropData():
         return CROPDATA
         
 
-def convertTimeToCycles(timeString):
-    timeSplit = timeString.split(":")
-    cycles = 0
-    #Years
-    cycles += int(timeSplit[0])*525600
-    #Days
-    cycles += int(timeSplit[1])*1440
-    #Hours
-    cycles += int(timeSplit[2]*60)
-    #Minutes
-    cycles += int(timeSplit[3])
-
-    return cycles
 
 class Crop():
     cropName = "DefaultFood"
@@ -52,7 +38,7 @@ class Crop():
             raise ValueError
 
     def getHarvestPercentage(self) -> float:
-        return self.plantedTime/convertTimeToCycles(self.ripeTime)
+        return self.plantedTime/Utilities.convertTimeToTicks(self.ripeTime)
 
     def getHarvest(self) -> int:
         harvestPercentage = self.getHarvestPercentage()
@@ -70,6 +56,8 @@ class Crop():
         self.plantedTime += 1
     
     def dailyReset(self):
+        if not self.maintained:
+            self.plantedTime -= 700
         self.maintained = False
     
     def maintain(self):

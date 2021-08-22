@@ -1,6 +1,6 @@
 import random
 
-def convertTimeToCycles(timeString):
+def convertTimeToTicks(timeString):
     timeSplit = timeString.split(":")
     cycles = 0
     #Years
@@ -14,10 +14,14 @@ def convertTimeToCycles(timeString):
 
     return cycles
 
-def convertCyclesToTime(time):
+def convertTicksToTime(time):
+    workingTime = time
     result = ""
     result += str(time//525600) + ":"
+    time%=525600
     result += str(time//1440) + ":"
+    time%=1440
     result += str(time//60) + ":"
+    time%=60
     result += str(time%60)
     return result
