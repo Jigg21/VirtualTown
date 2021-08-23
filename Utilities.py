@@ -29,12 +29,20 @@ def convertTicksToTime(time):
     result += str(time%60)
     return result
 
+#Clamp a value to range (min,max)
 def clamp(min,max,value):
     if value < min:
         return min
     if value > max:
         return max
     return value
+
+
+def ListHasDuplicates(inputlist):
+    if len(inputlist) == len(set(inputlist)):
+        return False
+    else:
+        return True 
 
 
 #takes float from 0.0 to 1.0 and displays color gradient equivalent in hex

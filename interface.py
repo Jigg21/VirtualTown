@@ -1,7 +1,7 @@
 from enum import Flag
 from math import exp, floor
 import tkinter as tk
-from tkinter import Text, ttk
+from tkinter import OptionMenu, StringVar, Text, ttk
 import Utilities
 import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
@@ -76,15 +76,12 @@ class TownHall(tk.Frame):
 
 #Buildings Display
 class SimpleTextObj(tk.Frame):
-    def __init__(self,parent):
+    def __init__(self,parent,height=1,width=1,side='top'):
         self.parent = parent
-        super(SimpleTextObj,self).__init__(parent,width=20,height= 1)
+        super(SimpleTextObj,self).__init__(parent,width=width,height= height)
         
-        self.text = tk.Text(parent,height=20,width=35)
-        self.text.pack(expand=False,side='left',padx=20)
-
-        #self.label = tk.Label(self.text,text="Buildings")
-        #self.label.pack(expand=True)
+        self.text = tk.Text(parent,height=height,width=width)
+        self.text.pack(expand=False,side=side,padx=40)
 
         
     #takes string from console and displays it
@@ -112,6 +109,7 @@ class Farm(tk.Frame):
 
     #draw the canvas
     def drawCrops(self,cropList):
+        self.crops.delete('all')
         Coord1 = [0,0]
         for c in cropList:
             self.crops.create_oval(Coord1[0],Coord1[1],  Coord1[0]+30,Coord1[1]+30,outline=c[0],width=5,fill=Utilities.interpolateRedtoGreen(c[1]))
@@ -129,6 +127,47 @@ class Farm(tk.Frame):
             
         self.drawCrops(tuples)
 
+#display certain building's tasks only
+class BuildingTaskDisplay(tk.Frame):
+    
+    farmTasks = ""
+    mineTasks = ""
+    def __init__(self,parent,height=1,width=1,side='top'):
+        self.parent = parent
+        super(BuildingTaskDisplay,self).__init__(parent,width=width,height= height)
+        
+        self.dropDownVariable = StringVar(parent)
+        self.dropDownVariable.set("Choose Building")
+
+        self.dropDown = OptionMenu(parent,self.dropDownVariable,"Farm","Mine",command=self.displayTasks)
+        self.dropDown.pack()
+
+        self.text = tk.Text(parent,height=height,width=width)
+        self.text.pack(expand=False,side=side,padx=40)
+    
+    
+    def displayTasks(self,*args):
+        currentSelection = self.dropDownVariable.get()
+        self.text.delete("1.0",END)
+        if currentSelection == "Farm":
+            self.text.insert(INSERT,self.farmTasks)
+            self.text.pack(expand=False)
+
+    def updateTasks(self,taskString):
+        tasks = taskString.split("\n")
+        self.farmTasks = ""
+        for task in tasks:
+            if (task != ""):
+                buildingLocation = task[0:task.find(")")+1]
+                if buildingLocation == "(Farm)":
+                    self.farmTasks += task + "\n"
+                
+                if buildingLocation == "(Mine)":
+                    self.mineTasks += task + "\n"
+
+
+    
+
 root = tk.Tk()
 tabControl = ttk.Notebook(root)
 tab1 = tk.Frame(tabControl)
@@ -136,13 +175,14 @@ tabControl.add(tab1,text= "Home")
 timeObj = TimeObj(root)
 villagers = Villagers(tab1)
 townHall = TownHall(tab1)
-buildingTab = SimpleTextObj(tab1)
+buildingTab = SimpleTextObj(tab1,height=20,width=35,side='left')
 crops = Farm(buildingTab)
 LastDrawTime = time.time()
 
 tab2 = tk.Frame(tabControl)
 tabControl.add(tab2,text="Tasks")
-tasks = SimpleTextObj(tab2)
+tasks = SimpleTextObj(tab2,height=10,width=80)
+bTask = BuildingTaskDisplay(tab2,height=10,width=80)
 #called every tick
 def update(args):
 
@@ -174,6 +214,9 @@ def update(args):
     tasks.updateText(args["taskList"])
     tasks.pack(expand=True)
         
+    bTask.updateTasks(args["taskList"])
+    bTask.pack()
+
 
     root.update()
 

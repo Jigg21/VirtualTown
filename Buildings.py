@@ -147,20 +147,13 @@ class Mine(Building):
     mineEfficiency = 1
 
     def mineGold(self):
-        for i in range(5):
-            yield False
         self.town.townHall.addTreasury(self.mineEfficiency)
-        print("mined gold")
-        yield True
 
     def mineIron(self):
         for i in range(5):
             yield False
         self.ironStockpile += 1
         yield True
-
-    def timeUpdate(self):
-        super().timeUpdate()
 
     def __str__(self) -> str:
         result = super().__str__()

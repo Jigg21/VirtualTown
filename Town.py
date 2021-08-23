@@ -1,3 +1,4 @@
+from types import BuiltinFunctionType
 import CaptainsLog
 from Crops import Crop
 import time
@@ -44,6 +45,7 @@ class Town:
 
     def getRestaurant(self):
         return self.FindBuilding(Buildings.Restaurant)
+    
     #add villagers and buildings
     def addVillager (self,villager):
         self.villagers.append(villager)
@@ -99,10 +101,11 @@ class Town:
         townData["food"] = self.townHall.stockPile
         townData["BuildingString"] = self.getBuildingDisplay()
         townData["crops"] = self.FindBuilding(Buildings.Farm).crops
+        #get taskLists
         townData["taskList"] = ""
         for building in self.buildings:
             for task in building.activeTasks:
-                townData["taskList"] += str(task) + "\n"
+                townData["taskList"] += "({bName})".format(bName=building.buildingName) + str(task) + "\n"
         #update the villagers
         for v in self.villagers:
             v.update()

@@ -1,1 +1,1 @@
-{"SugarRice": {"cropRipe": "0:30:0:0", "cropValue": 500, "cropHLabor": 10, "cropMLabor": 5, "cropColor": "#dbf7bc"}, "WinterBerries": {"cropRipe": "0:1:0:0", "cropValue": 150, "cropHLabor": 4, "cropMLabor": 2, "cropColor": "#3d008c"}}
+{"SugarRice": {"cropRipe": "0:30:0:0", "cropValue": 500, "cropHLabor": 30, "cropMLabor": 20, "cropColor": "#dbf7bc"}, "WinterBerries": {"cropRipe": "0:5:0:0", "cropValue": 150, "cropHLabor": 40, "cropMLabor": 20, "cropColor": "#3d008c"}}

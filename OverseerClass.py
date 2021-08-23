@@ -49,12 +49,13 @@ class TownOverseer():
             farm.activeTasks = []
             #Harvest all ripe crops
             for c in farm.crops:
+                #harvest ripe crops
                 harvestPercentage = c.getHarvestPercentage()
                 if (harvestPercentage >= self.gHarvestThreshold):
-                    farm.activeTasks.append(Villagers.Task(farm.plantCrop,c.harvestLaborReq,"Planting Crop",5,[c]))
-            #Maintain all current crops
-            for c in farm.crops:
-                farm.activeTasks.append(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,"Maintaining Crop",5,[c]))
+                    farm.activeTasks.append(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,"Harvesting Crop",5,[c]))
+                #maintain all unripe crops
+                else:
+                    farm.activeTasks.append(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,"Maintaining Crop",5,[c]))
             #Plant up to the maximum crops    
             if (len(farm.crops) < farm.maximumCrops):
                 for i in range(0,farm.maximumCrops- len(farm.crops)):
