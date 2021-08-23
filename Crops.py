@@ -38,9 +38,11 @@ class Crop():
         except:
             raise ValueError
 
-    def getHarvestPercentage(self) -> float:
+    #get harvest percentage without affecting the crop
+    def getHarvestPercentage(self):
         return self.plantedTime/Utilities.convertTimeToTicks(self.ripeTime)
 
+    
     def getHarvest(self) -> int:
         harvestPercentage = self.getHarvestPercentage()
         if (harvestPercentage < .5):

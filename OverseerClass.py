@@ -1,6 +1,7 @@
 from Crops import *
 import Utilities
 import CaptainsLog
+import Villagers
 
 class TownOverseer():
     town = None
@@ -50,23 +51,19 @@ class TownOverseer():
             for c in farm.crops:
                 harvestPercentage = c.getHarvestPercentage()
                 if (harvestPercentage >= self.gHarvestThreshold):
-                    farm.activeTasks.append(farm.harvestCrop(c))
+                    farm.activeTasks.append(Villagers.Task(farm.plantCrop,c.harvestLaborReq,"Planting Crop",5,[c]))
             #Maintain all current crops
             for c in farm.crops:
-                farm.activeTasks.append(farm.maintainCrop(c))
+                farm.activeTasks.append(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,"Maintaining Crop",5,[c]))
             #Plant up to the maximum crops    
             if (len(farm.crops) < farm.maximumCrops):
                 for i in range(0,farm.maximumCrops- len(farm.crops)):
-                    farm.activeTasks.append(farm.plantCrop(Crop(farm, self.chooseBestCrop())))
+                    newCrop = Crop(farm, self.chooseBestCrop())
+                    farm.activeTasks.append(Villagers.Task(farm.plantCrop,newCrop.harvestLaborReq,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
         
         #TODO: Add mine logic
         if ("mine" in townData):
             mine = townData["mine"]
             mine.activeTasks = []
             for i in range(50):
-                mine.activeTasks.append(mine.mineGold())
-            
-
-
-    
-    
+                mine.activeTasks.append(Villagers.Task(mine.mineGold(),5,"Mining Gold",5))

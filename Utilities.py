@@ -1,3 +1,4 @@
+import math
 import random
 
 #converts readable time to ticks
@@ -28,15 +29,28 @@ def convertTicksToTime(time):
     result += str(time%60)
     return result
 
+def clamp(min,max,value):
+    if value < min:
+        return min
+    if value > max:
+        return max
+    return value
+
+
 #takes float from 0.0 to 1.0 and displays color gradient equivalent in hex
 def interpolateRedtoGreen(amount):
-    return "#ff0000"
-    if (amount == 0):
-        return "#ff0000"
-    r,g = 0,0
+    r,g,b = 0,0,0
     if amount < .5:
+        r = 255
         g = 510 * amount
-    else:
+    elif amount >= .5 and amount <= 1:
         g = 255
         r = (1-amount) * 510
-    return '#%02x%02x%02x' % (int(r), int(g), 0)
+    elif amount > 1:
+        g = 255
+        b =  255 * (1-amount)/.3
+    
+    r = clamp(0,255,r)
+    g = clamp(0,255,g)
+    b = clamp(0,255,b)
+    return '#%02x%02x%02x' % (int(r), int(g), int(b))

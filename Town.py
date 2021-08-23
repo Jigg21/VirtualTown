@@ -7,6 +7,8 @@ from OverseerClass import TownOverseer
 import Utilities
 import interface as UI
 import traceback
+import Buildings
+import Villagers
 #Time Speed 1 = 1 year every week
 TIMESPEED = 100
 
@@ -40,12 +42,16 @@ class Town:
     def getTownHall(self):
         return self.townHall
 
+    def getRestaurant(self):
+        return self.FindBuilding(Buildings.Restaurant)
     #add villagers and buildings
     def addVillager (self,villager):
         self.villagers.append(villager)
     
+    #add a building to the town
     def addBuilding (self,building):
         self.buildings.append(building)
+    
     #find a building of a certain type
     def FindBuilding(self, targetType):
         for b in self.buildings:
@@ -57,6 +63,7 @@ class Town:
         for v in self.villagers:
             print(v)
     
+    #display buildings in console
     def displayBuildings(self):
         result = ""
         for b in self.buildings:
@@ -68,7 +75,7 @@ class Town:
                     print('\t',str(v))
         print(result)
 
-
+    #get string version of above for display
     def getBuildingDisplay(self):
         result = ""
         for b in self.buildings:
@@ -82,6 +89,7 @@ class Town:
 
     #called every tick
     def timeUpdate(self):
+        #get all necccesary data
         townData = dict()
         self.townAge += 1
         self.townAgeReadable = Utilities.convertTicksToTime(self.townAge)
@@ -90,7 +98,12 @@ class Town:
         townData["gold"] = self.townHall.treasury
         townData["food"] = self.townHall.stockPile
         townData["BuildingString"] = self.getBuildingDisplay()
-        townData["crops"] = self.FindBuilding(Farm).crops
+        townData["crops"] = self.FindBuilding(Buildings.Farm).crops
+        townData["taskList"] = ""
+        for building in self.buildings:
+            for task in building.activeTasks:
+                townData["taskList"] += str(task) + "\n"
+        #update the villagers
         for v in self.villagers:
             v.update()
 
@@ -100,16 +113,22 @@ class Town:
             CaptainsLog.newDay()
             CaptainsLog.log(Utilities.convertTicksToTime(self.townAge))
             
-            townData["farm"] = self.FindBuilding(Farm)
+            townData["farm"] = self.FindBuilding(Buildings.Farm)
             self.overseer.designateDailyTasks(townData)
 
+        #update the buildings
         for building in self.buildings:
             building.timeUpdate()
 
+        #Draw
         if USEUI:
             UI.update(townData)
 
 
+    def getTownTasks(self):
+        for b in self.buildings:
+            b.activetasks=[]
+    
     #initialize the overseer
     def createOverseer(self):
         self.overseer = TownOverseer(self,self.townHall,self.villagers)
@@ -118,305 +137,22 @@ class Town:
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
-#enum of villager AI states
-class VillagerStates(Enum):
-    IDLE = 1
-    EATING = 2
-    WORKING = 3
 
-#villager class
-class townsperson:
-    vName = ""
-    vAge = 0
-    vGender = 'M'
-    currentLocation = None
-    vHunger = 100
-    town = []
-    vState = VillagerStates.IDLE
-    job = None
-    vMoney = 10
-    vTask = None
-    offWork = False
-    experience = 0
-    def __init__(self,name,age,gender,startLocation,town,job):
-        self.vAge = age
-        self.vGender = gender
-        self.vName = name
-        self.currentLocation = startLocation
-        self.currentLocation.add_occupant(self)
-        self.town = town
-        self.job = job
-
-    #called once a tick
-    def update(self):
-        self.vHunger -= .208
-        self.currentLocation.activate(self)
-        if (self.vHunger < 10):
-            self.vState = VillagerStates.EATING
-            self.goEat()
-            
-        if (self.vHunger > 95 and self.vState == VillagerStates.EATING):
-            self.vState = VillagerStates.IDLE
-        
-        if (self.vState == VillagerStates.IDLE):
-            if (not self.offWork):
-                self.goWork()
-            else:
-                self.goTo(self.town.FindBuilding(TownHall))
-            
-    #replenish hunger
-    def eat(self,amount):
-        self.vHunger += amount
-        if (self.vHunger > 100):
-            self.vHunger = 100
-    
-    #complete a job and get paid
-    def finishWork(self,pay):
-        self.offWork = True
-        self.vState = VillagerStates.IDLE
-        self.makeSalary(pay)
-        self.experience += 1
-
-    #Go to location
-    def goTo(self,location):
-        self.currentLocation.remove_occupant(self)
-        self.currentLocation = location
-        self.currentLocation.add_occupant(self)
-
-    def goEat(self):
-        if (not isinstance(self.currentLocation, Restaurant)):
-            self.goTo(self.town.FindBuilding(Restaurant))
-    
-    def goWork(self):
-        if (self.currentLocation != self.job):
-            self.goTo(self.job)
-        self.vState = VillagerStates.WORKING
-
-    def makeSalary(self,amount):
-        hall = self.town.getTownHall()
-        hall.spendTreasury(amount)
-        self.vMoney += amount
-    
-    def makeMoney(self,amount):
-        self.vMoney += amount
-    
-    def canAfford(self,amount):
-        return self.vMoney > amount
-
-    def spendMoney(self,amount):
-        self.vMoney -= amount
-
-    def work(self):
-        try:
-            return next(self.vTask)
-        except StopIteration:
-            return True
-        
-    def hasWork(self):
-        return self.vTask != None
-    
-    def getWork(self,task):
-        self.vTask = task
-        
-
-    def __str__(self):
-        result = self.vName
-        result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
-        result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
-        result += " Money: {money}".format(money=self.vMoney)
-        result += " EXP: {exp}".format(exp=self.experience)
-        result += "State: {state}".format(state = str(self.vState))
-        return result
-
-#building base class
-class Building:
-    Occupants = []
-    IsPrivate = False
-    buildingNumber = 0
-    buildingName = ""
-    town = None
-    WorkerSalary = 5
-    activeTasks = []
-    def __init__(self,buidingName,IsPrivate, buildingNumber,town):
-        self.buildingName = buidingName
-        self.IsPrivate = IsPrivate
-        self.Occupants = []
-        self.buildingNumber = buildingNumber
-        self.town = town
-        return
-
-    def activate(self,Villager):
-        if (Villager.hasWork()):
-            finishedWork = Villager.work()
-            if (finishedWork):
-                if (len(self.activeTasks) > 0):
-                    Villager.getWork(self.activeTasks.pop(0))
-                else:
-                    Villager.finishWork(self.WorkerSalary)
-        else:
-            if (len(self.activeTasks) > 0):
-                Villager.getWork(self.activeTasks.pop(0))
-
-    def timeUpdate(self):
-        pass
-
-    def add_occupant(self,Villager):
-        self.Occupants.append(Villager)
-    
-    def remove_occupant(self,Villager):
-        self.Occupants.remove(Villager)
-    
-    def get_occupants(self):
-        return self.Occupants.copy()
-    
-    def __str__(self):
-        result = self.buildingName
-        return result
-
-#Town Hall to coordinate villagers        
-class TownHall(Building):
-    stockPile = 1000
-    treasury = 1000
-    starving = False
-
-    def addFood(self,amount):
-        self.stockPile += amount
-    
-    def getFood(self) -> int:
-        return self.stockPile
-
-    def subtractFood(self,amount):
-        self.stockPile -= amount
-
-    def addTreasury(self,amount):
-        self.treasury += amount
-    
-    def spendTreasury(self,amount):
-        self.treasury -= amount
-
-    def enterStarving(self):
-        self.starving = True
-        CaptainsLog.log("WE'RE STARVING")
-
-    
-    def __str__(self):
-        result = super().__str__()
-        result += "(Food: " + str(self.stockPile) + ")"
-        result += "(Treasury: " + str(self.treasury) + ")"
-        return result
-
-#Place for villagers to eat
-class Restaurant(Building):
-
-    #how much hunger each food satisfies
-    hungerSatisfaction = 10
-
-    def activate(self,Villager):
-        hall = self.town.getTownHall()
-        #if the town has food
-        if hall.getFood() > 0 or ENDLESSFOOD:            
-            hall.subtractFood(1)
-            if Villager.canAfford(5):
-                Villager.spendMoney(5)
-                hall.addTreasury(5)
-            else:
-                CurrentMoney = Villager.vMoney
-                Villager.spendMoney(CurrentMoney)
-                hall.addTreasury(CurrentMoney)
-
-            Villager.eat(self.hungerSatisfaction)
-        else:
-            hall.enterStarving()
-
-#Grows food 
-class Farm(Building):
-    crops = []
-    maximumCrops = 100
-    def harvestCrop(self,crop):
-        CaptainsLog.log("Starting Harvest")
-        neededLabor = crop.harvestLaborReq
-        for i in range(neededLabor):
-            if crop in self.crops:
-                yield False
-            else:
-                return False
-        self.town.getTownHall().addFood(crop.getHarvest())
-        if crop in self.crops:
-            self.crops.remove(crop)
-        return True
-
-    def maintainCrop(self,crop):
-        neededLabor = crop.maintainLaborReq
-        for i in range(neededLabor):
-            yield False
-        crop.maintain()
-        CaptainsLog.log("Maitain")
-        yield True
-    
-    def plantCrop(self,crop):
-        for i in range(crop.harvestLaborReq):
-            yield False
-        self.crops.append(crop)
-        CaptainsLog.log("Planted Crops")
-        return True
-
-    def timeUpdate(self):
-        for c in self.crops:
-            c.timeUpdate()
-    
-    def __str__(self):
-        result = super().__str__()
-        fields = dict()
-        for crop in self.crops:
-            if crop.cropName in fields:
-                fields[crop.cropName] += 1
-            else:
-                fields[crop.cropName] = 1
-        
-        for cropB in fields:
-            result += "({sCrop}:{sCount})".format(sCrop = cropB,sCount = fields[cropB])
-        return result
-        
-#Can mine gold for the treasury or iron for upgrades
-class Mine(Building):
-    ironStockpile = 0
-    mineEfficiency = 1
-
-    def mineGold(self):
-        for i in range(5):
-            yield False
-        self.town.townHall.addTreasury(self.mineEfficiency)
-        print("mined gold")
-        yield True
-
-    def mineIron(self):
-        for i in range(5):
-            yield False
-        self.ironStockpile += 1
-        yield True
-
-    def timeUpdate(self):
-        super().timeUpdate()
-
-    def __str__(self) -> str:
-        result = super().__str__()
-        result += "(Iron: {iron})".format(iron=self.ironStockpile)
-        return result
 
 
 def main():
     testTown = Town("Nuketown")
-    townHall = TownHall("Town Hall",False,0,testTown)
+    townHall = Buildings.TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
-    townTavern = Restaurant("Tavern",False,1,testTown)
-    townFarm = Farm("Farm",False,2,testTown)
-    townMine = Mine("Mine",False,3,testTown)
+    townTavern = Buildings.Restaurant("Tavern",False,1,testTown)
+    townFarm = Buildings.Farm("Farm",False,2,testTown)
+    townMine = Buildings.Mine("Mine",False,3,testTown)
     testTown.addBuilding(townTavern)
     testTown.addBuilding(townMine)
     testTown.addBuilding(townFarm) 
-    testTown.addVillager(townsperson("Michael",25,'M',townHall,testTown,townFarm))
-    testTown.addVillager(townsperson("Pichael",27,'F',townFarm,testTown,townFarm))
-    testTown.addVillager(townsperson("Nickle",37,'M',townFarm,testTown,townMine))
+    testTown.addVillager(Villagers.townsperson("Michael",25,'M',townHall,testTown,townFarm))
+    testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown,townFarm))
+    testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown,townMine))
     testTown.createOverseer()
     
     if USEUI:
@@ -443,7 +179,8 @@ def main():
     CaptainsLog.log("See you space cowboy...")
     CaptainsLog.closeLogs()
     if USEUI:
-        input("Close")
+        if (INSTANT):
+            input("Close")
         UI.deinitialize()
     return
 

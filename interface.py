@@ -1,9 +1,10 @@
 from enum import Flag
-from math import exp
+from math import exp, floor
 import tkinter as tk
+from tkinter import Text, ttk
 import Utilities
 import time
-from tkinter.constants import DISABLED, END, INSERT, LEFT, VERTICAL
+from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
 
 
 
@@ -74,10 +75,10 @@ class TownHall(tk.Frame):
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)
 
 #Buildings Display
-class Buildings(tk.Frame):
+class SimpleTextObj(tk.Frame):
     def __init__(self,parent):
         self.parent = parent
-        super(Buildings,self).__init__(parent,width=20,height= 1)
+        super(SimpleTextObj,self).__init__(parent,width=20,height= 1)
         
         self.text = tk.Text(parent,height=20,width=35)
         self.text.pack(expand=False,side='left',padx=20)
@@ -87,9 +88,9 @@ class Buildings(tk.Frame):
 
         
     #takes string from console and displays it
-    def updateBuildings(self,buildingString):
+    def updateText(self,text):
         self.text.delete("1.0",END)
-        self.text.insert(INSERT,buildingString)
+        self.text.insert(INSERT,text)
         self.text.pack(expand=False)
 
 #display crops
@@ -129,15 +130,22 @@ class Farm(tk.Frame):
         self.drawCrops(tuples)
 
 root = tk.Tk()
+tabControl = ttk.Notebook(root)
+tab1 = tk.Frame(tabControl)
+tabControl.add(tab1,text= "Home")
 timeObj = TimeObj(root)
-villagers = Villagers(root)
-townHall = TownHall(root)
-buildingTab = Buildings(root)
+villagers = Villagers(tab1)
+townHall = TownHall(tab1)
+buildingTab = SimpleTextObj(tab1)
 crops = Farm(buildingTab)
 LastDrawTime = time.time()
 
+tab2 = tk.Frame(tabControl)
+tabControl.add(tab2,text="Tasks")
+tasks = SimpleTextObj(tab2)
 #called every tick
 def update(args):
+
     #Update the time
     timeObj.updateTime(args["Time"])
     timeObj.pack(expand=False)
@@ -151,7 +159,7 @@ def update(args):
     townHall.pack(expand=False)
 
     #update the buildings
-    buildingTab.updateBuildings(args["BuildingString"])
+    buildingTab.updateText(args["BuildingString"])
     buildingTab.pack(expand=False)
 
     #update the Farm
@@ -162,6 +170,9 @@ def update(args):
         LastDrawTime = time.time()
     
 
+    #update the task list
+    tasks.updateText(args["taskList"])
+    tasks.pack(expand=True)
         
 
     root.update()
@@ -169,6 +180,7 @@ def update(args):
 
 def inititialize():
   root.title("Nuke Town")
+  tabControl.pack(expand=True,fill=BOTH)
   
 
 def deinitialize():
