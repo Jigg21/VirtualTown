@@ -5,15 +5,20 @@ import math
 from enum import Enum
 from OverseerClass import TownOverseer
 import Utilities
+import interface as UI
+import traceback
 #Time Speed 1 = 1 year every week
-TIMESPEED = 1
+TIMESPEED = 100
 
 ENDLESSFOOD = True
 
 #Do not wait between time updates (for debugging)
-INSTANT = True
-#Display every cycle
+INSTANT = False
+#Display information every cycle
 VERBOSE = False
+#Use the UI (turn off for speed)
+USEUI = True
+
 
 #contains all town-wide events and variables
 class Town:
@@ -53,18 +58,39 @@ class Town:
             print(v)
     
     def displayBuildings(self):
+        result = ""
         for b in self.buildings:
             print(b)
             if len(b.Occupants) == 0:
                 print("\tNone")
             else:
                 for v in b.get_occupants():
-                    print('\t',v)
+                    print('\t',str(v))
+        print(result)
+
+
+    def getBuildingDisplay(self):
+        result = ""
+        for b in self.buildings:
+            result += b.buildingName + "\n"
+            if len(b.Occupants) == 0:
+                result += "\tNone\n"
+            else:
+                for v in b.get_occupants():
+                    result += '\t' + v.vName + "\n"
+        return result
 
     #called every tick
     def timeUpdate(self):
+        townData = dict()
         self.townAge += 1
         self.townAgeReadable = Utilities.convertTicksToTime(self.townAge)
+        townData["Time"] = self.townAgeReadable
+        townData["VillagerList"] = self.villagers
+        townData["gold"] = self.townHall.treasury
+        townData["food"] = self.townHall.stockPile
+        townData["BuildingString"] = self.getBuildingDisplay()
+        townData["crops"] = self.FindBuilding(Farm).crops
         for v in self.villagers:
             v.update()
 
@@ -73,13 +99,17 @@ class Town:
             #A dictionary of useful information
             CaptainsLog.newDay()
             CaptainsLog.log(Utilities.convertTicksToTime(self.townAge))
-            townData = dict()
+            
             townData["farm"] = self.FindBuilding(Farm)
             self.overseer.designateDailyTasks(townData)
 
         for building in self.buildings:
             building.timeUpdate()
-    
+
+        if USEUI:
+            UI.update(townData)
+
+
     #initialize the overseer
     def createOverseer(self):
         self.overseer = TownOverseer(self,self.townHall,self.villagers)
@@ -88,11 +118,13 @@ class Town:
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
+#enum of villager AI states
 class VillagerStates(Enum):
     IDLE = 1
     EATING = 2
     WORKING = 3
 
+#villager class
 class townsperson:
     vName = ""
     vAge = 0
@@ -129,19 +161,23 @@ class townsperson:
         if (self.vState == VillagerStates.IDLE):
             if (not self.offWork):
                 self.goWork()
+            else:
+                self.goTo(self.town.FindBuilding(TownHall))
             
-       
+    #replenish hunger
     def eat(self,amount):
         self.vHunger += amount
         if (self.vHunger > 100):
             self.vHunger = 100
     
+    #complete a job and get paid
     def finishWork(self,pay):
         self.offWork = True
         self.vState = VillagerStates.IDLE
         self.makeSalary(pay)
         self.experience += 1
 
+    #Go to location
     def goTo(self,location):
         self.currentLocation.remove_occupant(self)
         self.currentLocation = location
@@ -170,28 +206,29 @@ class townsperson:
     def spendMoney(self,amount):
         self.vMoney -= amount
 
-    def work(self) -> bool:
+    def work(self):
         try:
             return next(self.vTask)
         except StopIteration:
             return True
         
-    def hasWork(self) -> bool:
+    def hasWork(self):
         return self.vTask != None
     
     def getWork(self,task):
         self.vTask = task
         
 
-    def __str__(self) -> str:
+    def __str__(self):
         result = self.vName
         result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
         result += " Money: {money}".format(money=self.vMoney)
         result += " EXP: {exp}".format(exp=self.experience)
+        result += "State: {state}".format(state = str(self.vState))
         return result
 
-#Base class
+#building base class
 class Building:
     Occupants = []
     IsPrivate = False
@@ -232,13 +269,13 @@ class Building:
     def get_occupants(self):
         return self.Occupants.copy()
     
-    def __str__(self) -> str:
+    def __str__(self):
         result = self.buildingName
         return result
 
 #Town Hall to coordinate villagers        
 class TownHall(Building):
-    stockPile = 400
+    stockPile = 1000
     treasury = 1000
     starving = False
 
@@ -262,7 +299,7 @@ class TownHall(Building):
         CaptainsLog.log("WE'RE STARVING")
 
     
-    def __str__(self) -> str:
+    def __str__(self):
         result = super().__str__()
         result += "(Food: " + str(self.stockPile) + ")"
         result += "(Treasury: " + str(self.treasury) + ")"
@@ -327,7 +364,7 @@ class Farm(Building):
         for c in self.crops:
             c.timeUpdate()
     
-    def __str__(self) -> str:
+    def __str__(self):
         result = super().__str__()
         fields = dict()
         for crop in self.crops:
@@ -381,6 +418,10 @@ def main():
     testTown.addVillager(townsperson("Pichael",27,'F',townFarm,testTown,townFarm))
     testTown.addVillager(townsperson("Nickle",37,'M',townFarm,testTown,townMine))
     testTown.createOverseer()
+    
+    if USEUI:
+        UI.inititialize()
+    #Main Time Loop
     try:
         for x in range(Utilities.convertTimeToTicks("0:15:0:20")):
             testTown.timeUpdate()
@@ -394,9 +435,16 @@ def main():
         testTown.displayBuildings()
     except Exception as e:
         print("Error!:" + str(e))
+        traceback.print_exc()
         testTown.displayLocalTime()
+        
+    
+    #de-initialize
     CaptainsLog.log("See you space cowboy...")
     CaptainsLog.closeLogs()
+    if USEUI:
+        input("Close")
+        UI.deinitialize()
     return
 
 

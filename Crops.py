@@ -24,7 +24,7 @@ class Crop():
     maintainLaborReq = 0
     maintained = True
     farm = None
-
+    cropColor = "#ff00ff"
     def __init__(self,farm,cropName):
         self.cropName = cropName
         CROPDATA = getCropData()
@@ -34,6 +34,7 @@ class Crop():
             self.harvestValue = CROPDATA[cropName]["cropValue"]
             self.harvestLaborReq = CROPDATA[cropName]["cropHLabor"]
             self.maintainLaborReq = CROPDATA[cropName]["cropMLabor"]
+            self.cropColor = CROPDATA[cropName]["cropColor"]
         except:
             raise ValueError
 

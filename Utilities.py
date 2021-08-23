@@ -1,5 +1,6 @@
 import random
 
+#converts readable time to ticks
 def convertTimeToTicks(timeString):
     timeSplit = timeString.split(":")
     cycles = 0
@@ -14,6 +15,7 @@ def convertTimeToTicks(timeString):
 
     return cycles
 
+#converts ticks to a readable time
 def convertTicksToTime(time):
     workingTime = time
     result = ""
@@ -25,3 +27,16 @@ def convertTicksToTime(time):
     time%=60
     result += str(time%60)
     return result
+
+#takes float from 0.0 to 1.0 and displays color gradient equivalent in hex
+def interpolateRedtoGreen(amount):
+    return "#ff0000"
+    if (amount == 0):
+        return "#ff0000"
+    r,g = 0,0
+    if amount < .5:
+        g = 510 * amount
+    else:
+        g = 255
+        r = (1-amount) * 510
+    return '#%02x%02x%02x' % (int(r), int(g), 0)
