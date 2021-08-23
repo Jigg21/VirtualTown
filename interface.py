@@ -129,7 +129,8 @@ class Farm(tk.Frame):
 
 #display certain building's tasks only
 class BuildingTaskDisplay(tk.Frame):
-    
+    #strings that represent the current 
+    allTasks = ""
     farmTasks = ""
     mineTasks = ""
     def __init__(self,parent,height=1,width=1,side='top'):
@@ -139,7 +140,7 @@ class BuildingTaskDisplay(tk.Frame):
         self.dropDownVariable = StringVar(parent)
         self.dropDownVariable.set("Choose Building")
 
-        self.dropDown = OptionMenu(parent,self.dropDownVariable,"Farm","Mine",command=self.displayTasks)
+        self.dropDown = OptionMenu(parent,self.dropDownVariable,"All","Farm","Mine",command=self.displayTasks)
         self.dropDown.pack()
 
         self.text = tk.Text(parent,height=height,width=width)
@@ -149,13 +150,22 @@ class BuildingTaskDisplay(tk.Frame):
     def displayTasks(self,*args):
         currentSelection = self.dropDownVariable.get()
         self.text.delete("1.0",END)
+        if (currentSelection == "All"):
+            self.text.insert(INSERT,self.allTasks)
+            self.text.pack()
         if currentSelection == "Farm":
             self.text.insert(INSERT,self.farmTasks)
-            self.text.pack(expand=False)
+            self.text.pack()
+        
+        if currentSelection == "Mine":
+            self.text.insert(INSERT,self.mineTasks)
+            self.text.pack()
 
     def updateTasks(self,taskString):
         tasks = taskString.split("\n")
+        self.allTasks = taskString
         self.farmTasks = ""
+        self.mineTasks = ""
         for task in tasks:
             if (task != ""):
                 buildingLocation = task[0:task.find(")")+1]
@@ -164,6 +174,9 @@ class BuildingTaskDisplay(tk.Frame):
                 
                 if buildingLocation == "(Mine)":
                     self.mineTasks += task + "\n"
+        
+        self.text.delete("1.0",END)
+        self.displayTasks()
 
 
     
@@ -181,7 +194,6 @@ LastDrawTime = time.time()
 
 tab2 = tk.Frame(tabControl)
 tabControl.add(tab2,text="Tasks")
-tasks = SimpleTextObj(tab2,height=10,width=80)
 bTask = BuildingTaskDisplay(tab2,height=10,width=80)
 #called every tick
 def update(args):
@@ -210,10 +222,6 @@ def update(args):
         LastDrawTime = time.time()
     
 
-    #update the task list
-    tasks.updateText(args["taskList"])
-    tasks.pack(expand=True)
-        
     bTask.updateTasks(args["taskList"])
     bTask.pack()
 

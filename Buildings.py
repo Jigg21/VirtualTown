@@ -57,18 +57,22 @@ class TownHall(Building):
 
     def addFood(self,amount):
         self.stockPile += amount
+        CaptainsLog.logResource("Food",amount)
     
-    def getFood(self) -> int:
+    def getFood(self):
         return self.stockPile
 
     def subtractFood(self,amount):
         self.stockPile -= amount
+        CaptainsLog.logResource("Food",-1*amount)
 
     def addTreasury(self,amount):
         self.treasury += amount
+        CaptainsLog.logResource("Gold",amount)
     
     def spendTreasury(self,amount):
         self.treasury -= amount
+        CaptainsLog.logResource("Gold",-1*amount)
 
     def enterStarving(self):
         self.starving = True
@@ -110,19 +114,17 @@ class Farm(Building):
     maximumCrops = 100
 
     def harvestCrop(self,crop):
-        CaptainsLog.log("Starting Harvest")
-        self.town.getTownHall().addFood(crop.getHarvest())
+        harvestAmount = crop.getHarvest()
+        self.town.getTownHall().addFood(harvestAmount)
         if crop in self.crops:
             self.crops.remove(crop)
-        return True
+
 
     def maintainCrop(self,crop):
         crop.maintain()
-        CaptainsLog.log("Maitain")
     
     def plantCrop(self,crop):
         self.crops.append(crop)
-        CaptainsLog.log("Planted Crops")
 
     def timeUpdate(self):
         for c in self.crops:
@@ -148,6 +150,7 @@ class Mine(Building):
 
     def mineGold(self):
         self.town.townHall.addTreasury(self.mineEfficiency)
+        
 
     def mineIron(self):
         for i in range(5):

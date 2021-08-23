@@ -67,4 +67,4 @@ class TownOverseer():
             mine = townData["mine"]
             mine.activeTasks = []
             for i in range(50):
-                mine.activeTasks.append(Villagers.Task(mine.mineGold(),5,"Mining Gold",5))
+                mine.activeTasks.append(Villagers.Task(mine.mineGold,5,"Mining Gold",5))
