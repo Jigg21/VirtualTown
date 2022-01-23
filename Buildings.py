@@ -113,22 +113,26 @@ class Farm(Building):
     crops = []
     maximumCrops = 100
 
-    def harvestCrop(self,crop):
-        harvestAmount = crop.getHarvest()
+    #harvest a crop and get food value
+    def harvestCrop(self,crop,currentTime):
+        harvestAmount = crop.getHarvest(currentTime)
         self.town.getTownHall().addFood(harvestAmount)
         if crop in self.crops:
             self.crops.remove(crop)
-
-
+    
+    #do daily maintenance on crops
     def maintainCrop(self,crop):
         crop.maintain()
     
+    #plant a new crop
     def plantCrop(self,crop):
         self.crops.append(crop)
 
+    #update each crop about the time it was in
     def timeUpdate(self):
-        for c in self.crops:
-            c.timeUpdate()
+        pass
+        #for c in self.crops:
+            #c.timeUpdate()
     
     def __str__(self):
         result = super().__str__()
@@ -158,7 +162,11 @@ class Mine(Building):
         self.ironStockpile += 1
         yield True
 
-    def __str__(self) -> str:
+    def __str__(self):
         result = super().__str__()
         result += "(Iron: {iron})".format(iron=self.ironStockpile)
         return result
+
+#use to give jobs to villagers 
+class bulletinBoard(Building):
+    pass

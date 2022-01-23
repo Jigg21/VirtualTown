@@ -37,7 +37,7 @@ def clamp(min,max,value):
         return max
     return value
 
-
+#check if a list has duplicates
 def ListHasDuplicates(inputlist):
     if len(inputlist) == len(set(inputlist)):
         return False
@@ -62,3 +62,11 @@ def interpolateRedtoGreen(amount):
     g = clamp(0,255,g)
     b = clamp(0,255,b)
     return '#%02x%02x%02x' % (int(r), int(g), int(b))
+
+#count the number of places for a given number
+def countPlaces(number):
+    count = 0
+    while number != 0:
+        number //= 10
+        count += 1
+    return count

@@ -128,7 +128,7 @@ class Town:
         if USEUI:
             UI.update(townData)
 
-
+    #get every active task
     def getTownTasks(self):
         for b in self.buildings:
             b.activetasks=[]

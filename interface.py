@@ -120,10 +120,10 @@ class Farm(tk.Frame):
         self.crops.pack(expand=False)
 
     #parse the crop values and dispay them on the canvas
-    def updateCrops(self,crops):
+    def updateCrops(self,crops,currentTime):
         tuples = []
         for c in crops:
-            tuples.append((c.cropColor,c.getHarvestPercentage()))
+            tuples.append((c.cropColor,c.getHarvestPercentage(currentTime)))
             
         self.drawCrops(tuples)
 
@@ -217,7 +217,7 @@ def update(args):
     #update the Farm
     global LastDrawTime
     if (time.time() - LastDrawTime)  > 1:
-        crops.updateCrops(args["crops"])
+        crops.updateCrops(args["crops"],args["Time"])
         crops.pack(expand=False)
         LastDrawTime = time.time()
     

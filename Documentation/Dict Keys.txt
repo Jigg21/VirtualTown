@@ -1,0 +1,10 @@
+[Towndata]
+	Time = time in readable format
+	VillagerList = villagers array
+	gold = treasury gold count
+	food = stockpile food count
+	BuildingString = display string for buildings
+	crops = farm crop array
+	mine = mine building object
+	taskList = get task lists for the whole town
+	farm = farm building object
