@@ -1,4 +1,3 @@
-from types import BuiltinFunctionType
 import CaptainsLog
 from Crops import Crop
 import time
@@ -23,7 +22,8 @@ VERBOSE = False
 USEUI = True
 
 
-#contains all town-wide events and variables
+#contains all 
+# -wide events and variables
 class Town:
     townName = ""
     townAge = -1
