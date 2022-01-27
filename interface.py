@@ -1,3 +1,4 @@
+from ast import arg
 from enum import Flag
 from math import exp, floor
 import tkinter as tk
@@ -222,7 +223,7 @@ def update(args):
         LastDrawTime = time.time()
     
 
-    bTask.updateTasks(args["taskList"])
+    bTask.updateTasks(args["town"].bulletin.getTaskList())
     bTask.pack()
 
 

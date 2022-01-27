@@ -46,25 +46,23 @@ class TownOverseer():
         #Farm Logic TODO: Replace with smart AI
         if ("farm" in townData):
             farm = townData["farm"]
-            farm.activeTasks = []
             #Harvest all ripe crops
             for c in farm.crops:
                 #harvest ripe crops
                 harvestPercentage = c.getHarvestPercentage(townData["Time"])
                 if (harvestPercentage >= self.gHarvestThreshold):
-                    farm.activeTasks.append(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,"Harvesting Crop",5,[c,townData["Time"]]))
+                    self.town.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5,[c,townData["Time"]]))
                 #maintain all unripe crops
                 else:
-                    farm.activeTasks.append(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,"Maintaining Crop",5,[c]))
+                    self.town.bulletin.postJob(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,farm,"Maintaining Crop",5,[c]))
             #Plant up to the maximum crops    
             if (len(farm.crops) < farm.maximumCrops):
                 for i in range(0,farm.maximumCrops- len(farm.crops)):
                     newCrop = Crop(farm, self.chooseBestCrop(),townData["Time"])
-                    farm.activeTasks.append(Villagers.Task(farm.plantCrop,newCrop.harvestLaborReq,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
+                    self.town.bulletin.postJob(Villagers.Task(farm.plantCrop,newCrop.harvestLaborReq,farm,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
         
         #TODO: Add mine logic
         if ("mine" in townData):
             mine = townData["mine"]
-            mine.activeTasks = []
             for i in range(50):
-                mine.activeTasks.append(Villagers.Task(mine.mineGold,5,"Mining Gold",5))
+                self.town.bulletin.postJob(Villagers.Task(mine.mineGold,5,mine,"Mining Gold",5))

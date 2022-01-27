@@ -1,6 +1,6 @@
 from enum import Enum
 import math
-#base class for all tasks villagers can do
+#base class for all tasks passengers can do
 class Task:
     function = None
     pay = 0
@@ -9,12 +9,15 @@ class Task:
     completed = False
     functionArgs = []
     assignedVillager = None
-    def __init__(self,function,labor,desc="Task",pay=0,workArgs=[]):
+    location = None
+    def __init__(self,function,labor,location,desc="Task",pay=0,workArgs=[]):
         self.function = function
         self.desc = desc
         self.pay = pay
         self.laborReq = labor
         self.functionArgs = workArgs
+        self.location = location
+
 
     def work(self,villager):
         self.laborReq -= 1
@@ -27,7 +30,7 @@ class Task:
         return self.completed
 
     def __str__(self):
-        return "{desc} for {pay} gold, {labor} work left".format(desc=self.desc,pay=self.pay,labor=self.laborReq)
+        return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location, desc=self.desc,pay=self.pay,labor=self.laborReq)
 
 
 #enum of villager AI states
@@ -43,21 +46,21 @@ class townsperson:
     vGender = 'M'
     currentLocation = None
     vHunger = 100
-    town = []
+    town = None
     vState = VillagerStates.IDLE
     job = None
     vMoney = 10
     vTask = None
     offWork = False
     experience = 0
-    def __init__(self,name,age,gender,startLocation,town,job):
+    def __init__(self,name,age,gender,startLocation,town):
         self.vAge = age
         self.vGender = gender
         self.vName = name
         self.currentLocation = startLocation
         self.currentLocation.add_occupant(self)
         self.town = town
-        self.job = job
+        self.vTask = None
 
     #called once a tick
     def update(self):
@@ -66,15 +69,23 @@ class townsperson:
         if (self.vHunger < 10):
             self.vState = VillagerStates.EATING
             self.goEat()
-            
-        if (self.vHunger > 95 and self.vState == VillagerStates.EATING):
-            self.vState = VillagerStates.IDLE
-        
-        if (self.vState == VillagerStates.IDLE):
-            if (len(self.job.activeTasks) > 0):
-                self.goWork()
-            else:
-                self.goTo(self.town.townHall)
+        match self.vState:
+            case VillagerStates.IDLE:
+                if self.town.bulletin.hasWork():
+                    self.vTask = self.town.bulletin.assignJob(self)
+                    self.goWork()
+                    self.vState = VillagerStates.WORKING
+                else:
+                    self.goTo(self.town.townHall)
+                    
+            case VillagerStates.WORKING:
+                self.work()
+                
+            case VillagerStates.EATING:
+                if (self.vHunger > 95):
+                    self.vState = VillagerStates.IDLE
+
+
             
     #replenish hunger
     def eat(self,amount):
@@ -101,8 +112,8 @@ class townsperson:
     
     #go to work
     def goWork(self):
-        if (self.currentLocation != self.job):
-            self.goTo(self.job)
+        if (self.currentLocation != self.vTask.location):
+            self.goTo(self.vTask.location)
         self.vState = VillagerStates.WORKING
 
     #make salary by charging the treasury
@@ -125,7 +136,10 @@ class townsperson:
 
     #perform one labor on the current task
     def work(self):
-        self.vTask.work(self)
+        if self.vTask is not None:
+            self.vTask.work(self)
+            if self.vTask.completed:
+                self.finishWork()
     
     #does the villager have something to do
     def hasWork(self):

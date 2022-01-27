@@ -1,3 +1,4 @@
+from unittest import result
 import Villagers
 import CaptainsLog
 import Config
@@ -9,7 +10,6 @@ class Building:
     buildingName = ""
     town = None
     WorkerSalary = 5
-    activeTasks = []
     def __init__(self,buidingName,IsPrivate, buildingNumber,town):
         self.buildingName = buidingName
         self.IsPrivate = IsPrivate
@@ -19,19 +19,7 @@ class Building:
         return
 
     def activate(self,Villager):
-        #if (Villager.vState == Villagers.VillagerStates.IDLE ):
-            if (Villager.hasWork()):
-                Villager.work()
-                if (Villager.vTask.isCompleted()):
-                    if (len(self.activeTasks) > 0):
-                        Villager.getWork(self.activeTasks.pop(0))
-                    else:
-                        Villager.finishWork()       
-            else:
-                if (len(self.activeTasks) > 0):
-                    Villager.getWork(self.activeTasks.pop(0))
-                else:
-                    Villager.finishWork()
+        pass
 
     def timeUpdate(self):
         pass
@@ -167,6 +155,25 @@ class Mine(Building):
         result += "(Iron: {iron})".format(iron=self.ironStockpile)
         return result
 
-#use to give jobs to villagers 
-class bulletinBoard(Building):
-    pass
+#use to give jobs to passengers
+class bulletinBoard():
+    def __init__(self):
+        self.activeTasks = []
+    
+    #assigns a job to the given passenger
+    def assignJob(self, passenger):
+        return self.activeTasks.pop()
+    
+    #adds a task to the board
+    def postJob(self,task):
+        self.activeTasks.append(task)
+
+    #returns true if the bulletin board has any active tasks
+    def hasWork(self):
+        return len(self.activeTasks) > 0
+
+    def getTaskList(self):
+        result = ""
+        for t in self.activeTasks:
+            result += str(t) + "\n"
+        return result

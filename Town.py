@@ -32,8 +32,10 @@ class Town:
     buildings = []
     townHall = None
     overseer = None
+    bulletin = None
     def __init__(self,name):
         self.townName = name
+        self.bulletin = Buildings.bulletinBoard()
 
     #get and set townhall
     def setTownHall(self,townHall):
@@ -95,6 +97,7 @@ class Town:
         townData = dict()
         self.townAge += 1
         self.townAgeReadable = Utilities.convertTicksToTime(self.townAge)
+        townData["town"] = self
         townData["Time"] = self.townAgeReadable
         townData["VillagerList"] = self.villagers
         townData["gold"] = self.townHall.treasury
@@ -102,11 +105,6 @@ class Town:
         townData["BuildingString"] = self.getBuildingDisplay()
         townData["crops"] = self.FindBuilding(Buildings.Farm).crops
         townData["mine"] = self.FindBuilding(Buildings.Mine)
-        #get taskLists
-        townData["taskList"] = ""
-        for building in self.buildings:
-            for task in building.activeTasks:
-                townData["taskList"] += "({bName})".format(bName=building.buildingName) + str(task) + "\n"
         #update the villagers
         for v in self.villagers:
             v.update()
@@ -128,11 +126,7 @@ class Town:
         if USEUI:
             UI.update(townData)
 
-    #get every active task
-    def getTownTasks(self):
-        for b in self.buildings:
-            b.activetasks=[]
-    
+        
     #initialize the overseer
     def createOverseer(self):
         self.overseer = TownOverseer(self,self.townHall,self.villagers)
@@ -154,9 +148,9 @@ def main():
     testTown.addBuilding(townTavern)
     testTown.addBuilding(townMine)
     testTown.addBuilding(townFarm) 
-    testTown.addVillager(Villagers.townsperson("Michael",25,'M',townHall,testTown,townFarm))
-    testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown,townFarm))
-    testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown,townMine))
+    testTown.addVillager(Villagers.townsperson("Michael",25,'M',townHall,testTown))
+    testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown))
+    testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
     testTown.createOverseer()
     
     if USEUI:
