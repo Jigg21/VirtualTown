@@ -32,6 +32,29 @@ class Task:
     def __str__(self):
         return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location, desc=self.desc,pay=self.pay,labor=self.laborReq)
 
+#use to give jobs to passengers
+class bulletinBoard():
+    def __init__(self):
+        self.activeTasks = []
+    
+    #assigns a job to the given passenger
+    def assignJob(self, passenger):
+        return self.activeTasks.pop()
+    
+    #adds a task to the board
+    def postJob(self,task,townHall):
+        if townHall.spendTreasury(task.pay):
+            self.activeTasks.append(task)
+
+    #returns true if the bulletin board has any active tasks
+    def hasWork(self):
+        return len(self.activeTasks) > 0
+
+    def getTaskList(self):
+        result = ""
+        for t in self.activeTasks:
+            result += str(t) + "\n"
+        return result
 
 #enum of villager AI states
 class VillagerStates(Enum):
@@ -115,8 +138,6 @@ class townsperson:
 
     #make salary by charging the treasury
     def makeSalary(self,amount):
-        hall = self.town.getTownHall()
-        hall.spendTreasury(amount)
         self.vMoney += amount
     
     #get money without changing the treasury

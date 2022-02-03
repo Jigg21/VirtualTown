@@ -27,7 +27,7 @@ class Town:
     bulletin = None
     def __init__(self,name):
         self.townName = name
-        self.bulletin = Buildings.bulletinBoard()
+        self.bulletin = Villagers.bulletinBoard()
 
     #get and set townhall
     def setTownHall(self,townHall):
@@ -103,7 +103,7 @@ class Town:
 
         #New Day
         if (self.townAge%1440 == 0):
-            #A dictionary of useful information
+    
             CaptainsLog.newDay()
             CaptainsLog.log(Utilities.convertTicksToTime(self.townAge))
             
@@ -115,7 +115,7 @@ class Town:
             building.timeUpdate()
 
         #Draw
-        if config["VALUES"]["USEUI"]:
+        if config.getboolean("VALUES","USEUI"):
             UI.update(townData)
 
         
@@ -144,12 +144,11 @@ def main():
     testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown))
     testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
     testTown.createOverseer()
-    print (config.sections())
     if config.getboolean("VALUES","USEUI"):
         UI.inititialize()
     #Main Time Loop
     try:
-        for x in range(Utilities.convertTimeToTicks("0:1:0:20")):
+        for x in range(Utilities.convertTimeToTicks("0:10:0:20")):
             testTown.timeUpdate()
             if config.getboolean("DEBUG","VERBOSE"):
                 testTown.displayLocalTime()

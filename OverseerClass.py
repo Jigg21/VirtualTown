@@ -56,18 +56,18 @@ class TownOverseer():
                 #harvest ripe crops
                 harvestPercentage = c.getHarvestPercentage()
                 if (harvestPercentage >= self.gHarvestThreshold):
-                    self.town.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5))
+                    self.town.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5),self.TownHall)
                 #maintain all unripe crops
                 else:
-                    self.town.bulletin.postJob(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,farm,"Maintaining Crop",5,[c]))
+                    self.town.bulletin.postJob(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,farm,"Maintaining Crop",5,[c]),self.TownHall)
             #Plant up to the maximum crops    
             if (len(farm.crops) < farm.maximumCrops):
                 for i in range(0,farm.maximumCrops- len(farm.crops)):
                     newCrop = Crop(farm, self.chooseBestCrop(),townData["Time"])
-                    self.town.bulletin.postJob(Villagers.Task(farm.plantCrop,newCrop.harvestLaborReq,farm,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
+                    self.town.bulletin.postJob(Villagers.Task(farm.plantCrop,newCrop.harvestLaborReq,farm,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]),self.TownHall)
         
         #TODO: Add mine logic
         if ("mine" in townData):
             mine = townData["mine"]
             for i in range(50):
-                self.town.bulletin.postJob(Villagers.Task(mine.mineGold,5,mine,"Mining Gold",5))
+                self.town.bulletin.postJob(Villagers.Task(mine.mineGold,5,mine,"Mining Gold",5),self.TownHall)

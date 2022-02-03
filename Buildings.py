@@ -59,9 +59,18 @@ class TownHall(Building):
         self.treasury += amount
         CaptainsLog.logResource("Gold",amount)
     
-    def spendTreasury(self,amount):
-        self.treasury -= amount
-        CaptainsLog.logResource("Gold",-1*amount)
+    def spendTreasury(self,amount,acceptIncomplete = False):
+        if self.treasury > amount:
+            self.treasury -= amount
+            CaptainsLog.logResource("Gold",-1*amount)
+            return True
+        elif acceptIncomplete:
+            CaptainsLog.logResource("Gold",-1*self.treasury)
+            self.treasury = 0
+            return True
+        return False
+        
+
 
     def enterStarving(self):
         self.starving = True
@@ -156,25 +165,4 @@ class Mine(Building):
         result += "(Iron: {iron})".format(iron=self.ironStockpile)
         return result
 
-#use to give jobs to passengers
-class bulletinBoard():
-    def __init__(self):
-        self.activeTasks = []
-    
-    #assigns a job to the given passenger
-    def assignJob(self, passenger):
-        return self.activeTasks.pop()
-    
-    #adds a task to the board
-    def postJob(self,task):
-        self.activeTasks.append(task)
 
-    #returns true if the bulletin board has any active tasks
-    def hasWork(self):
-        return len(self.activeTasks) > 0
-
-    def getTaskList(self):
-        result = ""
-        for t in self.activeTasks:
-            result += str(t) + "\n"
-        return result
