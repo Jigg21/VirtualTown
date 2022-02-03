@@ -1,7 +1,8 @@
+from ConfigReader import ConfigData as config
 from unittest import result
 import Villagers
 import CaptainsLog
-import Config
+
 #building base class
 class Building:
     Occupants = []
@@ -82,7 +83,7 @@ class Restaurant(Building):
     def activate(self,Villager):
         hall = self.town.getTownHall()
         #if the town has food
-        if hall.getFood() > 0 or Config.ENDLESSFOOD:            
+        if hall.getFood() > 0 or config.getboolean("DEBUG","ENDLESSFOOD"):            
             hall.subtractFood(1)
             if Villager.canAfford(5):
                 Villager.spendMoney(5)
@@ -102,8 +103,8 @@ class Farm(Building):
     maximumCrops = 100
 
     #harvest a crop and get food value
-    def harvestCrop(self,crop,currentTime):
-        harvestAmount = crop.getHarvest(currentTime)
+    def harvestCrop(self,crop):
+        harvestAmount = crop.getHarvest()
         self.town.getTownHall().addFood(harvestAmount)
         if crop in self.crops:
             self.crops.remove(crop)

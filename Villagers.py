@@ -69,19 +69,16 @@ class townsperson:
         if (self.vHunger < 10):
             self.vState = VillagerStates.EATING
             self.goEat()
-        match self.vState:
-            case VillagerStates.IDLE:
+        elif self.vState == VillagerStates.IDLE:
                 if self.town.bulletin.hasWork():
                     self.vTask = self.town.bulletin.assignJob(self)
                     self.goWork()
                     self.vState = VillagerStates.WORKING
                 else:
                     self.goTo(self.town.townHall)
-                    
-            case VillagerStates.WORKING:
-                self.work()
-                
-            case VillagerStates.EATING:
+        elif self.vState == VillagerStates.WORKING:
+                self.work()     
+        elif self.vState == VillagerStates.EATING:
                 if (self.vHunger > 95):
                     self.vState = VillagerStates.IDLE
 

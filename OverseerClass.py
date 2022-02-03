@@ -17,23 +17,27 @@ class TownOverseer():
     def calculateTaskAllowance(self):
         return self.TownHall.treasury // self.TownHall.WorkerSalary
 
+    #calculates time until villagers starve (in ticks)
     def calculateTimeToStarvation(self):
         currentStockpile = self.TownHall.stockPile
         currentNeed = 0
         for v in self.villagers:
             currentNeed += 100 - v.vHunger 
         currentStockpile -= currentNeed
-        cyclesUntilStarvation = currentStockpile*10//.208
-        return cyclesUntilStarvation
+        ticksUntilStarvation = currentStockpile*10//.208
+        return ticksUntilStarvation
 
+    #choose the best crop for the situation
     def chooseBestCrop(self):
+        #ensure that crops will grown before town starves
         starvationTime = self.calculateTimeToStarvation()
         possibleCrops = dict()
         data = getCropData()
         for c in getCropData():
             crop = data[c]
-            if Utilities.convertTimeToTicks(crop["cropRipe"]) < starvationTime:
-                possibleCrops[c] = crop["cropValue"]/Utilities.convertTimeToTicks(crop["cropRipe"])
+            #if the crop can be grown before starvation, calculate the ratio of value over growunits
+            if (crop["cropRipe"]/5)*1440 < starvationTime:
+                possibleCrops[c] = crop["cropValue"]/crop["cropRipe"]
         highestRatio = 0
         highestCrop = None
         for pc in possibleCrops:
@@ -41,7 +45,8 @@ class TownOverseer():
                  highestCrop = pc
                  highestRatio = possibleCrops[pc]
         return highestCrop
-
+    
+    #Post jobs for everything that needs to be done
     def designateDailyTasks(self,townData):
         #Farm Logic TODO: Replace with smart AI
         if ("farm" in townData):
@@ -49,9 +54,9 @@ class TownOverseer():
             #Harvest all ripe crops
             for c in farm.crops:
                 #harvest ripe crops
-                harvestPercentage = c.getHarvestPercentage(townData["Time"])
+                harvestPercentage = c.getHarvestPercentage()
                 if (harvestPercentage >= self.gHarvestThreshold):
-                    self.town.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5,[c,townData["Time"]]))
+                    self.town.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5))
                 #maintain all unripe crops
                 else:
                     self.town.bulletin.postJob(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,farm,"Maintaining Crop",5,[c]))

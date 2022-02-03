@@ -124,7 +124,7 @@ class Farm(tk.Frame):
     def updateCrops(self,crops,currentTime):
         tuples = []
         for c in crops:
-            tuples.append((c.cropColor,c.getHarvestPercentage(currentTime)))
+            tuples.append((c.cropColor,c.getHarvestPercentage()))
             
         self.drawCrops(tuples)
 

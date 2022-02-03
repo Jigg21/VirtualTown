@@ -1,5 +1,5 @@
 from tkinter import Message
-
+import random
 
 logs = []
 day = 0
@@ -64,8 +64,10 @@ def initialize():
 
 def closeLogs():
     global currentLog
+    Outros = ["See you space cowboy...","Shutting Down...","Just what do you think you're doing, Dave?"]
+    closer = random.choice(Outros)
     currentLog.makeLog()
-
+    log(closer)
         
         
 initialize()

@@ -1,29 +1,21 @@
-import CaptainsLog
+from ConfigReader import ConfigData as config
 from Crops import Crop
-import time
-import math
 from enum import Enum
 from OverseerClass import TownOverseer
+import CaptainsLog
+import time
+import math
 import Utilities
 import interface as UI
 import traceback
 import Buildings
 import Villagers
-#Time Speed 1 = 1 year every week
-TIMESPEED = 100
-
-ENDLESSFOOD = True
-
-#Do not wait between time updates (for debugging)
-INSTANT = False
-#Display information every cycle
-VERBOSE = False
-#Use the UI (turn off for speed)
-USEUI = True
+import io
 
 
-#contains all 
-# -wide events and variables
+
+
+#contains all ship-wide events and variables
 class Town:
     townName = ""
     townAge = -1
@@ -123,7 +115,7 @@ class Town:
             building.timeUpdate()
 
         #Draw
-        if USEUI:
+        if config["VALUES"]["USEUI"]:
             UI.update(townData)
 
         
@@ -152,19 +144,19 @@ def main():
     testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown))
     testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
     testTown.createOverseer()
-    
-    if USEUI:
+    print (config.sections())
+    if config.getboolean("VALUES","USEUI"):
         UI.inititialize()
     #Main Time Loop
     try:
-        for x in range(Utilities.convertTimeToTicks("0:15:0:20")):
+        for x in range(Utilities.convertTimeToTicks("0:1:0:20")):
             testTown.timeUpdate()
-            if VERBOSE:
+            if config.getboolean("DEBUG","VERBOSE"):
                 testTown.displayLocalTime()
                 testTown.displayBuildings()
 
-            if not INSTANT:
-                time.sleep((420/365)/(TIMESPEED))
+            if not config.getboolean("DEBUG","INSTANT"):
+                time.sleep((420/365)/config.getfloat("VALUES","TIMESPEED"))
         testTown.displayLocalTime()
         testTown.displayBuildings()
     except Exception as e:
@@ -174,10 +166,10 @@ def main():
         
     
     #de-initialize
-    CaptainsLog.log("See you space cowboy...")
+
     CaptainsLog.closeLogs()
-    if USEUI:
-        if (INSTANT):
+    if config.getboolean("VALUES","USEUI"):
+        if config.getboolean("DEBUG","INSTANT"):
             input("Close")
         UI.deinitialize()
     return

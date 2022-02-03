@@ -20,7 +20,9 @@ class Crop():
     cropName = "DefaultFood"
     #when (in ticks) was it planted
     plantedTime = 0
-    #how long (in ticks) does it take to mature
+    #how many growth units are needed to grow this crop
+    growUnits = 0
+    #how many growthUnits it takes to grow
     ripeTime = 0
     #how much food is given upon harvest
     harvestValue = 0
@@ -30,6 +32,8 @@ class Crop():
     maintainLaborReq = 0
     #has this crop been maintained?
     maintained = True
+    #days since last maintainance
+    lastMaintain = 0
     #The farm this crop belongs to
     farm = None
     #what color this crop should be on the display
@@ -41,7 +45,7 @@ class Crop():
         CROPDATA = getCropData()
         self.farm = farm
         try:
-            self.ripeTime = Utilities.convertTimeToTicks(CROPDATA[cropName]["cropRipe"])
+            self.ripeTime = int(CROPDATA[cropName]["cropRipe"])
             self.harvestValue = CROPDATA[cropName]["cropValue"]
             self.harvestLaborReq = CROPDATA[cropName]["cropHLabor"]
             self.maintainLaborReq = CROPDATA[cropName]["cropMLabor"]
@@ -50,14 +54,12 @@ class Crop():
             raise ValueError
 
     #get percentage of time planted and time needed to ripen
-    def getHarvestPercentage(self,currentTime):
-        if currentTime is string:
-            currentTime = Utilities.convertTimeToTicks(currentTime);
-        return (Utilities.convertTimeToTicks(currentTime)-self.plantedTime)/self.ripeTime
+    def getHarvestPercentage(self):
+        return self.growUnits/self.ripeTime
 
     #get the amount of food this crop would yield if harvested
-    def getHarvest(self,currentTime) -> int:
-        harvestPercentage = self.getHarvestPercentage(currentTime)
+    def getHarvest(self) -> int:
+        harvestPercentage = self.getHarvestPercentage()
         if (harvestPercentage < .5):
             return 0
         if (harvestPercentage < 1 ):
@@ -68,11 +70,16 @@ class Crop():
         else:
             return 0
     
-    def dailyReset(self):
+    #update daily
+    def dailyUpdate(self):
+        #TODO: Make growUnits earned dependant on ship location
+        self.growUnits += 5
         if not self.maintained:
-            self.plantedTime += 700
+            self.lastMaintain += 1
+            self.growUnits -= 2**self.lastMaintain
         self.maintained = False
     
     #do daily maintainance
     def maintain(self):
         self.maintained = True
+        self.lastMaintain = 0
