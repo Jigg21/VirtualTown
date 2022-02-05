@@ -162,6 +162,7 @@ class BuildingTaskDisplay(tk.Frame):
             self.text.insert(INSERT,self.mineTasks)
             self.text.pack()
 
+    #update tasks from 
     def updateTasks(self,taskString):
         tasks = taskString.split("\n")
         self.allTasks = taskString
