@@ -75,7 +75,6 @@ def countPlaces(number):
 #gets a repeatable random number given the current tick and the config seed
 def getRandomValue(currentTime,min,max):
     seed = config.getint("VALUES","SEED")
-    random.seed(currentTime*seed)
+    random.seed(seed/(convertTimeToTicks(currentTime)+1))
     result = random.randint(min,max)
-    random.seed(None)
     return result

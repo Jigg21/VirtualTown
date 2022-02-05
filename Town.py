@@ -97,22 +97,26 @@ class Town:
         townData["BuildingString"] = self.getBuildingDisplay()
         townData["crops"] = self.FindBuilding(Buildings.Farm).crops
         townData["mine"] = self.FindBuilding(Buildings.Mine)
+        townData["farm"] = self.FindBuilding(Buildings.Farm)
         #update the villagers
         for v in self.villagers:
             v.update()
 
         #New Day
         if (self.townAge%1440 == 0):
-    
+            
             CaptainsLog.newDay()
             CaptainsLog.log(Utilities.convertTicksToTime(self.townAge))
             
-            townData["farm"] = self.FindBuilding(Buildings.Farm)
+            for building in self.buildings:
+                building.dailyUpdate(townData)
+            
+
+            
             self.overseer.designateDailyTasks(townData)
 
-        #update the buildings
-        for building in self.buildings:
-            building.timeUpdate()
+
+
 
         #Draw
         if config.getboolean("VALUES","USEUI"):
@@ -143,6 +147,9 @@ def main():
     testTown.addVillager(Villagers.townsperson("Michael",25,'M',townHall,testTown))
     testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown))
     testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
+
+    townTradeHub = Buildings.TradeHub("TradeHub",False,4,testTown)
+    testTown.addBuilding(townTradeHub)
     testTown.createOverseer()
     if config.getboolean("VALUES","USEUI"):
         UI.inititialize()

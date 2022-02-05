@@ -1,7 +1,9 @@
+import math
 from ConfigReader import ConfigData as config
 from unittest import result
 import Villagers
 import CaptainsLog
+import Utilities
 
 #building base class
 class Building:
@@ -23,6 +25,9 @@ class Building:
         pass
 
     def timeUpdate(self):
+        pass
+    
+    def dailyUpdate(self,data):
         pass
 
     def add_occupant(self,Villager):
@@ -118,6 +123,17 @@ class Farm(Building):
         if crop in self.crops:
             self.crops.remove(crop)
     
+    #get overseer data for crops 
+    def getHarvestData(self):
+        GUTotal = 0
+        cropCount = 0
+        for c in self.crops:
+            GUTotal += c.getRemainingGU()
+            cropCount += 1
+        mean = GUTotal/cropCount
+        timeToHarvest = math.ceil(mean / 5)
+        return timeToHarvest
+
     #do daily maintenance on crops
     def maintainCrop(self,crop):
         crop.maintain()
@@ -129,8 +145,6 @@ class Farm(Building):
     #update each crop about the time it was in
     def timeUpdate(self):
         pass
-        #for c in self.crops:
-            #c.timeUpdate()
     
     def __str__(self):
         result = super().__str__()
@@ -164,5 +178,23 @@ class Mine(Building):
         result = super().__str__()
         result += "(Iron: {iron})".format(iron=self.ironStockpile)
         return result
+
+#A place to sell food for gold
+class TradeHub(Building):
+
+    dailyTradeRate = 0
+    def __init__(self, buidingName, IsPrivate, buildingNumber, town):
+        super().__init__(buidingName, IsPrivate, buildingNumber, town)
+    
+    def sellFood(self,amount):
+        self.town.townHall.subtractFood(amount)
+        self.town.townHall.addTreasury(amount*self.dailyTradeRate)
+    
+    def dailyUpdate(self,data):
+        self.getDailyTradeRate(data["Time"])
+
+    def getDailyTradeRate(self,currentTime):
+        self.dailyTradeRate = Utilities.getRandomValue(currentTime,0,20)
+        CaptainsLog.log("Today's trade rate for food is: {rate}".format(rate=self.dailyTradeRate))
 
 

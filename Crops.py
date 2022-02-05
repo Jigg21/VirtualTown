@@ -20,7 +20,7 @@ class Crop():
     cropName = "DefaultFood"
     #when (in ticks) was it planted
     plantedTime = 0
-    #how many growth units are needed to grow this crop
+    #how many growth units this crop has
     growUnits = 0
     #how many growthUnits it takes to grow
     ripeTime = 0
@@ -70,6 +70,10 @@ class Crop():
         else:
             return 0
     
+    #return the remaining Grow units before maturation
+    def getRemainingGU(self):
+        return self.ripeTime - self.growUnits
+        
     #update daily
     def dailyUpdate(self):
         #TODO: Make growUnits earned dependant on ship location
