@@ -1,5 +1,6 @@
 import math
 import random
+from ConfigReader import ConfigData as config
 
 #converts readable time to ticks
 def convertTimeToTicks(timeString):
@@ -70,3 +71,11 @@ def countPlaces(number):
         number //= 10
         count += 1
     return count
+
+#gets a repeatable random number given the current tick and the config seed
+def getRandomValue(currentTime,min,max):
+    seed = config.getint("VALUES","SEED")
+    random.seed(currentTime*seed)
+    result = random.randint(min,max)
+    random.seed(None)
+    return result
