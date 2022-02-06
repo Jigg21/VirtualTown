@@ -55,6 +55,10 @@ def logResource(resource,amount):
     global currentLog
     currentLog.addResource(resource,amount)
 
+def logSale(resource,amount,pay):
+    global currentLog
+    currentLog.addContent("Sold {a} {r} for {p} gold".format(a=amount,r=resource,p=pay))
+
 def initialize():
     global currentLog
     initLog = logOBJ()

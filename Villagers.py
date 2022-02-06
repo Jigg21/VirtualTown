@@ -30,7 +30,7 @@ class Task:
         return self.completed
 
     def __str__(self):
-        return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location, desc=self.desc,pay=self.pay,labor=self.laborReq)
+        return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)
 
 #use to give jobs to passengers
 class bulletinBoard():
@@ -89,7 +89,7 @@ class townsperson:
     def update(self):
         self.vHunger -= .208
         self.currentLocation.activate(self)
-        if (self.vHunger < 10):
+        if (self.vHunger < 10 and not self.town.townHall.starving):
             self.vState = VillagerStates.EATING
             self.goEat()
         elif self.vState == VillagerStates.IDLE:

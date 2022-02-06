@@ -98,6 +98,7 @@ class Town:
         townData["crops"] = self.FindBuilding(Buildings.Farm).crops
         townData["mine"] = self.FindBuilding(Buildings.Mine)
         townData["farm"] = self.FindBuilding(Buildings.Farm)
+        townData["trade"] = self.FindBuilding(Buildings.TradeHub)
         #update the villagers
         for v in self.villagers:
             v.update()
@@ -122,7 +123,6 @@ class Town:
         if config.getboolean("VALUES","USEUI"):
             UI.update(townData)
 
-        
     #initialize the overseer
     def createOverseer(self):
         self.overseer = TownOverseer(self,self.townHall,self.villagers)
@@ -147,9 +147,9 @@ def main():
     testTown.addVillager(Villagers.townsperson("Michael",25,'M',townHall,testTown))
     testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown))
     testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
-
-    townTradeHub = Buildings.TradeHub("TradeHub",False,4,testTown)
+    townTradeHub = Buildings.TradeHub("Trade Hub",False,4,testTown)
     testTown.addBuilding(townTradeHub)
+
     testTown.createOverseer()
     if config.getboolean("VALUES","USEUI"):
         UI.inititialize()

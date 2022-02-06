@@ -1,3 +1,4 @@
+from Buildings import TradeHub
 from Crops import *
 import Utilities
 import CaptainsLog
@@ -48,6 +49,19 @@ class TownOverseer():
     
     #Post jobs for everything that needs to be done
     def designateDailyTasks(self,townData):
+
+        #Sell food when there is a surplus
+        if ("trade" in townData):
+            tradeHub = townData["trade"]
+            #if food is highly valued
+            if tradeHub.dailyTradeRate >= 15:
+                timeToHarvest = townData["farm"].getHarvestData()
+                #get the amount of surplus food
+                reqFood = (timeToHarvest+1) * len(self.town.villagers) * 30
+                surplusFood = self.TownHall.getFood() - reqFood
+                if surplusFood > 0:
+                    self.town.bulletin.postJob(Villagers.Task(tradeHub.sellFood,1,tradeHub,"Selling Food to Market",5,[surplusFood]),self.TownHall)
+
         #Farm Logic TODO: Replace with smart AI
         if ("farm" in townData):
             farm = townData["farm"]
@@ -56,7 +70,7 @@ class TownOverseer():
                 #harvest ripe crops
                 harvestPercentage = c.getHarvestPercentage()
                 if (harvestPercentage >= self.gHarvestThreshold):
-                    self.town.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5),self.TownHall)
+                    self.town.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5,[c]),self.TownHall)
                 #maintain all unripe crops
                 else:
                     self.town.bulletin.postJob(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,farm,"Maintaining Crop",5,[c]),self.TownHall)
@@ -71,3 +85,4 @@ class TownOverseer():
             mine = townData["mine"]
             for i in range(50):
                 self.town.bulletin.postJob(Villagers.Task(mine.mineGold,5,mine,"Mining Gold",5),self.TownHall)
+        

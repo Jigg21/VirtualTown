@@ -142,9 +142,9 @@ class Farm(Building):
     def plantCrop(self,crop):
         self.crops.append(crop)
 
-    #update each crop about the time it was in
-    def timeUpdate(self):
-        pass
+    def dailyUpdate(self, data):
+        for c in self.crops:
+            c.dailyUpdate()
     
     def __str__(self):
         result = super().__str__()
@@ -187,8 +187,10 @@ class TradeHub(Building):
         super().__init__(buidingName, IsPrivate, buildingNumber, town)
     
     def sellFood(self,amount):
+        print("selling")
         self.town.townHall.subtractFood(amount)
         self.town.townHall.addTreasury(amount*self.dailyTradeRate)
+        CaptainsLog.logSale("Food",amount,amount*self.dailyTradeRate)
     
     def dailyUpdate(self,data):
         self.getDailyTradeRate(data["Time"])
