@@ -61,6 +61,7 @@ class VillagerStates(Enum):
     IDLE = 1
     EATING = 2
     WORKING = 3
+    HOSPITALIZED = 4
 
 #villager class
 class townsperson:
@@ -87,6 +88,7 @@ class townsperson:
 
     #called once a tick
     def update(self):
+
         self.vHunger -= .208
         self.currentLocation.activate(self)
         if (self.vHunger < 10 and not self.town.townHall.starving):
@@ -166,7 +168,11 @@ class townsperson:
     #assign what the villager must do
     def getWork(self,task):
         self.vTask = task
-        
+    
+    #When the passenger has been hospitalized
+    def hospitalize (self):
+        self.vState = VillagerStates.HOSPITALIZED
+    
     #string representation
     def __str__(self):
         result = self.vName

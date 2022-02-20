@@ -21,15 +21,19 @@ class Building:
         self.town = town
         return
 
+    #for actions that are activated by villagers
     def activate(self,Villager):
         pass
-
+    
+    #for actions that activate every tick
     def timeUpdate(self):
         pass
     
+    #for actions that activate every day
     def dailyUpdate(self,data):
         pass
-
+    
+    #manage occupants
     def add_occupant(self,Villager):
         self.Occupants.append(Villager)
     
@@ -39,6 +43,7 @@ class Building:
     def get_occupants(self):
         return self.Occupants.copy()
     
+    #string representation
     def __str__(self):
         result = self.buildingName
         return result
@@ -198,5 +203,9 @@ class TradeHub(Building):
     def getDailyTradeRate(self,currentTime):
         self.dailyTradeRate = Utilities.getRandomValue(currentTime,0,20)
         CaptainsLog.log("Today's trade rate for food is: {rate}".format(rate=self.dailyTradeRate))
+
+        
+
+    
 
 

@@ -99,10 +99,9 @@ class Town:
         townData["mine"] = self.FindBuilding(Buildings.Mine)
         townData["farm"] = self.FindBuilding(Buildings.Farm)
         townData["trade"] = self.FindBuilding(Buildings.TradeHub)
-        #update the villagers
+        #update the villagers and buildings
         for v in self.villagers:
             v.update()
-
         #New Day
         if (self.townAge%1440 == 0):
             
@@ -153,7 +152,7 @@ def main():
     testTown.createOverseer()
     if config.getboolean("VALUES","USEUI"):
         UI.inititialize()
-    #Main Time Loop
+    #CENTRAL FINITE CURVE
     try:
         for x in range(Utilities.convertTimeToTicks("0:10:0:20")):
             testTown.timeUpdate()
