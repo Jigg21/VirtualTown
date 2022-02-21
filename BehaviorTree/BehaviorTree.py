@@ -1,9 +1,26 @@
 from enum import Enum
 
 #Behavior Tree manager
-class BehaviorTree():
+class Tree():
     def __init__(self) -> None:
         self.rootNode = None
+        self.children = []
+    
+    #add the root node
+    def addRootNode(self,node):
+        self.rootNode = node
+    
+    #adds node to the tree as a child of parent
+    def addNode(self,node,parent):
+        for child in self.children:
+            if child == parent:
+                child.addChild(node)
+    
+    #add node to the tree as a child of the root node
+    def addNode(self,node):
+        self.rootNode.addChild(node)
+    
+    
 
 #States a node can be
 class nodeStates (Enum):

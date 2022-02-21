@@ -8,3 +8,6 @@
 	mine = mine building object
 	taskList = get task lists for the whole town
 	farm = farm building object
+
+[VillagerData]
+	vHunger = villager hunger
