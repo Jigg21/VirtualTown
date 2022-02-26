@@ -87,6 +87,7 @@ class node_isTownStarving(BT.Node):
         return BT.nodeStates.FAILED
 
 class tree_HungerSatisfactionTree(BT.Tree):
+    '''checks if the villager has enough food and eats if neccesary'''
     def __init__(self) -> None:
         super().__init__()
         self.addRootNode(BT.FallBackNode("Hunger Satisfaction Tree"))
@@ -106,6 +107,48 @@ class tree_HungerSatisfactionTree(BT.Tree):
         self.addNode(townFoodCheck,notStarvingDec)
         self.addNodetoRoot(hungerCheck)
         self.addNodetoRoot(node_setVillagerState(VillagerStates.EATING))
+
+class node_workUntilJobdone(BT.Node):
+    '''work until the current task is complete'''
+    def activate(self, context) -> BT.nodeStates:
+        super().activate(context)
+        villager = context["villager"]
+        #returns success if the job is done, waiting if it's still working, or failed if there is no job
+        if villager.vTask is not None:
+            villager.vTask.work(villager)
+            if villager.vTask.completed:
+                villager.finishWork()
+                return BT.nodeStates.SUCCESS
+            else:
+                return BT.nodeStates.WAITING
+        else:
+            return BT.nodeStates.FAILED   
+
+class node_assignJobifAble(BT.Node):
+    '''gives the villager a job if it can, always returns successful'''
+    def activate(self, context) -> BT.nodeStates:
+        super().activate(context)
+        board = context["board"]
+        if board.hasWork():
+            board.assignJob(context["villager"])
+            context["villager"].changeState(VillagerStates.WORKING)
+        return BT.nodeStates.SUCCESS
+
+
+class tree_workTree(BT.Tree):
+    '''works while there are tasks to be done'''
+    def __init__(self) -> None:
+        super().__init__()
+        self.addRootNode(BT.FallBackNode("Work Tree"))
+
+        workLoop = BT.SequenceNode("Work Loop")
+        inStateWorking = node_villagerInState(VillagerStates.WORKING)
+        workUntilDone = node_workUntilJobdone("Work Until done")
+        self.addNodetoRoot(workLoop)
+        self.addNode(inStateWorking,workLoop)
+        self.addNode(workUntilDone,workLoop)
+
+        self.addNodetoRoot(node_assignJobifAble("Getting a job if possible"))
 
 
 

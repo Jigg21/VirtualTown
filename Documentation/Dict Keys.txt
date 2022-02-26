@@ -12,3 +12,4 @@
 [VillagerData]
 	villager = villager object
 	town = town object
+	board = bulletin board object

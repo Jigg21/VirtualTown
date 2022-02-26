@@ -7,6 +7,10 @@ class Tree():
         '''Creates an empty tree object, set Rootnode first'''
         self.rootNode = None
     
+    def __init__(self,rootNode) -> None:
+        '''Creates a tree object with a given rootnode'''
+        self.rootNode = None
+    
     
     def addRootNode(self,node):
         '''designates a node as the root node'''

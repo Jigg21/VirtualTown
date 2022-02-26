@@ -1,6 +1,9 @@
 import imp
 from CONST import VillagerStates
+from BehaviorTree import BT
 import math
+
+from VillagerNodes import tree_HungerSatisfactionTree, tree_workTree
 #base class for all tasks passengers can do
 class Task:
     function = None
@@ -25,7 +28,7 @@ class Task:
         if (self.laborReq <= 0):
             self.function(*self.functionArgs)
             self.completed = True
-            villager.makeSalary(self.pay)
+            
     
     def isCompleted(self):
         return self.completed
@@ -38,8 +41,8 @@ class bulletinBoard():
     def __init__(self):
         self.activeTasks = []
     
-    #assigns a job to the given passenger
-    def assignJob(self, passenger):
+    #assigns a job to the given villager
+    def assignJob(self, villager):
         return self.activeTasks.pop()
     
     #adds a task to the board
@@ -77,6 +80,10 @@ class townsperson:
         self.offWork = False
         self.experience = 0
 
+        self.behaviorTree = BT.Tree(BT.FallBackNode("ROOT NODe"))
+        self.behaviorTree.addNodetoRoot(tree_HungerSatisfactionTree())
+        self.behaviorTree.addNodetoRoot(tree_workTree())
+
     #called once a tick
     def update(self):
 
@@ -112,6 +119,7 @@ class townsperson:
         self.offWork = True
         self.vState = VillagerStates.IDLE
         self.experience += 1
+        self.makeMoney(self.vTask.pay)
         self.vTask = None
 
    
