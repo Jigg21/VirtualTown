@@ -2,6 +2,7 @@ from enum import Enum
 
 #Behavior Tree manager
 class Tree():
+    
     def __init__(self) -> None:
         self.rootNode = None
     
@@ -9,39 +10,46 @@ class Tree():
     def addRootNode(self,node):
         self.rootNode = node
     
-    #adds node to the tree as a child of parent
+    
     def addNode(self,node,parent):
+        '''adds node to the tree as a child of parent'''
         p = self.rootNode.findChild(parent)
         if p is None:
             return None
         else:
             p.addChild(node)
 
-    #add node to the tree as a child of the root node
+    
     def addNodetoRoot(self,node):
+        '''add node to the tree as a child of the root node'''
         self.rootNode.addChild(node)
     
-    #traverse the tree
+    
     def activate(self,context):
+        '''Traverse the tree'''
         self.rootNode.activate(context)
     
 
-#States a node can be
+
 class nodeStates (Enum):
+    '''States a node can be'''
     UNEXPLORED = 0
     SUCCESS = 1
     FAILED = 2
     WAITING = 3
 
-#Node base class 
+
 class Node ():
+    '''Node Base Class'''
     def __init__(self,desc = "") -> None:
+        '''make a node with this description'''
         self.children = []
         self.state = nodeStates.UNEXPLORED
         self.desc = desc
 
-    #ticks the node
+    
     def activate(self,context) -> nodeStates:
+        '''ticks the node, prints desc if Verbose is on'''
         if context["Verbose"]:
             print(self.desc)
 
@@ -62,8 +70,8 @@ class Node ():
                     return result
 
 
-#sequence control node, activates children one by one, returns success if all children return success
 class SequenceNode (Node):
+    '''sequence control node, activates children one by one, returns success if all children return success'''
     def activate(self,context) -> nodeStates:
         super().activate(context)
         for child in self.children:
@@ -75,6 +83,7 @@ class SequenceNode (Node):
         else:
             return nodeStates.SUCCESS
 
+#like OR logic
 #fallback control node, returns success at the first child that returns success
 class FallBackNode (Node):
     def activate(self,context) -> nodeStates:
@@ -86,6 +95,7 @@ class FallBackNode (Node):
         else:
             return nodeStates.FAILED
 
+#like OR logic
 #parallel control node, activates all children, then returns success if any succeeded
 class ParallelNode (Node):
     def activate(self,context) -> nodeStates:
@@ -101,7 +111,6 @@ class ParallelNode (Node):
                 returnValue = nodeStates.SUCCESS
         return returnValue
 
-
 #Decorator Base class
 class decoratorNode (Node):
     def activate(self,context) -> nodeStates:
@@ -116,4 +125,12 @@ class decoratorNode (Node):
         pass
 
 
-    
+class NegateDecorator(decoratorNode):
+    '''converts success states to fails and vice versa'''    
+    def function(self, *args):
+        state = args[0]
+        if state == nodeStates.SUCCESS:
+            return nodeStates.FAILED
+        if state == nodeStates.FAILED:
+            return nodeStates.SUCCESS
+        return state

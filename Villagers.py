@@ -65,19 +65,10 @@ class VillagerStates(Enum):
 
 #villager class
 class townsperson:
-    vName = ""
-    vAge = 0
-    vGender = 'M'
-    currentLocation = None
-    vHunger = 100
-    town = None
-    vState = VillagerStates.IDLE
-    job = None
-    vMoney = 10
-    vTask = None
-    offWork = False
-    experience = 0
+
     def __init__(self,name,age,gender,startLocation,town):
+        '''name: villager name\n
+        age: defaults to 0'''
         self.vAge = age
         self.vGender = gender
         self.vName = name
@@ -85,6 +76,11 @@ class townsperson:
         self.currentLocation.add_occupant(self)
         self.town = town
         self.vTask = None
+        self.vHunger = 100
+        self.vState = VillagerStates.IDLE
+        self.vMoney = 10
+        self.offWork = False
+        self.experience = 0
 
     #called once a tick
     def update(self):
@@ -121,24 +117,27 @@ class townsperson:
         self.experience += 1
         self.vTask = None
 
-    #Go to location
+   
     def goTo(self,location):
+        '''sends villager to location and removes it it's current location'''
         self.currentLocation.remove_occupant(self)
         self.currentLocation = location
         self.currentLocation.add_occupant(self)
 
-    #go to a restaurant
-    def goEat(self):
-        self.goTo(self.town.getRestaurant())
     
+    def goEat(self):
+        '''Go to a restuarant if the villager is not already there'''
+        if self.currentLocation != self.town.getRestaurant():
+            self.goTo(self.town.getRestaurant())    
     #go to work
     def goWork(self):
         if (self.currentLocation != self.vTask.location):
             self.goTo(self.vTask.location)
         self.vState = VillagerStates.WORKING
 
-    #make salary by charging the treasury
+    
     def makeSalary(self,amount):
+        '''make salary by charging the treasury'''
         self.vMoney += amount
     
     #get money without changing the treasury
@@ -168,9 +167,11 @@ class townsperson:
     def getWork(self,task):
         self.vTask = task
     
-    #When the passenger has been hospitalized
+    #When the villager has been hospitalized
     def hospitalize (self):
         self.vState = VillagerStates.HOSPITALIZED
+    
+    
     
     #string representation
     def __str__(self):

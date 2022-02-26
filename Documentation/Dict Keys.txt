@@ -10,5 +10,5 @@
 	farm = farm building object
 
 [VillagerData]
-	vHunger = villager hunger
-	verbose = print node descriptions true/false
+	villager = villager object
+	town = town object

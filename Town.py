@@ -1,3 +1,4 @@
+import numbers
 from ConfigReader import ConfigData as config
 from Crops import Crop
 from enum import Enum
@@ -148,8 +149,20 @@ def main():
     testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
     townTradeHub = Buildings.TradeHub("Trade Hub",False,4,testTown)
     testTown.addBuilding(townTradeHub)
-
     testTown.createOverseer()
+
+    #if just speedtesting, get average speed over TESTCOUNT ticks
+    if config.getboolean("DEBUG","SPEEDTEST"):
+        time_start =time.time()
+        for x in range(config.getint("DEBUG","TESTCOUNT")):
+            testTown.timeUpdate()
+        time_end = time.time()
+        print("Average Time was {number}".format(number = (time_end-time_start)/config.getint("DEBUG","TESTCOUNT")))
+        CaptainsLog.closeLogs()
+        input("Close")
+        return
+    
+
     if config.getboolean("VALUES","USEUI"):
         UI.inititialize()
     #CENTRAL FINITE CURVE
