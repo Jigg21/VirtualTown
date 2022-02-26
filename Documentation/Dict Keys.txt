@@ -11,3 +11,4 @@
 
 [VillagerData]
 	vHunger = villager hunger
+	verbose = print node descriptions true/false

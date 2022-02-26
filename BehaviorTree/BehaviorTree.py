@@ -4,7 +4,6 @@ from enum import Enum
 class Tree():
     def __init__(self) -> None:
         self.rootNode = None
-        self.children = []
     
     #add the root node
     def addRootNode(self,node):
@@ -12,14 +11,19 @@ class Tree():
     
     #adds node to the tree as a child of parent
     def addNode(self,node,parent):
-        for child in self.children:
-            if child == parent:
-                child.addChild(node)
-    
+        p = self.rootNode.findChild(parent)
+        if p is None:
+            return None
+        else:
+            p.addChild(node)
+
     #add node to the tree as a child of the root node
-    def addNode(self,node):
+    def addNodetoRoot(self,node):
         self.rootNode.addChild(node)
     
+    #traverse the tree
+    def activate(self,context):
+        self.rootNode.activate(context)
     
 
 #States a node can be
@@ -31,19 +35,37 @@ class nodeStates (Enum):
 
 #Node base class 
 class Node ():
-    def __init__(self) -> None:
+    def __init__(self,desc = "") -> None:
         self.children = []
         self.state = nodeStates.UNEXPLORED
+        self.desc = desc
 
+    #ticks the node
     def activate(self,context) -> nodeStates:
-        pass
+        if context["Verbose"]:
+            print(self.desc)
 
+    #adds a child to the node
     def addChild(self,child):
         self.children.append(child)
+    
+    #recursively find target in children
+    def findChild(self,target):
+        if self == target:
+            return self
+        elif len(self.children) == 0:
+            return None
+        else:
+            for child in self.children:
+                result = child.findChild(target)
+                if result == target:
+                    return result
 
-#sequence control node, returns success if all children return success
+
+#sequence control node, activates children one by one, returns success if all children return success
 class SequenceNode (Node):
     def activate(self,context) -> nodeStates:
+        super().activate(context)
         for child in self.children:
             result = child.activate(context)
             if result == nodeStates.FAILED:
@@ -56,6 +78,7 @@ class SequenceNode (Node):
 #fallback control node, returns success at the first child that returns success
 class FallBackNode (Node):
     def activate(self,context) -> nodeStates:
+        super().activate(context)
         for child in self.children:
             result = child.activate(context)
             if result == nodeStates.SUCCESS:
@@ -65,9 +88,8 @@ class FallBackNode (Node):
 
 #parallel control node, activates all children, then returns success if any succeeded
 class ParallelNode (Node):
-    def __init__(self) -> None:
-        super().__init__()
     def activate(self,context) -> nodeStates:
+        super().activate(context)
         returnValue = nodeStates.FAILED
         for child in self.children:
             result = child.activate(context)
@@ -83,6 +105,7 @@ class ParallelNode (Node):
 #Decorator Base class
 class decoratorNode (Node):
     def activate(self,context) -> nodeStates:
+        super().activate(context)
         if len(self.children) == 0:
             return nodeStates.UNEXPLORED
         else:
@@ -92,14 +115,5 @@ class decoratorNode (Node):
     def function(self,*args):
         pass
 
-#converts success states to fails and vice versa
-class NegateDecorator(decoratorNode):
-    def __init__(self) -> None:
-        super().__init__()
-    def function(self, *args):
-        state = args[0]
-        if state == nodeStates.SUCCESS:
-            return nodeStates.FAILED
-        if state == nodeStates.FAILED:
-            return nodeStates.SUCCESS
-        return state
+
+    

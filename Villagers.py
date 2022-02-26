@@ -108,7 +108,6 @@ class townsperson:
                     self.vState = VillagerStates.IDLE
 
 
-            
     #replenish hunger
     def eat(self,amount):
         self.vHunger += amount
