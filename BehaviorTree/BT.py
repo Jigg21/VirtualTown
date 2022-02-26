@@ -4,10 +4,12 @@ from enum import Enum
 class Tree():
     
     def __init__(self) -> None:
+        '''Creates an empty tree object, set Rootnode first'''
         self.rootNode = None
     
-    #add the root node
+    
     def addRootNode(self,node):
+        '''designates a node as the root node'''
         self.rootNode = node
     
     

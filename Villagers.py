@@ -1,4 +1,5 @@
-from enum import Enum
+import imp
+from CONST import VillagerStates
 import math
 #base class for all tasks passengers can do
 class Task:
@@ -56,12 +57,6 @@ class bulletinBoard():
             result += str(t) + "\n"
         return result
 
-#enum of villager AI states
-class VillagerStates(Enum):
-    IDLE = 1
-    EATING = 2
-    WORKING = 3
-    HOSPITALIZED = 4
 
 #villager class
 class townsperson:
@@ -103,7 +98,9 @@ class townsperson:
                 if (self.vHunger > 95):
                     self.vState = VillagerStates.IDLE
 
-
+    def changeState(self,newState):
+        '''change the villagers state'''
+        self.vState = newState
     #replenish hunger
     def eat(self,amount):
         self.vHunger += amount
