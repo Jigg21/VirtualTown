@@ -135,7 +135,10 @@ class Farm(Building):
         for c in self.crops:
             GUTotal += c.getRemainingGU()
             cropCount += 1
-        mean = GUTotal/cropCount
+        if cropCount > 0:
+            mean = GUTotal/cropCount
+        else:
+            mean = math.inf
         timeToHarvest = math.ceil(mean / 5)
         return timeToHarvest
 

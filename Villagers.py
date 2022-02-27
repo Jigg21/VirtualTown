@@ -1,4 +1,4 @@
-import imp
+from ConfigReader import ConfigData as config
 from CONST import VillagerStates
 from BehaviorTree import BT
 import math
@@ -80,7 +80,7 @@ class townsperson:
         self.offWork = False
         self.experience = 0
 
-        self.behaviorTree = BT.Tree(BT.FallBackNode("ROOT NODe"))
+        self.behaviorTree = BT.Tree(BT.SequenceNode("ROOT NODE"))
         self.behaviorTree.addNodetoRoot(tree_HungerSatisfactionTree())
         self.behaviorTree.addNodetoRoot(tree_workTree())
 
@@ -89,21 +89,12 @@ class townsperson:
 
         self.vHunger -= .208
         self.currentLocation.activate(self)
-        if (self.vHunger < 10 and not self.town.townHall.starving):
-            self.vState = VillagerStates.EATING
-            self.goEat()
-        elif self.vState == VillagerStates.IDLE:
-                if self.town.bulletin.hasWork():
-                    self.vTask = self.town.bulletin.assignJob(self)
-                    self.goWork()
-                    self.vState = VillagerStates.WORKING
-                else:
-                    self.goTo(self.town.townHall)
-        elif self.vState == VillagerStates.WORKING:
-                self.work()     
-        elif self.vState == VillagerStates.EATING:
-                if (self.vHunger > 95):
-                    self.vState = VillagerStates.IDLE
+        context = {}
+        context["villager"] = self
+        context["town"] = self.town
+        context["board"] = self.town.bulletin
+        context["Verbose"] = config.getboolean("DEBUG","BTVerbose")
+        self.behaviorTree.traverse(context)
 
     def changeState(self,newState):
         '''change the villagers state'''

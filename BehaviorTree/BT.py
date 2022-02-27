@@ -1,16 +1,12 @@
 from enum import Enum
+from unittest import result
 
 #Behavior Tree manager
 class Tree():
     
-    def __init__(self) -> None:
-        '''Creates an empty tree object, set Rootnode first'''
-        self.rootNode = None
-    
-    def __init__(self,rootNode) -> None:
+    def __init__(self,rootnode = None) -> None:
         '''Creates a tree object with a given rootnode'''
-        self.rootNode = None
-    
+        self.rootNode = rootnode  
     
     def addRootNode(self,node):
         '''designates a node as the root node'''
@@ -30,10 +26,14 @@ class Tree():
         '''add node to the tree as a child of the root node'''
         self.rootNode.addChild(node)
     
-    
     def activate(self,context):
-        '''Traverse the tree'''
+        '''Traverse the tree with given dictionary context'''
         self.rootNode.activate(context)
+    
+    def traverse(self,context):
+        '''Traverse the tree with given dictionary context'''
+        results = self.rootNode.activate(context)
+        print("RESULT: {result}".format(result=results))
     
 
 

@@ -48,15 +48,16 @@ class node_villagerInState(BT.Node):
             return BT.nodeStates.FAILED
 
 class node_setVillagerState(BT.Node):
-    '''set a villagers state to some predetermined state'''
-    def __init__(self, state,desc="") -> None:
+    '''set a villagers state to some predetermined state, returns result defaults to SUCCESS'''
+    def __init__(self, state,result = BT.nodeStates.SUCCESS,desc="") -> None:
         super().__init__(desc)
         self.state = state
+        self.result = result
 
     def activate(self, context) -> BT.nodeStates:
         super().activate(context)
         context["villager"].changeState(self.state)
-        return BT.nodeStates.SUCCESS
+        return self.result
 
 class node_eatUntilFull(BT.Node):
     '''Villager goes to the restauraunt if they are not there already, \n
@@ -65,6 +66,7 @@ class node_eatUntilFull(BT.Node):
     def activate(self, context) -> BT.nodeStates:
         context["villager"].goEat()
         if context["villager"].vHunger == 100:
+            context["villager"].changeState(VillagerStates.IDLE)
             return BT.nodeStates.SUCCESS
         else:
             return BT.nodeStates.WAITING
@@ -82,7 +84,7 @@ class node_isTownStarving(BT.Node):
     '''returns success if the town is starving'''
     def activate(self, context) -> BT.nodeStates:
         super().activate(context)
-        if context["town"].townhall.starving:
+        if context["town"].townHall.starving:
             return BT.nodeStates.SUCCESS
         return BT.nodeStates.FAILED
 
@@ -93,20 +95,18 @@ class tree_HungerSatisfactionTree(BT.Tree):
         self.addRootNode(BT.FallBackNode("Hunger Satisfaction Tree"))
         
         #if eating, eat until full
-        eatingLoop = BT.SequenceNode("Get food loop")
+        eatingLoop = BT.SequenceNode("eating loop")
         isEating = node_villagerInState(VillagerStates.EATING)
         eatToFull = node_eatUntilFull("eating until full")
         self.addNodetoRoot(eatingLoop)
         self.addNode(isEating,eatingLoop)
         self.addNode(eatToFull,eatingLoop)
         #check if the villager is hungery and if the
-        notStarvingDec = BT.NegateDecorator("NOT")
         townFoodCheck = node_isTownStarving("Town Check")
         hungerCheck = node_hungerCheck("hunger check")
-        self.addNodetoRoot(notStarvingDec)
-        self.addNode(townFoodCheck,notStarvingDec)
+        self.addNodetoRoot(townFoodCheck)
         self.addNodetoRoot(hungerCheck)
-        self.addNodetoRoot(node_setVillagerState(VillagerStates.EATING))
+        self.addNodetoRoot(node_setVillagerState(VillagerStates.EATING,result=BT.nodeStates.WAITING))
 
 class node_workUntilJobdone(BT.Node):
     '''work until the current task is complete'''
@@ -132,6 +132,7 @@ class node_assignJobifAble(BT.Node):
         if board.hasWork():
             board.assignJob(context["villager"])
             context["villager"].changeState(VillagerStates.WORKING)
+            return BT.nodeStates.WAITING
         return BT.nodeStates.SUCCESS
 
 
@@ -150,6 +151,3 @@ class tree_workTree(BT.Tree):
 
         self.addNodetoRoot(node_assignJobifAble("Getting a job if possible"))
 
-
-
-TestTree().activate({"Verbose":True})
