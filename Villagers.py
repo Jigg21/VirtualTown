@@ -4,7 +4,7 @@ from BehaviorTree import BT
 import math
 
 from VillagerNodes import tree_HungerSatisfactionTree, tree_workTree
-#base class for all tasks passengers can do
+#base class for all tasks villagers can do
 class Task:
     function = None
     pay = 0
@@ -36,19 +36,22 @@ class Task:
     def __str__(self):
         return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)
 
-#use to give jobs to passengers
+#use to give jobs to villagers
 class bulletinBoard():
     def __init__(self):
         self.activeTasks = []
+        self.taskCount = 0
     
     #assigns a job to the given villager
     def assignJob(self, villager):
+        self.taskCount -= 1
         return self.activeTasks.pop()
     
     #adds a task to the board
     def postJob(self,task,townHall):
         if townHall.spendTreasury(task.pay):
             self.activeTasks.append(task)
+            self.taskCount += 1
 
     #returns true if the bulletin board has any active tasks
     def hasWork(self):
@@ -82,7 +85,7 @@ class townsperson:
 
         self.behaviorTree = BT.Tree(BT.SequenceNode("ROOT NODE"))
         self.behaviorTree.addNodetoRoot(tree_HungerSatisfactionTree())
-        self.behaviorTree.addNodetoRoot(tree_workTree())
+        self.behaviorTree.addNodetoRoot(tree_workTree()) 
 
     #called once a tick
     def update(self):

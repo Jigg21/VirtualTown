@@ -1,5 +1,7 @@
 from BehaviorTree import BT
 from CONST import VillagerStates
+
+#TODO: make a formal Test function for test tree
 class TestNode_ConstantState(BT.Node):
     '''Testing node that always returns a certain state'''
     def __init__(self,state,desc="") -> None:
@@ -19,7 +21,6 @@ class TestNode_PrintMessage(BT.Node):
         print(self.message)
         return BT.nodeStates.SUCCESS
 
-#test tree
 class TestTree(BT.Tree):
     def __init__(self) -> None:
         super().__init__()
@@ -32,7 +33,7 @@ class TestTree(BT.Tree):
         self.addNode(testnode,testdec)
         self.addNodetoRoot(testnode2)
         self.addNodetoRoot(TestNode_PrintMessage("DONE"))
-        
+
 class node_villagerInState(BT.Node):
 
     def __init__(self,state,desc="") -> None:
@@ -115,6 +116,7 @@ class node_workUntilJobdone(BT.Node):
         villager = context["villager"]
         #returns success if the job is done, waiting if it's still working, or failed if there is no job
         if villager.vTask is not None:
+            villager.goTo(villager.vTask.location)
             villager.vTask.work(villager)
             if villager.vTask.completed:
                 villager.finishWork()

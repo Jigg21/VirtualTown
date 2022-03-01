@@ -13,11 +13,8 @@ import Buildings
 import Villagers
 import io
 
-
-
-
 #contains all ship-wide events and variables
-class Town:
+class Ship:
     townName = ""
     townAge = -1
     townAgeReadable = ""
@@ -131,11 +128,8 @@ class Town:
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
-
-
-
 def main():
-    testTown = Town("Nuketown")
+    testTown = Ship("Nuketown")
     townHall = Buildings.TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
     townTavern = Buildings.Restaurant("Tavern",False,1,testTown)
@@ -191,6 +185,5 @@ def main():
             input("Close")
         UI.deinitialize()
     return
-
 
 main()

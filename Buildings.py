@@ -11,14 +11,14 @@ class Building:
     IsPrivate = False
     buildingNumber = 0
     buildingName = ""
-    town = None
+    ship = None
     WorkerSalary = 5
-    def __init__(self,buidingName,IsPrivate, buildingNumber,town):
+    def __init__(self,buidingName,IsPrivate, buildingNumber,ship):
         self.buildingName = buidingName
         self.IsPrivate = IsPrivate
         self.Occupants = []
         self.buildingNumber = buildingNumber
-        self.town = town
+        self.ship = ship
         return
 
     #for actions that are activated by villagers
@@ -100,7 +100,7 @@ class Restaurant(Building):
     hungerSatisfaction = 10
 
     def activate(self,Villager):
-        hall = self.town.getTownHall()
+        hall = self.ship.getTownHall()
         #if the town has food
         if hall.getFood() > 0 or config.getboolean("DEBUG","ENDLESSFOOD"):            
             hall.subtractFood(1)
@@ -124,7 +124,7 @@ class Farm(Building):
     #harvest a crop and get food value
     def harvestCrop(self,crop):
         harvestAmount = crop.getHarvest()
-        self.town.getTownHall().addFood(harvestAmount)
+        self.ship.getTownHall().addFood(harvestAmount)
         if crop in self.crops:
             self.crops.remove(crop)
     
@@ -169,11 +169,12 @@ class Farm(Building):
         
 #Can mine gold for the treasury or iron for upgrades
 class Mine(Building):
+    
     ironStockpile = 0
     mineEfficiency = 1
 
     def mineGold(self):
-        self.town.townHall.addTreasury(self.mineEfficiency)
+        self.ship.townHall.addTreasury(self.mineEfficiency)
         
 
     def mineIron(self):
@@ -187,17 +188,17 @@ class Mine(Building):
         result += "(Iron: {iron})".format(iron=self.ironStockpile)
         return result
 
-#A place to sell food for gold
-class TradeHub(Building):
 
+class TradeHub(Building):
+    '''A place to sell food for gold'''
     dailyTradeRate = 0
     def __init__(self, buidingName, IsPrivate, buildingNumber, town):
         super().__init__(buidingName, IsPrivate, buildingNumber, town)
     
     def sellFood(self,amount):
         print("selling")
-        self.town.townHall.subtractFood(amount)
-        self.town.townHall.addTreasury(amount*self.dailyTradeRate)
+        self.ship.townHall.subtractFood(amount)
+        self.ship.townHall.addTreasury(amount*self.dailyTradeRate)
         CaptainsLog.logSale("Food",amount,amount*self.dailyTradeRate)
     
     def dailyUpdate(self,data):

@@ -1,2 +1,5 @@
-1 Villagers will attempt to eat at the restaurant despite having no food.
+1   Villagers will attempt to eat at the restaurant despite having no food.
     They will not work on the farm, and therefore no food is gained
+
+2   Vilagers will stay at the restaurant and eat continuously, 
+    until there is no food left
