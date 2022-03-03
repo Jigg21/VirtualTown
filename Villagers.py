@@ -45,6 +45,8 @@ class bulletinBoard():
     #assigns a job to the given villager
     def assignJob(self, villager):
         self.taskCount -= 1
+        task = self.activeTasks.pop()
+        villager.getWork(task)
         return self.activeTasks.pop()
     
     #adds a task to the board
@@ -108,7 +110,7 @@ class townsperson:
         if (self.vHunger > 100):
             self.vHunger = 100
     
-    #complete all jobs and get paid
+    #complete job and get paid
     def finishWork(self):
         self.offWork = True
         self.vState = VillagerStates.IDLE
@@ -128,6 +130,7 @@ class townsperson:
         '''Go to a restuarant if the villager is not already there'''
         if self.currentLocation != self.town.getRestaurant():
             self.goTo(self.town.getRestaurant())    
+    
     #go to work
     def goWork(self):
         if (self.currentLocation != self.vTask.location):

@@ -1,3 +1,4 @@
+from ctypes import resize
 from enum import Enum
 from unittest import result
 
@@ -28,13 +29,12 @@ class Tree():
     
     def activate(self,context):
         '''Traverse the tree with given dictionary context'''
-        self.rootNode.activate(context)
+        return self.rootNode.activate(context)
     
     def traverse(self,context):
         '''Traverse the tree with given dictionary context'''
         results = self.rootNode.activate(context)
         print("RESULT: {result}".format(result=results))
-    
 
 
 class nodeStates (Enum):
@@ -81,25 +81,26 @@ class SequenceNode (Node):
     def activate(self,context) -> nodeStates:
         super().activate(context)
         for child in self.children:
-            result = child.activate(context)
-            if result == nodeStates.FAILED:
+            cResult = child.activate(context)
+            if cResult == nodeStates.FAILED:
                 return nodeStates.FAILED
-            if result == nodeStates.WAITING:
+            if cResult == nodeStates.WAITING:
                 return nodeStates.WAITING
         else:
             return nodeStates.SUCCESS
 
 #like OR logic
-#fallback control node, returns success at the first child that returns success
+#fallback control node, returns success at the first child that returns success or waiting
 class FallBackNode (Node):
-    def activate(self,context) -> nodeStates:
+    def activate(self,context):
         super().activate(context)
         for child in self.children:
             result = child.activate(context)
             if result == nodeStates.SUCCESS:
                 return nodeStates.SUCCESS
-        else:
-            return nodeStates.FAILED
+            if result == nodeStates.WAITING:
+                return nodeStates.WAITING
+        return nodeStates.FAILED
 
 #like OR logic
 #parallel control node, activates all children, then returns success if any succeeded

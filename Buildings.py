@@ -188,7 +188,6 @@ class Mine(Building):
         result += "(Iron: {iron})".format(iron=self.ironStockpile)
         return result
 
-
 class TradeHub(Building):
     '''A place to sell food for gold'''
     dailyTradeRate = 0

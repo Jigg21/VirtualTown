@@ -138,7 +138,7 @@ class BuildingTaskDisplay(tk.Frame):
         self.parent = parent
         super(BuildingTaskDisplay,self).__init__(parent,width=width,height= height)
         
-        self.taskCount = tk.Text(parent,height=20,width=width)
+        self.taskCount = tk.Text(parent,height=1,width=width)
         self.taskCount.pack(expand=False,side=side,padx=40)
         self.dropDownVariable = StringVar(parent)
         self.dropDownVariable.set("Choose Building")
@@ -167,7 +167,7 @@ class BuildingTaskDisplay(tk.Frame):
     def updateTasks(self,taskString):
         tasks = taskString.split("\n")
         self.taskCount.delete("1.0",END)
-        self.taskCount.insert(tk.END,len(tasks))
+        self.taskCount.insert(tk.END, "Total Tasks: " + str(len(tasks)))
         self.allTasks = taskString
         self.farmTasks = ""
         self.mineTasks = ""
