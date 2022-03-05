@@ -34,7 +34,7 @@ class Tree():
     def traverse(self,context):
         '''Traverse the tree with given dictionary context'''
         results = self.rootNode.activate(context)
-        if (context["Verbose"]):
+        if context["Verbose"]:
             print("RESULT: {result}".format(result=results))
 
 
@@ -140,3 +140,13 @@ class NegateDecorator(decoratorNode):
         if state == nodeStates.FAILED:
             return nodeStates.SUCCESS
         return state
+
+class FinishDecorator(decoratorNode):
+    '''returns success if child returns success or failure, Fails otherwise'''
+    def function(self, *args):
+        state = args[0]
+        if state == nodeStates.SUCCESS:
+            return nodeStates.SUCCESS
+        if state == nodeStates.FAILED:
+            return nodeStates.SUCCESS
+        return nodeStates.FAILED

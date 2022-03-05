@@ -87,6 +87,7 @@ class townsperson:
         self.vAge = age
         self.vGender = gender
         self.vName = name
+        self.ID = 0
         self.currentLocation = startLocation
         self.currentLocation.add_occupant(self)
         self.town = town

@@ -212,3 +212,16 @@ class GameHall(Building):
     def activate(self, Villager):
         super().activate(Villager)    
     
+class Tavern(Building):
+    '''a place for villagers to build relations with others'''
+    def activate(self, Villager):
+        super().activate(Villager)
+        for v in self.Occupants:
+            if Villager != v:
+                Villager.changeRelation(v,1)
+
+        
+
+    
+
+
