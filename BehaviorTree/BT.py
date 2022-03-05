@@ -34,7 +34,8 @@ class Tree():
     def traverse(self,context):
         '''Traverse the tree with given dictionary context'''
         results = self.rootNode.activate(context)
-        print("RESULT: {result}".format(result=results))
+        if (context["Verbose"]):
+            print("RESULT: {result}".format(result=results))
 
 
 class nodeStates (Enum):
@@ -89,10 +90,9 @@ class SequenceNode (Node):
         else:
             return nodeStates.SUCCESS
 
-#like OR logic
-#fallback control node, returns success at the first child that returns success or waiting
 class FallBackNode (Node):
     def activate(self,context):
+        '''fallback control node, returns success at the first child that returns success or waiting'''
         super().activate(context)
         for child in self.children:
             result = child.activate(context)
@@ -102,9 +102,8 @@ class FallBackNode (Node):
                 return nodeStates.WAITING
         return nodeStates.FAILED
 
-#like OR logic
-#parallel control node, activates all children, then returns success if any succeeded
 class ParallelNode (Node):
+    '''fallback control node, returns success at the first child that returns success or waiting'''
     def activate(self,context) -> nodeStates:
         super().activate(context)
         returnValue = nodeStates.FAILED
@@ -118,8 +117,8 @@ class ParallelNode (Node):
                 returnValue = nodeStates.SUCCESS
         return returnValue
 
-#Decorator Base class
 class decoratorNode (Node):
+    '''Decorator Base class'''
     def activate(self,context) -> nodeStates:
         super().activate(context)
         if len(self.children) == 0:

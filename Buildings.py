@@ -23,6 +23,7 @@ class Building:
 
     #for actions that are activated by villagers
     def activate(self,Villager):
+        '''activation function, does nothing on its own'''
         pass
     
     #for actions that activate every tick
@@ -93,9 +94,8 @@ class TownHall(Building):
         result += "(Treasury: " + str(self.treasury) + ")"
         return result
 
-#Place for villagers to eat
 class Restaurant(Building):
-
+    '''Place for villagers to eat'''
     #how much hunger each food satisfies
     hungerSatisfaction = 10
 
@@ -207,8 +207,8 @@ class TradeHub(Building):
         self.dailyTradeRate = Utilities.getRandomValue(currentTime,0,20)
         CaptainsLog.log("Today's trade rate for food is: {rate}".format(rate=self.dailyTradeRate))
 
-        
-
+class GameHall(Building):
+    '''Villagers can play games between each other'''
+    def activate(self, Villager):
+        super().activate(Villager)    
     
-
-

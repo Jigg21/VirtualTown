@@ -68,6 +68,7 @@ class node_eatUntilFull(BT.Node):
         context["villager"].goEat()
         if context["villager"].vHunger == 100:
             context["villager"].changeState(VillagerStates.IDLE)
+            context["villager"].goTo(context["town"].townHall)
             return BT.nodeStates.SUCCESS
         else:
             return BT.nodeStates.WAITING
@@ -77,7 +78,6 @@ class node_hungerCheck(BT.Node):
     def activate(self, context) -> BT.nodeStates:
         super().activate(context)
         if context["villager"].vHunger < 10:
-            print("Hunger check failed")
             return BT.nodeStates.FAILED
         else:
             return BT.nodeStates.SUCCESS
@@ -103,7 +103,7 @@ class tree_HungerSatisfactionTree(BT.Tree):
         self.addNodetoRoot(eatingLoop)
         self.addNode(isEating,eatingLoop)
         self.addNode(eatToFull,eatingLoop)
-        #check if the villager is hungery and if the town has food
+        #check if the villager is hungry and if the town has food
         townFoodCheck = node_isTownStarving("Town Check")
         hungerCheck = node_hungerCheck("hunger check")
         self.addNodetoRoot(townFoodCheck)
@@ -142,13 +142,10 @@ class node_assignJobifAble(BT.Node):
         board = context["board"]
         if board.hasWork() and context["villager"].vTask == None:
             board.assignJob(context["villager"])
-            print("Give Job")
             context["villager"].changeState(VillagerStates.WORKING)
             return BT.nodeStates.WAITING
-        print("Go idle")
         context["villager"].changeState(VillagerStates.IDLE)
         return BT.nodeStates.SUCCESS
-
 
 class tree_workTree(BT.Tree):
     '''works while there are tasks to be done'''
@@ -166,7 +163,5 @@ class tree_workTree(BT.Tree):
         self.addNode(inStateWorking,workCheck)
         self.addNode(hasWork,workCheck)
         self.addNode(workUntilDone,workLoop)
-
         self.addNodetoRoot(node_assignJobifAble("Getting a job if possible"))
 
-TestTree().traverse(context={"Verbose":True})

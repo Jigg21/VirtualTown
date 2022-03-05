@@ -1,19 +1,13 @@
+from typing_extensions import Required
 from ConfigReader import ConfigData as config
-from CONST import VillagerStates
+from CONST import TaskStatus, VillagerStates
 from BehaviorTree import BT
 import math
 
 from VillagerNodes import tree_HungerSatisfactionTree, tree_workTree
-#base class for all tasks villagers can do
 class Task:
-    function = None
-    pay = 0
-    desc = "Task"
-    laborReq = 0
-    completed = False
-    functionArgs = []
-    assignedVillager = None
-    location = None
+    '''base class for all tasks villagers can do'''
+
     def __init__(self,function,labor,location,desc="Task",pay=0,workArgs=[]):
         self.function = function
         self.desc = desc
@@ -21,9 +15,12 @@ class Task:
         self.laborReq = labor
         self.functionArgs = workArgs
         self.location = location
-
+        self.assignedVillager = None
+        self.state == TaskStatus.WAITING
+        
 
     def work(self,villager):
+        '''do the task'''
         self.laborReq -= 1
         if (self.laborReq <= 0):
             self.function(*self.functionArgs)
@@ -34,10 +31,25 @@ class Task:
         return self.completed
 
     def __str__(self):
-        return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)
+        return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)      
 
-#use to give jobs to villagers
+class coopTask(Task):
+    '''Tasks involving multiple villagers'''
+    def __init__(self, function, labor, location, reqVillagers, desc="Task", pay=0, workArgs=[]):
+        super().__init__(function, labor, location, desc, pay, workArgs)
+        self.reqVillagers = reqVillagers
+    
+    def work(self, villager):
+        if self.state == TaskStatus.WAITING:
+            if villager.state != VillagerStates.READY:
+                villager.changeState(VillagerStates.READY)
+                villager.goTo(self.location)
+                self.reqVillagers += 1
+    
+                
+
 class bulletinBoard():
+    '''use to give jobs to villagers'''
     def __init__(self):
         self.activeTasks = []
         self.taskCount = 0
@@ -84,7 +96,8 @@ class townsperson:
         self.vMoney = 10
         self.offWork = False
         self.experience = 0
-
+        self.RelationShips = {self:0}
+        #set up behavior tree
         self.behaviorTree = BT.Tree(BT.SequenceNode("ROOT NODE"))
         self.behaviorTree.addNodetoRoot(tree_HungerSatisfactionTree())
         self.behaviorTree.addNodetoRoot(tree_workTree()) 
@@ -94,6 +107,7 @@ class townsperson:
 
         self.vHunger -= .208
         self.currentLocation.activate(self)
+        #assemble context and traverse behavior tree
         context = {}
         context["villager"] = self
         context["town"] = self.town
@@ -104,8 +118,9 @@ class townsperson:
     def changeState(self,newState):
         '''change the villagers state'''
         self.vState = newState
-    #replenish hunger
+    
     def eat(self,amount):
+        '''Replenish hunger by amount'''
         self.vHunger += amount
         if (self.vHunger > 100):
             self.vHunger = 100
@@ -173,8 +188,10 @@ class townsperson:
     def hospitalize (self):
         self.vState = VillagerStates.HOSPITALIZED
     
-    
-    
+    def gainRelation(self,otherVillager,amount):
+        '''gain amount of friendship with otherVillager'''
+        self.RelationShips[otherVillager] += amount
+
     #string representation
     def __str__(self):
         result = self.vName
@@ -185,3 +202,4 @@ class townsperson:
         result += "State: {state}".format(state = str(self.vState))
         result += "Task: {task}".format(task=str(self.vTask))
         return result
+
