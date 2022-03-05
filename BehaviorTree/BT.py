@@ -34,7 +34,8 @@ class Tree():
     def traverse(self,context):
         '''Traverse the tree with given dictionary context'''
         results = self.rootNode.activate(context)
-        print("RESULT: {result}".format(result=results))
+        if context["Verbose"]:
+            print("RESULT: {result}".format(result=results))
 
 
 class nodeStates (Enum):
@@ -118,8 +119,9 @@ class ParallelNode (Node):
                 returnValue = nodeStates.SUCCESS
         return returnValue
 
-#Decorator Base class
+
 class decoratorNode (Node):
+    '''Decorator Base Class'''
     def activate(self,context) -> nodeStates:
         super().activate(context)
         if len(self.children) == 0:
@@ -141,3 +143,13 @@ class NegateDecorator(decoratorNode):
         if state == nodeStates.FAILED:
             return nodeStates.SUCCESS
         return state
+
+class FinishDecorator(decoratorNode):
+    '''returns success if child returns success or failure, Fails otherwise'''
+    def function(self, *args):
+        state = args[0]
+        if state == nodeStates.SUCCESS:
+            return nodeStates.SUCCESS
+        if state == nodeStates.FAILED:
+            return nodeStates.SUCCESS
+        return nodeStates.FAILED

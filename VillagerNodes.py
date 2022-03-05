@@ -142,10 +142,8 @@ class node_assignJobifAble(BT.Node):
         board = context["board"]
         if board.hasWork() and context["villager"].vTask == None:
             board.assignJob(context["villager"])
-            print("Give Job")
             context["villager"].changeState(VillagerStates.WORKING)
             return BT.nodeStates.WAITING
-        print("Go idle")
         context["villager"].changeState(VillagerStates.IDLE)
         return BT.nodeStates.SUCCESS
 

@@ -75,6 +75,7 @@ class townsperson:
         self.vAge = age
         self.vGender = gender
         self.vName = name
+        self.ID = 0
         self.currentLocation = startLocation
         self.currentLocation.add_occupant(self)
         self.town = town
@@ -84,6 +85,8 @@ class townsperson:
         self.vMoney = 10
         self.offWork = False
         self.experience = 0
+        self.Relations = {}
+        
 
         self.behaviorTree = BT.Tree(BT.SequenceNode("ROOT NODE"))
         self.behaviorTree.addNodetoRoot(tree_HungerSatisfactionTree())
@@ -173,8 +176,9 @@ class townsperson:
     def hospitalize (self):
         self.vState = VillagerStates.HOSPITALIZED
     
-    
-    
+    def changeRelation(self,otherVillager,amount):
+        '''Updates relations with other villager, amount can be positive or negative'''
+           
     #string representation
     def __str__(self):
         result = self.vName

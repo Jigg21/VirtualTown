@@ -207,6 +207,14 @@ class TradeHub(Building):
         self.dailyTradeRate = Utilities.getRandomValue(currentTime,0,20)
         CaptainsLog.log("Today's trade rate for food is: {rate}".format(rate=self.dailyTradeRate))
 
+class Tavern(Building):
+    '''a place for villagers to build relations with others'''
+    def activate(self, Villager):
+        super().activate(Villager)
+        for v in self.Occupants:
+            if Villager != v:
+                Villager.changeRelation(v,1)
+
         
 
     
