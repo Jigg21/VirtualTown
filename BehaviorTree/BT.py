@@ -2,9 +2,9 @@ from ctypes import resize
 from enum import Enum
 from unittest import result
 
-#Behavior Tree manager
+
 class Tree():
-    
+    '''tree base class'''
     def __init__(self,rootnode = None) -> None:
         '''Creates a tree object with a given rootnode'''
         self.rootNode = rootnode  
@@ -37,14 +37,12 @@ class Tree():
         if context["Verbose"]:
             print("RESULT: {result}".format(result=results))
 
-
 class nodeStates (Enum):
     '''States a node can be'''
     UNEXPLORED = 0
     SUCCESS = 1
     FAILED = 2
     WAITING = 3
-
 
 class Node ():
     '''Node Base Class'''
@@ -60,12 +58,13 @@ class Node ():
         if context["Verbose"]:
             print(self.desc)
 
-    #adds a child to the node
+    
     def addChild(self,child):
+        '''adds a child to the node'''
         self.children.append(child)
     
-    #recursively find target in children
     def findChild(self,target):
+        '''Recursively find target in children'''
         if self == target:
             return self
         elif len(self.children) == 0:
@@ -75,7 +74,6 @@ class Node ():
                 result = child.findChild(target)
                 if result == target:
                     return result
-
 
 class SequenceNode (Node):
     '''sequence control node, activates children one by one, returns success if all children return success'''
@@ -129,7 +127,6 @@ class decoratorNode (Node):
 
     def function(self,*args):
         pass
-
 
 class NegateDecorator(decoratorNode):
     '''converts success states to fails and vice versa'''    

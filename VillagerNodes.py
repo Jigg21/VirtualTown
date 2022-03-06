@@ -1,5 +1,5 @@
 from BehaviorTree import BT
-from CONST import VillagerStates
+from CONST import *
 
 #TODO: make a formal Test function for test tree
 class TestNode_ConstantState(BT.Node):
@@ -135,6 +135,16 @@ class node_vilagerHasWork(BT.Node):
         else:
             return BT.nodeStates.FAILED
 
+class node_doesTownHaveWork(BT.Node):
+    '''checks if the town has tasks to give out'''
+    def activate(self, context) -> BT.nodeStates:
+        super().activate(context)
+        board = context["board"]
+        if board.hasWork():
+            return BT.nodeStates.SUCCESS
+        else:
+            return BT.nodeStates.FAILED
+
 class node_assignJobifAble(BT.Node):
     '''gives the villager a job if it can'''
     def activate(self, context) -> BT.nodeStates:
@@ -148,20 +158,34 @@ class node_assignJobifAble(BT.Node):
         return BT.nodeStates.SUCCESS
 
 class tree_workTree(BT.Tree):
-    '''works while there are tasks to be done'''
+    '''assigns work if possible and the villager does not already have work'''
     def __init__(self) -> None:
         super().__init__()
         self.addRootNode(BT.FallBackNode("Work Tree"))
 
-        workLoop = BT.SequenceNode("Work Loop")
-        workCheck = BT.FallBackNode("Work Check")
-        hasWork = node_vilagerHasWork(desc="Checking for work")
-        inStateWorking = node_villagerInState(VillagerStates.WORKING)
-        workUntilDone = node_workUntilJobdone("Work Until done")
-        self.addNodetoRoot(workLoop)
-        self.addNode(workCheck,workLoop)
-        self.addNode(inStateWorking,workCheck)
-        self.addNode(hasWork,workCheck)
-        self.addNode(workUntilDone,workLoop)
+        hasWork = node_vilagerHasWork(desc="Checking for Tasks")
+        negate = BT.NegateDecorator("")
+        townHasWork = node_doesTownHaveWork(desc="Checking for Tasks")
+        self.addNodetoRoot(hasWork)
+        self.addNodetoRoot(negate)
+        self.addNode(townHasWork,negate)
         self.addNodetoRoot(node_assignJobifAble("Getting a job if possible"))
+
+class tree_doWork(BT.Tree):
+    '''Performs the work action depending on the type of task'''
+    def __init__(self, rootnode=None) -> None:
+        super().__init__(rootnode)
+        self.addRootNode(BT.FinishDecorator("do work tree"))
+        root = BT.SequenceNode()
+        self.addNodetoRoot(root)
+        self.addNode(node_vilagerHasWork("Villager has something to do"),root)
+        coopSubTree = BT.FallBackNode("coop-subtree")
+        self.addNode(coopSubTree,root)
+        negate = BT.NegateDecorator("not in coop task")
+        
+class node_inCoopTask(BT.Node):
+    '''returns success if the current task is cooperative'''
+    def activate(self, context) -> BT.nodeStates:
+        super().activate(context)
+        #TODO: FINISH COOP NODES
 

@@ -1,4 +1,3 @@
-from typing_extensions import Required
 from ConfigReader import ConfigData as config
 from CONST import TaskStatus, VillagerStates
 from BehaviorTree import BT
@@ -16,7 +15,7 @@ class Task:
         self.functionArgs = workArgs
         self.location = location
         self.assignedVillager = None
-        self.state == TaskStatus.WAITING
+        self.state = TaskStatus.WAITING
         
 
     def work(self,villager):
