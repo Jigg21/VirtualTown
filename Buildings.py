@@ -118,7 +118,7 @@ class Restaurant(Building):
 #Grows food 
 class Farm(Building):
     crops = []
-    maximumCrops = 100
+    maximumCrops = 10
 
     #harvest a crop and get food value
     def harvestCrop(self,crop):
@@ -136,9 +136,10 @@ class Farm(Building):
             cropCount += 1
         if cropCount > 0:
             mean = GUTotal/cropCount
+            timeToHarvest = math.ceil(mean / 5)
         else:
-            mean = math.inf
-        timeToHarvest = math.ceil(mean / 5)
+            timeToHarvest = math.inf
+        
         return timeToHarvest
 
     #do daily maintenance on crops

@@ -7,6 +7,7 @@ class VillagerStates(Enum):
     WORKING = 3
     HOSPITALIZED = 4
     READY = 5
+    DEAD = 6
 
 class TaskStatus(Enum):
     '''Enum of task states'''

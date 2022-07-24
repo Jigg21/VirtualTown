@@ -1,3 +1,4 @@
+import math
 from Buildings import TradeHub
 from Crops import *
 import Utilities
@@ -39,12 +40,27 @@ class TownOverseer():
             #if the crop can be grown before starvation, calculate the ratio of value over growunits
             if (crop["cropRipe"]/5)*1440 < starvationTime:
                 possibleCrops[c] = crop["cropValue"]/crop["cropRipe"]
+        #if no crop will grow before the town starves, plant the fastest growing crop
+        if len(possibleCrops) == 0:
+            fastestGrowth = math.inf
+            fastestCrop = None
+            for c in getCropData():
+                crop = data[c]
+                if crop["cropRipe"] < fastestGrowth:
+                    fastestGrowth = crop["cropRipe"]
+                    fastestCrop = c
+            return fastestCrop
+                
+
         highestRatio = 0
         highestCrop = None
         for pc in possibleCrops:
              if possibleCrops[pc] > highestRatio:
                  highestCrop = pc
                  highestRatio = possibleCrops[pc]
+        
+        
+
         return highestCrop
     
     #Post jobs for everything that needs to be done

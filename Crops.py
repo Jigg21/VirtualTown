@@ -1,5 +1,9 @@
+from distutils.log import error
 import json
+from lib2to3.pytree import Base
 import string
+
+from regex import E
 import Utilities
 CROPDATA = None
 
@@ -50,7 +54,8 @@ class Crop():
             self.harvestLaborReq = CROPDATA[cropName]["cropHLabor"]
             self.maintainLaborReq = CROPDATA[cropName]["cropMLabor"]
             self.cropColor = CROPDATA[cropName]["cropColor"]
-        except:
+        except BaseException as E:
+            print (E)
             raise ValueError
 
     #get percentage of time planted and time needed to ripen

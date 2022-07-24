@@ -3,6 +3,7 @@ from CONST import TaskStatus, VillagerStates
 from BehaviorTree import BT
 import math
 from VillagerNodes import tree_VillagerBehaviorTree
+import Utilities
 
 class Task:
     '''base class for all tasks villagers can do'''
@@ -75,7 +76,10 @@ class bulletinBoard():
         self.taskCount -= 1
         task = self.activeTasks.pop()
         villager.getWork(task)
-        return self.activeTasks.pop()
+        try:
+            return self.activeTasks.pop()
+        except:
+            return None
     
     #adds a task to the board
     def postJob(self,task,townHall):
@@ -110,6 +114,8 @@ class townsperson:
         self.vHunger = 100
         self.vState = VillagerStates.IDLE
         self.vMoney = 10
+        self.vHealth = 100
+        self.alive = True
         self.offWork = False
         self.experience = 0
         self.RelationShips = {self:0}
@@ -119,17 +125,29 @@ class townsperson:
 
     #called once a tick
     def update(self):
+        self.checkAlive()
+        if self.alive:
+            self.vHunger -=  config.getfloat("PASSENGERS","HUNGERDRAIN")
+            if self.vHunger <= 0:
+                self.vHealth -= config.getfloat("PASSENGERS","HUNGERDEATH")
+            if self.vHunger > 25 and self.vHealth < 100:
+                self.vHealth += self.vHunger-25/100 * config.getfloat("PASSENGERS","HEALRATE")
+            self.currentLocation.activate(self)
+            #assemble context and traverse behavior tree
+            context = {}
+            context["villager"] = self
+            context["town"] = self.town
+            context["board"] = self.town.bulletin
+            context["Verbose"] = config.getboolean("DEBUG","BTVerbose")
+            self.behaviorTree.traverse(context)
+            self.vHunger = Utilities.clamp(-100,100,self.vHunger)
+            self.vHealth = Utilities.clamp(0,100,self.vHealth)
 
-        self.vHunger -= .208
-        self.currentLocation.activate(self)
-        #assemble context and traverse behavior tree
-        context = {}
-        context["villager"] = self
-        context["town"] = self.town
-        context["board"] = self.town.bulletin
-        context["Verbose"] = config.getboolean("DEBUG","BTVerbose")
-        self.behaviorTree.traverse(context)
-
+    def checkAlive(self):
+        if self.vHealth <= 0:
+            self.alive = False
+            self.changeState(VillagerStates.DEAD)
+            
     def changeState(self,newState):
         '''change the villagers state'''
         self.vState = newState
@@ -211,6 +229,7 @@ class townsperson:
         result = self.vName
         result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
+        result += " Health: {health}".format(health=math.floor(self.vHealth))
         result += " Money: {money}".format(money=self.vMoney)
         result += " EXP: {exp}".format(exp=self.experience)
         result += "State: {state}".format(state = str(self.vState))
