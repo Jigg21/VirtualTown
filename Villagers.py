@@ -27,14 +27,17 @@ class Task:
             self.laborReq -= 1
             if (self.laborReq <= 0):
                 self.function(*self.functionArgs)
-                self.state == TaskStatus.COMPLETED
+                self.state = TaskStatus.COMPLETED
     
     def isWaiting(self):
         '''Returns true if task is in state WAITING'''
         return self.state == TaskStatus.WAITING
     
     def isComplete(self):
-        '''Returns true if task is in state COMPLETED'''
+        '''Returns true if task is complete'''
+        if (self.laborReq <= 0):
+            self.function(*self.functionArgs)
+            self.state = TaskStatus.COMPLETED
         return self.state == TaskStatus.COMPLETED
 
     def isCompleted(self):
@@ -139,7 +142,6 @@ class townsperson:
     
     def finishWork(self):
         '''complete job and get paid'''
-        print("YEAH!")
         self.offWork = True
         self.vState = VillagerStates.IDLE
         self.experience += 1
