@@ -72,9 +72,12 @@ def countPlaces(number):
         count += 1
     return count
 
-#gets a repeatable random number given the current tick and the config seed
-def getRandomValue(currentTime,min,max):
+def initialIzeRandomSeed():
+    '''seed the random function'''
     seed = config.getint("VALUES","SEED")
-    random.seed(seed/(convertTimeToTicks(currentTime)+1))
+    random.seed(seed)
+
+def getRandomValue(min,max):
+    '''get a random number between min and max, inclusive'''
     result = random.randint(min,max)
     return result

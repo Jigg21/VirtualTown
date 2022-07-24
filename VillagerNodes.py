@@ -119,7 +119,7 @@ class node_workUntilJobdone(BT.Node):
         if villager.vTask is not None:
             villager.goWork()
             villager.vTask.work(villager)
-            if villager.vTask.completed:
+            if villager.vTask.isComplete():
                 villager.finishWork()
                 return BT.nodeStates.SUCCESS
             else:
@@ -179,13 +179,41 @@ class tree_doWork(BT.Tree):
         root = BT.SequenceNode()
         self.addNodetoRoot(root)
         self.addNode(node_vilagerHasWork("Villager has something to do"),root)
-        coopSubTree = BT.FallBackNode("coop-subtree")
+        #coop tasks
+        coopSubTree = BT.FallBackNode("Worker Sync")
         self.addNode(coopSubTree,root)
         negate = BT.NegateDecorator("not in coop task")
+        inCoop = node_inCoopTask()
+        self.addNode(negate,coopSubTree)
+        self.addNode(inCoop,negate)
+        waitingforWorkers = node_WaitingOnWorkers("Waiting on workers")
+        self.addNode(waitingforWorkers,coopSubTree)
+        normalWork = node_workUntilJobdone("Work until done")
+        self.addNode(normalWork,root)
         
 class node_inCoopTask(BT.Node):
     '''returns success if the current task is cooperative'''
     def activate(self, context) -> BT.nodeStates:
         super().activate(context)
-        #TODO: FINISH COOP NODES
+        if context["villager"].vTask.coop:
+            return BT.nodeStates.SUCCESS
+        else:
+            return BT.nodeStates.FAILED
 
+class node_WaitingOnWorkers(BT.Node):
+    '''returns waiting if the villager is in a cooperative task, but waiting on workers
+       succeeds otherwise'''
+    def activate(self, context) -> BT.nodeStates:
+        super().activate(context)
+        if context["villager"].vTask.isWaiting():
+            return BT.nodeStates.WAITING
+        else:
+            return BT.nodeStates.SUCCESS
+
+class tree_VillagerBehaviorTree(BT.Tree):
+    '''constructed villager behavior tree'''
+    def __init__(self, rootnode=None) -> None:
+        self.addRootNode(BT.SequenceNode("Root"))
+        self.addNodetoRoot(tree_HungerSatisfactionTree())
+        self.addNodetoRoot(tree_workTree())
+        self.addNodetoRoot(tree_doWork())

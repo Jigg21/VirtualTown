@@ -233,9 +233,8 @@ def update(args):
 
     root.update()
 
-
-def inititialize():
-  root.title("Nuke Town")
+def inititialize(name):
+  root.title(name)
   tabControl.pack(expand=True,fill=BOTH)
   
 

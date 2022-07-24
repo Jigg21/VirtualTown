@@ -126,6 +126,7 @@ class decoratorNode (Node):
             return self.function(value)
 
     def function(self,*args):
+        '''function that the decorator applies to the return value'''
         pass
 
 class NegateDecorator(decoratorNode):

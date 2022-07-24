@@ -1,0 +1,9 @@
+1   Villagers will attempt to eat at the restaurant despite having no food.
+    They will not work on the farm until they are fed, and so starve
+
+2   Vilagers will stay at the restaurant and eat continuously, 
+    until there is no food left
+
+3   Villagers will work on a task even after it is completed, for free,
+    forever, stoping only to eat
+

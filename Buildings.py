@@ -1,10 +1,9 @@
 import math
+from random import random
 from ConfigReader import ConfigData as config
-from unittest import result
 import Villagers
 import CaptainsLog
 import Utilities
-
 #building base class
 class Building:
     Occupants = []
@@ -23,7 +22,7 @@ class Building:
 
     #for actions that are activated by villagers
     def activate(self,Villager):
-        '''activation function, does nothing on its own'''
+        '''activation base function, does nothing on its own'''
         pass
     
     #for actions that activate every tick
@@ -204,14 +203,45 @@ class TradeHub(Building):
         self.getDailyTradeRate(data["Time"])
 
     def getDailyTradeRate(self,currentTime):
-        self.dailyTradeRate = Utilities.getRandomValue(currentTime,0,20)
+        self.dailyTradeRate = Utilities.getRandomValue(0,20)
         CaptainsLog.log("Today's trade rate for food is: {rate}".format(rate=self.dailyTradeRate))
 
 class GameHall(Building):
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+        self.betters = []
     '''Villagers can play games between each other'''
     def activate(self, Villager):
         super().activate(Villager)    
-    
+        if len(self.betters) > 2:
+            player1 = self.betters.pop()
+            player2 = self.betters.pop()
+            newGame = Villagers.coopTask()
+
+    def playGame(self,player1,player2):
+        '''two player game, one player gets 5 money the other loses 5 money '''
+        randomChoice = Utilities.getRandomValue(0,1)
+        if randomChoice == 1:
+            player1.makeMoney(5)
+            player2.spendMoney(5)
+        else:
+            player1.spendMoney(5)
+            player2.makeMoney(5)
+        
+
+
+        
+    def add_occupant(self, Villager):
+        super().add_occupant(Villager)
+        self.betters.append(Villager)
+
+    def remove_occupant(self, Villager):
+        super().remove_occupant(Villager)
+        try:
+            self.betters.remove(Villager)
+        except ValueError:
+            pass
+
 class Tavern(Building):
     '''a place for villagers to build relations with others'''
     def activate(self, Villager):

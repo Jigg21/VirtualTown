@@ -129,7 +129,7 @@ class Ship:
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
 def main():
-    testTown = Ship("Nuketown")
+    testTown = Ship("TRANSlyvania")
     townHall = Buildings.TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
     townTavern = Buildings.Restaurant("Tavern",False,1,testTown)
@@ -158,7 +158,7 @@ def main():
     
 
     if config.getboolean("VALUES","USEUI"):
-        UI.inititialize()
+        UI.inititialize(testTown.townName)
     #CENTRAL FINITE CURVE
     try:
         for x in range(Utilities.convertTimeToTicks("0:10:0:20")):
