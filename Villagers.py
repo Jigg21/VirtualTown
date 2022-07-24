@@ -2,12 +2,13 @@ from ConfigReader import ConfigData as config
 from CONST import TaskStatus, VillagerStates
 from BehaviorTree import BT
 import math
+from VillagerNodes import tree_VillagerBehaviorTree
 
-from VillagerNodes import tree_HungerSatisfactionTree, tree_workTree
 class Task:
     '''base class for all tasks villagers can do'''
 
     def __init__(self,function,labor,location,desc="Task",pay=0,workArgs=[]):
+        #the function to be done when the task is complete
         self.function = function
         self.desc = desc
         self.pay = pay
@@ -16,16 +17,26 @@ class Task:
         self.location = location
         self.assignedVillager = None
         self.state = TaskStatus.WAITING
-        
+        self.coop = False
 
     def work(self,villager):
         '''do the task'''
-        self.laborReq -= 1
-        if (self.laborReq <= 0):
-            self.function(*self.functionArgs)
-            self.completed = True
-            
+        if self.state == TaskStatus.WAITING:
+            self.state = TaskStatus.INPROGRESS
+        if self.state == TaskStatus.INPROGRESS:
+            self.laborReq -= 1
+            if (self.laborReq <= 0):
+                self.function(*self.functionArgs)
+                self.state == TaskStatus.COMPLETED
     
+    def isWaiting(self):
+        '''Returns true if task is in state WAITING'''
+        return self.state == TaskStatus.WAITING
+    
+    def isComplete(self):
+        '''Returns true if task is in state COMPLETED'''
+        return self.state == TaskStatus.COMPLETED
+
     def isCompleted(self):
         return self.completed
 
@@ -37,16 +48,19 @@ class coopTask(Task):
     def __init__(self, function, labor, location, reqVillagers, desc="Task", pay=0, workArgs=[]):
         super().__init__(function, labor, location, desc, pay, workArgs)
         self.reqVillagers = reqVillagers
-    
+        self.currentVillagers = 0
+        self.coop = True
+
     def work(self, villager):
         if self.state == TaskStatus.WAITING:
             if villager.state != VillagerStates.READY:
                 villager.changeState(VillagerStates.READY)
                 villager.goTo(self.location)
-                self.reqVillagers += 1
+                self.currentVillagers += 1
+            if self.reqVillagers <= self.currentVillagers:
+                self.state == TaskStatus.INPROGRESS
+                super().work(villager)
     
-                
-
 class bulletinBoard():
     '''use to give jobs to villagers'''
     def __init__(self):
@@ -76,7 +90,6 @@ class bulletinBoard():
             result += str(t) + "\n"
         return result
 
-
 #villager class
 class townsperson:
 
@@ -98,9 +111,8 @@ class townsperson:
         self.experience = 0
         self.RelationShips = {self:0}
         #set up behavior tree
-        self.behaviorTree = BT.Tree(BT.SequenceNode("ROOT NODE"))
-        self.behaviorTree.addNodetoRoot(tree_HungerSatisfactionTree())
-        self.behaviorTree.addNodetoRoot(tree_workTree()) 
+        self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
+
 
     #called once a tick
     def update(self):
@@ -125,14 +137,14 @@ class townsperson:
         if (self.vHunger > 100):
             self.vHunger = 100
     
-    #complete job and get paid
     def finishWork(self):
+        '''complete job and get paid'''
+        print("YEAH!")
         self.offWork = True
         self.vState = VillagerStates.IDLE
         self.experience += 1
         self.makeMoney(self.vTask.pay)
         self.vTask = None
-
    
     def goTo(self,location):
         '''sends villager to location and removes it it's current location'''
