@@ -210,6 +210,10 @@ class node_WaitingOnWorkers(BT.Node):
         else:
             return BT.nodeStates.SUCCESS
 
+class node_goToTavern(BT.Node):
+    pass
+
+
 class tree_VillagerBehaviorTree(BT.Tree):
     '''constructed villager behavior tree'''
     def __init__(self, rootnode=None) -> None:

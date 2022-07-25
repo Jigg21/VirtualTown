@@ -122,7 +122,6 @@ class townsperson:
         #set up behavior tree
         self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
 
-
     #called once a tick
     def update(self):
         self.checkAlive()
@@ -220,7 +219,7 @@ class townsperson:
     def hospitalize (self):
         self.vState = VillagerStates.HOSPITALIZED
     
-    def gainRelation(self,otherVillager,amount):
+    def changeRelation(self,otherVillager,amount):
         '''gain amount of friendship with otherVillager'''
         self.RelationShips[otherVillager] += amount
 
