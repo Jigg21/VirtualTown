@@ -1,5 +1,5 @@
 import math
-from random import random
+import random
 from ConfigReader import ConfigData as config
 import Villagers
 import CaptainsLog
@@ -249,7 +249,7 @@ class Tavern(Building):
         super().activate(Villager)
         for v in self.Occupants:
             if Villager != v:
-                Villager.changeRelation(v,1)
+                Villager.changeRelation(v,random.randrange(-1,1))
 
         
 
