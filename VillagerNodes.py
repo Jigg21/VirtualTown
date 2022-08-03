@@ -1,5 +1,5 @@
 from BehaviorTree import BT
-from CONST import *
+import CONST
 
 #TODO: make a formal Test function for test tree
 class TestNode_ConstantState(BT.Node):
@@ -67,7 +67,7 @@ class node_eatUntilFull(BT.Node):
     def activate(self, context) -> BT.nodeStates:
         context["villager"].goEat()
         if context["villager"].vHunger == 100:
-            context["villager"].changeState(VillagerStates.IDLE)
+            context["villager"].changeState(CONST.VillagerStates.IDLE)
             context["villager"].goTo(context["town"].townHall)
             return BT.nodeStates.SUCCESS
         else:
@@ -98,7 +98,7 @@ class tree_HungerSatisfactionTree(BT.Tree):
         
         #if eating, eat until full
         eatingLoop = BT.SequenceNode("eating loop")
-        isEating = node_villagerInState(VillagerStates.EATING)
+        isEating = node_villagerInState(CONST.VillagerStates.EATING)
         eatToFull = node_eatUntilFull("eating until full")
         self.addNodetoRoot(eatingLoop)
         self.addNode(isEating,eatingLoop)
@@ -108,7 +108,7 @@ class tree_HungerSatisfactionTree(BT.Tree):
         hungerCheck = node_hungerCheck("hunger check")
         self.addNodetoRoot(townFoodCheck)
         self.addNodetoRoot(hungerCheck)
-        self.addNodetoRoot(node_setVillagerState(VillagerStates.EATING,result=BT.nodeStates.FAILED,desc="Setting State to Eating"))
+        self.addNodetoRoot(node_setVillagerState(CONST.VillagerStates.EATING,result=BT.nodeStates.FAILED,desc="Setting State to Eating"))
 
 class node_workUntilJobdone(BT.Node):
     '''work until the current task is complete'''
@@ -152,9 +152,9 @@ class node_assignJobifAble(BT.Node):
         board = context["board"]
         if board.hasWork() and context["villager"].vTask == None:
             board.assignJob(context["villager"])
-            context["villager"].changeState(VillagerStates.WORKING)
+            context["villager"].changeState(CONST.VillagerStates.WORKING)
             return BT.nodeStates.WAITING
-        context["villager"].changeState(VillagerStates.IDLE)
+        context["villager"].changeState(CONST.VillagerStates.IDLE)
         return BT.nodeStates.SUCCESS
 
 class tree_workTree(BT.Tree):
@@ -211,7 +211,13 @@ class node_WaitingOnWorkers(BT.Node):
             return BT.nodeStates.SUCCESS
 
 class node_goToTavern(BT.Node):
-    pass
+     
+    def activate(self, context) -> BT.nodeStates:
+        super().activate(context)
+        villager = context["villager"]
+        villager.goToBuildingType(CONST.buildingClass.TAVERN)
+
+        
 
 
 class tree_VillagerBehaviorTree(BT.Tree):
@@ -221,3 +227,5 @@ class tree_VillagerBehaviorTree(BT.Tree):
         self.addNodetoRoot(tree_HungerSatisfactionTree())
         self.addNodetoRoot(tree_workTree())
         self.addNodetoRoot(tree_doWork())
+        self.addNodetoRoot(node_goToTavern("Go to the pub"))
+

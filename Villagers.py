@@ -1,5 +1,6 @@
+from email.parser import BytesParser
 from ConfigReader import ConfigData as config
-from CONST import TaskStatus, VillagerStates
+import CONST
 from BehaviorTree import BT
 import math
 from VillagerNodes import tree_VillagerBehaviorTree
@@ -17,29 +18,29 @@ class Task:
         self.functionArgs = workArgs
         self.location = location
         self.assignedVillager = None
-        self.state = TaskStatus.WAITING
+        self.state = CONST.TaskStatus.WAITING
         self.coop = False
 
     def work(self,villager):
         '''do the task'''
-        if self.state == TaskStatus.WAITING:
-            self.state = TaskStatus.INPROGRESS
-        if self.state == TaskStatus.INPROGRESS:
+        if self.state == CONST.TaskStatus.WAITING:
+            self.state = CONST.TaskStatus.INPROGRESS
+        if self.state == CONST.TaskStatus.INPROGRESS:
             self.laborReq -= 1
             if (self.laborReq <= 0):
                 self.function(*self.functionArgs)
-                self.state = TaskStatus.COMPLETED
+                self.state = CONST.TaskStatus.COMPLETED
     
     def isWaiting(self):
         '''Returns true if task is in state WAITING'''
-        return self.state == TaskStatus.WAITING
+        return self.state == CONST.TaskStatus.WAITING
     
     def isComplete(self):
         '''Returns true if task is complete'''
         if (self.laborReq <= 0):
             self.function(*self.functionArgs)
-            self.state = TaskStatus.COMPLETED
-        return self.state == TaskStatus.COMPLETED
+            self.state = CONST.TaskStatus.COMPLETED
+        return self.state == CONST.TaskStatus.COMPLETED
 
     def isCompleted(self):
         return self.completed
@@ -56,13 +57,13 @@ class coopTask(Task):
         self.coop = True
 
     def work(self, villager):
-        if self.state == TaskStatus.WAITING:
-            if villager.state != VillagerStates.READY:
-                villager.changeState(VillagerStates.READY)
+        if self.state == CONST.TaskStatus.WAITING:
+            if villager.state != CONST.VillagerStates.READY:
+                villager.changeState(CONST.VillagerStates.READY)
                 villager.goTo(self.location)
                 self.currentVillagers += 1
             if self.reqVillagers <= self.currentVillagers:
-                self.state == TaskStatus.INPROGRESS
+                self.state == CONST.TaskStatus.INPROGRESS
                 super().work(villager)
     
 class bulletinBoard():
@@ -112,13 +113,13 @@ class townsperson:
         self.town = town
         self.vTask = None
         self.vHunger = 100
-        self.vState = VillagerStates.IDLE
+        self.vState = CONST.VillagerStates.IDLE
         self.vMoney = 10
         self.vHealth = 100
         self.alive = True
         self.offWork = False
         self.experience = 0
-        self.RelationShips = {self:0}
+        self.RelationShips = {}
         #set up behavior tree
         self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
 
@@ -143,9 +144,10 @@ class townsperson:
             self.vHealth = Utilities.clamp(0,100,self.vHealth)
 
     def checkAlive(self):
+        '''Check if the villager is alive'''
         if self.vHealth <= 0:
             self.alive = False
-            self.changeState(VillagerStates.DEAD)
+            self.changeState(CONST.VillagerStates.DEAD)
             
     def changeState(self,newState):
         '''change the villagers state'''
@@ -160,7 +162,7 @@ class townsperson:
     def finishWork(self):
         '''complete job and get paid'''
         self.offWork = True
-        self.vState = VillagerStates.IDLE
+        self.vState = CONST.VillagerStates.IDLE
         self.experience += 1
         self.makeMoney(self.vTask.pay)
         self.vTask = None
@@ -170,19 +172,33 @@ class townsperson:
         self.currentLocation.remove_occupant(self)
         self.currentLocation = location
         self.currentLocation.add_occupant(self)
-
     
     def goEat(self):
         '''Go to a restuarant if the villager is not already there'''
         if self.currentLocation != self.town.getRestaurant():
             self.goTo(self.town.getRestaurant())    
     
+
+    def goToBuildingType(self,bType):
+        '''Go to a building of type btype, in the case of multiples it will go to the first'''
+        if (not self.currentLocation.isClassOf(bType)):
+            for b in self.town.buildings:
+                if b.isClassOf(bType):
+                    self.goTo(b)
+                    print("Went to the pub")
+                    return True
+            else:
+                print("There is no Tavern")
+                return False
+        else:
+            print("I'm already at a tavern")
+            return True
+    
     #go to work
     def goWork(self):
         if (self.currentLocation != self.vTask.location):
             self.goTo(self.vTask.location)
-        self.vState = VillagerStates.WORKING
-
+        self.vState = CONST.VillagerStates.WORKING
     
     def makeSalary(self,amount):
         '''make salary by charging the treasury'''
@@ -217,11 +233,14 @@ class townsperson:
     
     #When the villager has been hospitalized
     def hospitalize (self):
-        self.vState = VillagerStates.HOSPITALIZED
+        self.vState = CONST.VillagerStates.HOSPITALIZED
     
     def changeRelation(self,otherVillager,amount):
         '''gain amount of friendship with otherVillager'''
-        self.RelationShips[otherVillager] += amount
+        if otherVillager in self.RelationShips.keys():
+            self.RelationShips[otherVillager] += amount
+        else:
+            self.RelationShips[otherVillager] = amount
 
     #string representation
     def __str__(self):

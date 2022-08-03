@@ -16,3 +16,14 @@ class TaskStatus(Enum):
     INPROGRESS = 3
     COMPLETED = 4
     FAILED = 5
+
+
+class buildingClass(Enum):
+    TOWNHALL = 0
+    RESTAURANT = 1
+    MINE = 2
+    TAVERN = 3
+    MISC = 4
+    FARM = 5
+    TRADE = 6
+

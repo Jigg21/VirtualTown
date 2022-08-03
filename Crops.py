@@ -2,8 +2,6 @@ from distutils.log import error
 import json
 from lib2to3.pytree import Base
 import string
-
-from regex import E
 import Utilities
 CROPDATA = None
 

@@ -1,9 +1,13 @@
+import imp
 import math
 import random
 from ConfigReader import ConfigData as config
 import Villagers
 import CaptainsLog
 import Utilities
+import CONST
+from enum import Enum
+
 #building base class
 class Building:
     Occupants = []
@@ -18,6 +22,7 @@ class Building:
         self.Occupants = []
         self.buildingNumber = buildingNumber
         self.ship = ship
+        self.bClass = CONST.buildingClass.MISC
         return
 
     #for actions that are activated by villagers
@@ -29,6 +34,10 @@ class Building:
     def timeUpdate(self):
         pass
     
+    #returns true if the building is of a certain class
+    def isClassOf(self,classType):
+        return self.bClass == classType
+
     #for actions that activate every day
     def dailyUpdate(self,data):
         pass
@@ -53,6 +62,10 @@ class TownHall(Building):
     stockPile = 1000
     treasury = 1000
     starving = False
+
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+        self.bClass = CONST.buildingClass.TOWNHALL
 
     def addFood(self,amount):
         self.stockPile += amount
@@ -79,14 +92,11 @@ class TownHall(Building):
             self.treasury = 0
             return True
         return False
-        
-
 
     def enterStarving(self):
         self.starving = True
         CaptainsLog.log("WE'RE STARVING")
 
-    
     def __str__(self):
         result = super().__str__()
         result += "(Food: " + str(self.stockPile) + ")"
@@ -97,6 +107,9 @@ class Restaurant(Building):
     '''Place for villagers to eat'''
     #how much hunger each food satisfies
     hungerSatisfaction = 10
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+        self.bClass = CONST.buildingClass.RESTAURANT
 
     def activate(self,Villager):
         hall = self.ship.getTownHall()
@@ -118,7 +131,11 @@ class Restaurant(Building):
 #Grows food 
 class Farm(Building):
     crops = []
-    maximumCrops = 10
+    maximumCrops = 100
+
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+        self.bClass = CONST.buildingClass.FARM
 
     #harvest a crop and get food value
     def harvestCrop(self,crop):
@@ -172,6 +189,10 @@ class Mine(Building):
     
     ironStockpile = 0
     mineEfficiency = 1
+
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+        self.bClass= CONST.buildingClass.MINE
 
     def mineGold(self):
         self.ship.townHall.addTreasury(self.mineEfficiency)
@@ -244,6 +265,11 @@ class GameHall(Building):
             pass
 
 class Tavern(Building):
+
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+        self.bClass = CONST.buildingClass.TAVERN
+        
     '''a place for villagers to build relations with others'''
     def activate(self, Villager):
         super().activate(Villager)

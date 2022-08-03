@@ -132,10 +132,10 @@ def main():
     testTown = Ship("TRANSlyvania")
     townHall = Buildings.TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
-    townTavern = Buildings.Restaurant("Tavern",False,1,testTown)
+    townRestaurant = Buildings.Restaurant("Restaurant",False,1,testTown)
     townFarm = Buildings.Farm("Farm",False,2,testTown)
     townMine = Buildings.Mine("Mine",False,3,testTown)
-    testTown.addBuilding(townTavern)
+    testTown.addBuilding(townRestaurant)
     testTown.addBuilding(townMine)
     testTown.addBuilding(townFarm) 
     testTown.addVillager(Villagers.townsperson("Michael",25,'M',townHall,testTown))
@@ -143,6 +143,8 @@ def main():
     testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
     townTradeHub = Buildings.TradeHub("Trade Hub",False,4,testTown)
     testTown.addBuilding(townTradeHub)
+    townTavern = Buildings.Tavern("Tavern",False,5,testTown)
+    testTown.addBuilding(townTavern)
     testTown.createOverseer()
 
     #if just speedtesting, get average speed over TESTCOUNT ticks
@@ -172,8 +174,7 @@ def main():
         testTown.displayLocalTime()
         testTown.displayBuildings()
     except Exception as e:
-        print("Error!:" + str(e))
-        traceback.print_exc()
+        print(str(e))
         testTown.displayLocalTime()
         
     
