@@ -136,7 +136,7 @@ class BuildingTaskDisplay(tk.Frame):
     mineTasks = ""
     def __init__(self,parent,height=1,width=1,side='top'):
         self.parent = parent
-        super(BuildingTaskDisplay,self).__init__(parent,width=width,height= height)
+        super(BuildingTaskDisplay,self).__init__(parent,width=width,height=height)
         
         self.taskCount = tk.Text(parent,height=1,width=width)
         self.taskCount.pack(expand=False,side=side,padx=40)
@@ -147,7 +147,6 @@ class BuildingTaskDisplay(tk.Frame):
 
         self.text = tk.Text(parent,height=height,width=width)
         self.text.pack(expand=False,side=side,padx=40)
-    
     
     def displayTasks(self,*args):
         currentSelection = self.dropDownVariable.get()
@@ -183,8 +182,27 @@ class BuildingTaskDisplay(tk.Frame):
         self.text.delete("1.0",END)
         self.displayTasks()
 
+class VillagerDisplayTab(tk.Frame):
+        def __init__(self,parent,height=1,width=1,side='top'):
+            self.parent = parent
+            super().__init__(parent,width=width,height= height)
+            self.dropDownVariable = StringVar(parent)
+            self.dropDownVariable.set("Choose Villager")
+            self.dropDown = OptionMenu(parent,self.dropDownVariable,"Villager",command=self.update)
+            self.dropDown.pack()
+        
+        def getVillager(self):
+            currentSelection = self.dropDownVariable.get()
+            self.text.delete("1.0",END)
+            
+        def update(self,context) -> None:
+            i = 0
+            for v in context["VillagerList"]:
+                self.dropDown.option_add(v.vName,i)
+                i += 1
+            return super().update()
+            
 
-    
 
 root = tk.Tk()
 tabControl = ttk.Notebook(root)
@@ -200,6 +218,12 @@ LastDrawTime = time.time()
 tab2 = tk.Frame(tabControl)
 tabControl.add(tab2,text="Tasks")
 bTask = BuildingTaskDisplay(tab2,height=10,width=80)
+
+
+tab3 = tk.Frame(tabControl)
+tabControl.add(tab3,text="Villagers")
+villagerDisplay = VillagerDisplayTab(tab3,height=20,width=80)
+
 #called every tick
 def update(args):
 
@@ -209,6 +233,10 @@ def update(args):
 
     #update the villager list
     villagers.updateList(args["VillagerList"])
+    villagers.pack(expand=False)
+
+    #update the detailed villager tab
+    villagerDisplay.update(args)
     villagers.pack(expand=False)
 
     #update the townHall
