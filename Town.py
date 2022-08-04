@@ -12,6 +12,7 @@ import traceback
 import Buildings
 import Villagers
 import io
+import nameGenerator
 
 #contains all ship-wide events and variables
 class Ship:
@@ -138,9 +139,9 @@ def main():
     testTown.addBuilding(townRestaurant)
     testTown.addBuilding(townMine)
     testTown.addBuilding(townFarm) 
-    testTown.addVillager(Villagers.townsperson("Michael",25,'M',townHall,testTown))
-    testTown.addVillager(Villagers.townsperson("Pichael",27,'F',townFarm,testTown))
-    testTown.addVillager(Villagers.townsperson("Nickle",37,'M',townFarm,testTown))
+    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),25,'M',townHall,testTown))
+    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),27,'F',townFarm,testTown))
+    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),37,'M',townFarm,testTown))
     townTradeHub = Buildings.TradeHub("Trade Hub",False,4,testTown)
     testTown.addBuilding(townTradeHub)
     townTavern = Buildings.Tavern("Tavern",False,5,testTown)

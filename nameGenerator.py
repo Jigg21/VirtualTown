@@ -1,6 +1,6 @@
 import random
 
-def makeName(*sets):
+def makeName():
     sets = []
     with open("data/nameGen.txt") as f:
         sets = []
@@ -27,7 +27,6 @@ def makeName(*sets):
             if len(set) > 1:
                 result += set[random.randint(0,len(set)-1)]
     return result
-
 
 def main():
     print(makeName())
