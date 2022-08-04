@@ -2,7 +2,7 @@ from ast import arg
 from enum import Flag
 from math import exp, floor
 import tkinter as tk
-from tkinter import OptionMenu, StringVar, Text, ttk
+from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext
 import Utilities
 import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
@@ -188,18 +188,36 @@ class VillagerDisplayTab(tk.Frame):
             super().__init__(parent,width=width,height= height)
             self.dropDownVariable = StringVar(parent)
             self.dropDownVariable.set("Choose Villager")
-            self.dropDown = OptionMenu(parent,self.dropDownVariable,"Villager",command=self.update)
+            self.dropDown = OptionMenu(parent,self.dropDownVariable,"Villager",command=self.getVillager)
             self.dropDown.pack()
+            self.villagers = []
+
+            self.relationsText = scrolledtext.ScrolledText(self.parent,height=10,width=width)
+            self.relationsText.pack(expand=False,side=side,padx=4)
         
-        def getVillager(self):
+        #center a villager and get their information
+        def getVillager(self, *args):
             currentSelection = self.dropDownVariable.get()
-            self.text.delete("1.0",END)
+            self.relationsText.delete("1.0",END)
+            villager = self.villagers[currentSelection]
+            for value in villager.Relationships.keys():
+                self.relationsText.insert(tk.END,"{other} : {value}\n".format(other=value.vName,value=villager.Relationships[value] ))
+
+            
             
         def update(self,context) -> None:
             i = 0
+        # Add menu items.
+            villagerList = dict()
+            dropDownList = list()
             for v in context["VillagerList"]:
-                self.dropDown.option_add(v.vName,i)
-                i += 1
+                villagerList[v.vName + str(v.vAge)] = v
+                dropDownList.append(v.vName + str(v.vAge))
+            self.villagers = villagerList
+            self.dropDown.destroy()
+            self.dropDown = OptionMenu(self.parent,self.dropDownVariable,*dropDownList,command=self.getVillager)
+            self.dropDown.pack()
+
             return super().update()
             
 
@@ -223,6 +241,7 @@ bTask = BuildingTaskDisplay(tab2,height=10,width=80)
 tab3 = tk.Frame(tabControl)
 tabControl.add(tab3,text="Villagers")
 villagerDisplay = VillagerDisplayTab(tab3,height=20,width=80)
+
 
 #called every tick
 def update(args):

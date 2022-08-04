@@ -119,7 +119,7 @@ class townsperson:
         self.alive = True
         self.offWork = False
         self.experience = 0
-        self.RelationShips = {}
+        self.Relationships = {}
         #set up behavior tree
         self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
 
@@ -185,13 +185,10 @@ class townsperson:
             for b in self.town.buildings:
                 if b.isClassOf(bType):
                     self.goTo(b)
-                    print("Went to the pub")
                     return True
             else:
-                print("There is no Tavern")
                 return False
         else:
-            print("I'm already at a tavern")
             return True
     
     #go to work
@@ -237,10 +234,10 @@ class townsperson:
     
     def changeRelation(self,otherVillager,amount):
         '''gain amount of friendship with otherVillager'''
-        if otherVillager in self.RelationShips.keys():
-            self.RelationShips[otherVillager] += amount
+        if otherVillager in self.Relationships.keys():
+            self.Relationships[otherVillager] += amount
         else:
-            self.RelationShips[otherVillager] = amount
+            self.Relationships[otherVillager] = amount
 
     #string representation
     def __str__(self):
