@@ -49,7 +49,6 @@ class Task:
     def __str__(self):
         return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)      
 
-
 class coopTask(Task):
     '''Tasks involving multiple villagers'''
     def __init__(self, function, labor, location, reqVillagers, desc="Task", pay=0, workArgs=[]):
@@ -67,7 +66,6 @@ class coopTask(Task):
             if self.reqVillagers <= self.currentVillagers:
                 self.state == CONST.TaskStatus.INPROGRESS
                 super().work(villager)
-
 
 class bulletinBoard():
     '''use to give jobs to villagers'''
@@ -104,10 +102,10 @@ class bulletinBoard():
 #villager class
 class townsperson:
 
-    def __init__(self,name,age,gender,startLocation,town):
+    def __init__(self,name,birthCycle,gender,startLocation,town,family):
         '''name: villager name\n
         age: defaults to 0'''
-        self.vAge = age
+        self.vBirthCycle = birthCycle
         self.vGender = gender
         self.vName = name
         self.ID = 0
@@ -245,7 +243,7 @@ class townsperson:
     #string representation
     def __str__(self):
         result = self.vName
-        result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
+        result += " ({age}/{gender})".format(age=self.vBirthCycle,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
         result += " Health: {health}".format(health=math.floor(self.vHealth))
         result += " Money: {money}".format(money=self.vMoney)

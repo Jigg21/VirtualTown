@@ -125,7 +125,7 @@ class Ship:
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
 def main():
-    testTown = Ship("TRANSlyvania")
+    testTown = Ship("New New New York")
     townHall = Buildings.TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
     townRestaurant = Buildings.Restaurant("Restaurant",False,1,testTown)
@@ -134,9 +134,9 @@ def main():
     testTown.addBuilding(townRestaurant)
     testTown.addBuilding(townMine)
     testTown.addBuilding(townFarm) 
-    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),25,'M',townHall,testTown))
-    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),27,'F',townFarm,testTown))
-    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),37,'M',townFarm,testTown))
+    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),0,'M',townHall,testTown,None))
+    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),0,'F',townFarm,testTown,None))
+    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),0,'M',townFarm,testTown,None))
     townTradeHub = Buildings.TradeHub("Trade Hub",False,4,testTown)
     testTown.addBuilding(townTradeHub)
     townTavern = Buildings.Tavern("Tavern",False,5,testTown)
@@ -159,7 +159,7 @@ def main():
         UI.inititialize(testTown.townName)
     #CENTRAL FINITE CURVE
     try:
-        for x in range(Utilities.convertTimeToTicks("0:10:0:20")):
+        for x in range(Utilities.convertTimeToTicks("1:00:0:20")):
             testTown.timeUpdate()
             if config.getboolean("DEBUG","VERBOSE"):
                 testTown.displayLocalTime()

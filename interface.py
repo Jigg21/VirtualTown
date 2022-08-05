@@ -211,8 +211,8 @@ class VillagerDisplayTab(tk.Frame):
             villagerList = dict()
             dropDownList = list()
             for v in context["VillagerList"]:
-                villagerList[v.vName + str(v.vAge)] = v
-                dropDownList.append(v.vName + str(v.vAge))
+                villagerList[v.vName + str(v.vBirthCycle)] = v
+                dropDownList.append(v.vName + str(v.vBirthCycle))
             self.villagers = villagerList
             self.dropDown.destroy()
             self.dropDown = OptionMenu(self.parent,self.dropDownVariable,*dropDownList,command=self.getVillager)
