@@ -1,5 +1,6 @@
 import random
 import math
+
 #generate a name from the nameGen.txt file
 def makeName():
     sets = []
@@ -12,7 +13,7 @@ def makeName():
             #reached a boundary
             if line[0] == "$":
                 r = random.randrange(0,100)
-                if (r > 100 - (100**(1/8))**pos):
+                if (r > 100 - (100**(1/3))**pos):
                     #end the name
                     break
                 else:
@@ -35,7 +36,13 @@ def makeName():
 
 #make a name and print it
 def main():
-    print(makeName())
+    print(makeName() + " " + getLastName())
+
+def getLastName():
+    with open("data/surnames.txt") as f:
+        name = f.readlines()[random.randint(0,20000)].strip()
+        name = name.capitalize()
+        return name
 
 if __name__ == "__main__":
     for x in range(10):
