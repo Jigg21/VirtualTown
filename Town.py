@@ -109,13 +109,8 @@ class Ship:
             
             for building in self.buildings:
                 building.dailyUpdate(townData)
-            
-
-            
+                        
             self.overseer.designateDailyTasks(townData)
-
-
-
 
         #Draw
         if config.getboolean("VALUES","USEUI"):

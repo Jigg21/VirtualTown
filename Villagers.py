@@ -6,6 +6,7 @@ import math
 from VillagerNodes import tree_VillagerBehaviorTree
 import Utilities
 
+
 class Task:
     '''base class for all tasks villagers can do'''
 
@@ -48,6 +49,7 @@ class Task:
     def __str__(self):
         return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)      
 
+
 class coopTask(Task):
     '''Tasks involving multiple villagers'''
     def __init__(self, function, labor, location, reqVillagers, desc="Task", pay=0, workArgs=[]):
@@ -65,7 +67,8 @@ class coopTask(Task):
             if self.reqVillagers <= self.currentVillagers:
                 self.state == CONST.TaskStatus.INPROGRESS
                 super().work(villager)
-    
+
+
 class bulletinBoard():
     '''use to give jobs to villagers'''
     def __init__(self):

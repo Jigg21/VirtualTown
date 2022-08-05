@@ -1,35 +1,42 @@
 import random
-
+import math
+#generate a name from the nameGen.txt file
 def makeName():
     sets = []
     with open("data/nameGen.txt") as f:
         sets = []
         set = []
-        pos = 1
+        pos = 0
+        #write in lines until it reaches a syllable boundary
         for line in f.readlines():
+            #reached a boundary
             if line[0] == "$":
                 r = random.randrange(0,100)
-                if (r > 100/pos):
+                if (r > 100 - (100**(1/8))**pos):
+                    #end the name
                     break
                 else:
+                    #extend another syllable, add set to sets
                     pos += 1
                     sets.append(set)
                     set = []
             else:
-                if len(line.strip()) > 0:
+                #if the length of the syllable is more than one letter, add it to the set
+                if len(line.strip()) > 1:
                     set.append(line.strip())
                 pass
 
-
+    #construct the name
     result = ""
-    while len(result) < 2:
-        for set in sets:
-            if len(set) > 1:
-                result += set[random.randint(0,len(set)-1)]
+    for set in sets:
+        if len(set) > 1:
+            result += set[random.randint(0,len(set)-1)]
     return result
 
+#make a name and print it
 def main():
     print(makeName())
 
 if __name__ == "__main__":
-    main()
+    for x in range(10):
+        main()
