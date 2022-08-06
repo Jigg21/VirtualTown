@@ -103,13 +103,12 @@ class Ship:
             v.update()
         #New Day
         if (self.townAge%1440 == 0):
-            
             CaptainsLog.newDay()
             CaptainsLog.log(Utilities.convertTicksToTime(self.townAge))
             
             for building in self.buildings:
                 building.dailyUpdate(townData)
-                        
+
             self.overseer.designateDailyTasks(townData)
 
         #Draw
@@ -120,6 +119,13 @@ class Ship:
     def createOverseer(self):
         self.overseer = TownOverseer(self,self.townHall,self.villagers)
 
+    def isViable(self):
+        '''is the town viable (are there any villagers alive)'''
+        for v in self.villagers:
+            if v.checkAlive():
+                return True
+        return False
+    
     #show local time
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
@@ -159,7 +165,7 @@ def main():
         UI.inititialize(testTown.townName)
     #CENTRAL FINITE CURVE
     try:
-        for x in range(Utilities.convertTimeToTicks("1:00:0:20")):
+        while testTown.isViable():
             testTown.timeUpdate()
             if config.getboolean("DEBUG","VERBOSE"):
                 testTown.displayLocalTime()

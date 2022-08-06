@@ -98,6 +98,12 @@ class bulletinBoard():
         for t in self.activeTasks:
             result += str(t) + "\n"
         return result
+    
+    def getTaskRefund(self):
+        result = 0
+        for t in self.activeTasks:
+            result += t.pay
+        return result
 
 #villager class
 class townsperson:
@@ -151,6 +157,8 @@ class townsperson:
         if self.vHealth <= 0:
             self.alive = False
             self.changeState(CONST.VillagerStates.DEAD)
+            return False
+        return self.alive
             
     def changeState(self,newState):
         '''change the villagers state'''

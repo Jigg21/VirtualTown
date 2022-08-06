@@ -73,7 +73,8 @@ class TownOverseer():
             if tradeHub.dailyTradeRate >= 15:
                 timeToHarvest = townData["farm"].getHarvestData()
                 #get the amount of surplus food
-                reqFood = (timeToHarvest+1) * len(self.town.villagers) * 30
+                reqFood = ((timeToHarvest+1) * len(self.town.villagers) * 30)
+                reqFood = Utilities.clamp(len(self.villagers)*30,math.inf,reqFood)
                 surplusFood = self.TownHall.getFood() - reqFood
                 if surplusFood > 0:
                     self.town.bulletin.postJob(Villagers.Task(tradeHub.sellFood,1,tradeHub,"Selling Food to Market",5,[surplusFood]),self.TownHall)
