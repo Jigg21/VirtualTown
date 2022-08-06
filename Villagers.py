@@ -123,7 +123,7 @@ class townsperson:
         self.Relationships = {}
         #set up behavior tree
         self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
-
+        self.vDrunkeness = 0
     #called once a tick
     def update(self):
         self.checkAlive()
@@ -143,6 +143,8 @@ class townsperson:
             self.behaviorTree.traverse(context)
             self.vHunger = Utilities.clamp(-100,100,self.vHunger)
             self.vHealth = Utilities.clamp(0,100,self.vHealth)
+            self.vDrunkeness -= .25
+            self.vDrunkeness = Utilities.clamp(0,100,self.vDrunkeness)
 
     def checkAlive(self):
         '''Check if the villager is alive'''
@@ -179,7 +181,6 @@ class townsperson:
         if self.currentLocation != self.town.getRestaurant():
             self.goTo(self.town.getRestaurant())    
     
-
     def goToBuildingType(self,bType):
         '''Go to a building of type btype, in the case of multiples it will go to the first'''
         if (not self.currentLocation.isClassOf(bType)):
@@ -240,6 +241,8 @@ class townsperson:
         else:
             self.Relationships[otherVillager] = amount
 
+    def drink(self):
+        self.vDrunkeness += 1
     #string representation
     def __str__(self):
         result = self.vName

@@ -1,6 +1,7 @@
 from ast import arg
 from enum import Flag
 from math import exp, floor
+import math
 import tkinter as tk
 from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext
 import Utilities
@@ -201,7 +202,7 @@ class VillagerDisplayTab(tk.Frame):
             self.relationsText.delete("1.0",END)
             villager = self.villagers[currentSelection]
             for value in villager.Relationships.keys():
-                self.relationsText.insert(tk.END,"{other} : {value}\n".format(other=value.vName,value=villager.Relationships[value] ))
+                self.relationsText.insert(tk.END,"{other} : {value}\n".format(other=value.vName,value= round(villager.Relationships[value],2)))
 
             
             
@@ -218,6 +219,8 @@ class VillagerDisplayTab(tk.Frame):
             self.dropDown = OptionMenu(self.parent,self.dropDownVariable,*dropDownList,command=self.getVillager)
             self.dropDown.pack()
 
+            if self.dropDownVariable.get() != "Choose Villager":
+                self.getVillager()
             return super().update()
             
 

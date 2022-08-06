@@ -275,7 +275,8 @@ class Tavern(Building):
         super().activate(Villager)
         for v in self.Occupants:
             if Villager != v:
-                Villager.changeRelation(v,random.randrange(-1,2))
+                v.drink()
+                Villager.changeRelation(v,random.uniform(-1,1.002**(v.vDrunkeness)))
 
         
 
