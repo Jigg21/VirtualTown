@@ -49,7 +49,6 @@ class Task:
     def __str__(self):
         return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)      
 
-
 class coopTask(Task):
     '''Tasks involving multiple villagers'''
     def __init__(self, function, labor, location, reqVillagers, desc="Task", pay=0, workArgs=[]):
@@ -67,7 +66,6 @@ class coopTask(Task):
             if self.reqVillagers <= self.currentVillagers:
                 self.state == CONST.TaskStatus.INPROGRESS
                 super().work(villager)
-
 
 class bulletinBoard():
     '''use to give jobs to villagers'''
@@ -104,13 +102,13 @@ class bulletinBoard():
 #villager class
 class townsperson:
 
-    def __init__(self,name,age,gender,startLocation,town):
+    def __init__(self,name,age,gender,family=None,startLocation=None,town=None):
         '''name: villager name\n
         age: defaults to 0'''
         self.vAge = age
         self.vGender = gender
         self.vName = name
-        self.ID = 0
+        self.vFamily = family
         self.currentLocation = startLocation
         self.currentLocation.add_occupant(self)
         self.town = town
@@ -242,9 +240,25 @@ class townsperson:
         else:
             self.Relationships[otherVillager] = amount
 
+    def romanceVillager(self,otherVillager):
+        '''attempt a romantic relationship with another villager'''
+        #if both parties are high enough relationship, add to the family
+        if self.reciprocateRomance(otherVillager) and otherVillager.reciprocateRomance(self):
+            pass
+        else:
+            #otherwise both lose 100 relation 
+            self.changeRelation(otherVillager, -100)
+            otherVillager.changeRelation(self,-100)
+
+
+        pass
+    
+    def reciprocateRomance(self,otherVillager):
+        return self.Relationships[otherVillager] >= 750
+    
     #string representation
     def __str__(self):
-        result = self.vName
+        result = self.vName + " " + self.vFamily.fName
         result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
         result += " Health: {health}".format(health=math.floor(self.vHealth))
@@ -254,3 +268,14 @@ class townsperson:
         result += "Task: {task}".format(task=str(self.vTask))
         return result
 
+class Family():
+    def __init__(self,name) -> None:
+        self.fName = name
+        self.fGold = 0
+        self.fMembers = []
+    
+    def isAbsorbed(self,otherFam):
+        return len(self.fMembers) > len(otherFam.fMembers)
+    
+
+    
