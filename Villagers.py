@@ -266,7 +266,7 @@ class townsperson:
     def __str__(self):
         result = self.vName + " " + self.vFamily.fName
         result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
-    def drink(self):
+    def drink(self): 
         self.vDrunkeness += 1
     #string representation
     def __str__(self):
@@ -287,7 +287,7 @@ class Family():
         self.fMembers = []
     
     def isAbsorbed(self,otherFam):
-        return len(self.fMembers) > len(otherFam.fMembers)
+        return len(self.fMembers) < len(otherFam.fMembers)
     
 
     
