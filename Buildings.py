@@ -218,7 +218,6 @@ class TradeHub(Building):
         super().__init__(buidingName, IsPrivate, buildingNumber, town)
     
     def sellFood(self,amount):
-        print("selling")
         self.ship.townHall.subtractFood(amount)
         self.ship.townHall.addTreasury(amount*self.dailyTradeRate)
         CaptainsLog.logSale("Food",amount,amount*self.dailyTradeRate)
