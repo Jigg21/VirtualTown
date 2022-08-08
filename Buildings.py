@@ -8,6 +8,8 @@ import Utilities
 import CONST
 from enum import Enum
 
+TAVERNCOMRADETHRESHOLD = 0
+
 #building base class
 class Building:
     Occupants = []
@@ -269,14 +271,18 @@ class Tavern(Building):
     def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship)
         self.bClass = CONST.buildingClass.TAVERN
-        
+        self.comaraderie = 0
     '''a place for villagers to build relations with others'''
     def activate(self, Villager):
         super().activate(Villager)
-        for v in self.Occupants:
-            if Villager != v:
-                Villager.changeRelation(v,random.randrange(-1,2))
-
+        self.comaraderie += 1
+        if self.comaraderie >= 4:
+            self.comaraderie = 0
+            for v in self.Occupants:
+                if Villager != v:
+                    v.drink()
+                    Villager.changeRelation(v,random.uniform(-1,1.002**(Villager.vDrunkeness)))
+                    v.changeRelation(Villager,random.uniform(-1,1.002**(v.vDrunkeness)))
         
 
     

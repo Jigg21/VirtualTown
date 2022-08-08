@@ -98,14 +98,20 @@ class bulletinBoard():
         for t in self.activeTasks:
             result += str(t) + "\n"
         return result
+    
+    def getTaskRefund(self):
+        result = 0
+        for t in self.activeTasks:
+            result += t.pay
+        return result
 
 #villager class
 class townsperson:
 
-    def __init__(self,name,age,gender,family=None,startLocation=None,town=None):
+    def __init__(self,name,birthCycle,gender,family=None,startLocation=None,town=None):
         '''name: villager name\n
         age: defaults to 0'''
-        self.vAge = age
+        self.vBirthCycle = birthCycle
         self.vGender = gender
         self.vName = name
         self.vFamily = family
@@ -123,7 +129,7 @@ class townsperson:
         self.Relationships = {}
         #set up behavior tree
         self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
-
+        self.vDrunkeness = 0
     #called once a tick
     def update(self):
         self.checkAlive()
@@ -143,12 +149,16 @@ class townsperson:
             self.behaviorTree.traverse(context)
             self.vHunger = Utilities.clamp(-100,100,self.vHunger)
             self.vHealth = Utilities.clamp(0,100,self.vHealth)
+            self.vDrunkeness -= .25
+            self.vDrunkeness = Utilities.clamp(0,100,self.vDrunkeness)
 
     def checkAlive(self):
         '''Check if the villager is alive'''
         if self.vHealth <= 0:
             self.alive = False
             self.changeState(CONST.VillagerStates.DEAD)
+            return False
+        return self.alive
             
     def changeState(self,newState):
         '''change the villagers state'''
@@ -179,7 +189,6 @@ class townsperson:
         if self.currentLocation != self.town.getRestaurant():
             self.goTo(self.town.getRestaurant())    
     
-
     def goToBuildingType(self,bType):
         '''Go to a building of type btype, in the case of multiples it will go to the first'''
         if (not self.currentLocation.isClassOf(bType)):
@@ -249,9 +258,6 @@ class townsperson:
             #otherwise both lose 100 relation 
             self.changeRelation(otherVillager, -100)
             otherVillager.changeRelation(self,-100)
-
-
-        pass
     
     def reciprocateRomance(self,otherVillager):
         return self.Relationships[otherVillager] >= 750
@@ -260,6 +266,12 @@ class townsperson:
     def __str__(self):
         result = self.vName + " " + self.vFamily.fName
         result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
+    def drink(self):
+        self.vDrunkeness += 1
+    #string representation
+    def __str__(self):
+        result = self.vName
+        result += " ({age}/{gender})".format(age=self.vBirthCycle,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
         result += " Health: {health}".format(health=math.floor(self.vHealth))
         result += " Money: {money}".format(money=self.vMoney)
