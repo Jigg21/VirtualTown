@@ -271,6 +271,7 @@ class Tavern(Building):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship)
         self.bClass = CONST.buildingClass.TAVERN
         self.comaraderie = 0
+    
     '''a place for villagers to build relations with others'''
     def activate(self, Villager):
         super().activate(Villager)

@@ -69,10 +69,11 @@ class TownHall(tk.Frame):
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)
         
     #displays gold and food as text
-    def updateTownHall(self,treasury,stockPile):
+    def updateTownHall(self,treasury,stockPile,temperature):
         self.text.delete("1.0",END)
         self.text.insert(INSERT,"Gold: {value}".format(value=treasury) + "\n")
-        self.text.insert(INSERT,"Food: {value}".format(value=stockPile) + "\n")
+        self.text.insert(INSERT,"Food: {value}".format(value=stockPile) + "    ")
+        self.text.insert(INSERT,"Temp: {value}".format(value=temperature))
         self.text.tag_add("center","1.0","end")
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)
 
@@ -224,7 +225,7 @@ class VillagerDisplayTab(tk.Frame):
             return super().update()
             
 
-
+#home tab
 root = tk.Tk()
 tabControl = ttk.Notebook(root)
 tab1 = tk.Frame(tabControl)
@@ -236,11 +237,12 @@ buildingTab = SimpleTextObj(tab1,height=20,width=35,side='left')
 crops = Farm(buildingTab)
 LastDrawTime = time.time()
 
+#task display tab
 tab2 = tk.Frame(tabControl)
 tabControl.add(tab2,text="Tasks")
 bTask = BuildingTaskDisplay(tab2,height=10,width=80)
 
-
+#villager detail tab
 tab3 = tk.Frame(tabControl)
 tabControl.add(tab3,text="Villagers")
 villagerDisplay = VillagerDisplayTab(tab3,height=20,width=80)
@@ -262,7 +264,7 @@ def update(args):
     villagers.pack(expand=False)
 
     #update the townHall
-    townHall.updateTownHall(args["gold"],args["food"])
+    townHall.updateTownHall(args["gold"],args["food"],args["temp"])
     townHall.pack(expand=False)
 
     #update the buildings

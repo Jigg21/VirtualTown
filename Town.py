@@ -11,24 +11,34 @@ import interface as UI
 import traceback
 import Buildings
 import Villagers
+import traceback
 import io
 import nameGenerator
 
 #contains all ship-wide events and variables
 class Ship:
-    townName = ""
-    townAge = -1
-    townAgeReadable = ""
-    villagers = []
-    buildings = []
-    townHall = None
-    overseer = None
-    bulletin = None
+
+
     def __init__(self,name):
         self.townName = name
-        self.bulletin = Villagers.bulletinBoard()
+        
 
-    #get and set townhall
+        #basic town information
+        self.townName = ""
+        self.townAge = -1
+        #string representing the town age
+        self.townAgeReadable = ""
+
+        #the town objects
+        self.villagers = []
+        self.buildings = []
+        self.townHall = None
+        self.overseer = None
+        self.bulletin = Villagers.bulletinBoard()
+        #current ship temperature
+        self.distanceToSun = 50
+
+    #getters and setters
     def setTownHall(self,townHall):
         self.townHall = townHall
         self.addBuilding(townHall)
@@ -39,6 +49,10 @@ class Ship:
     def getRestaurant(self):
         return self.FindBuilding(Buildings.Restaurant)
     
+    def getShipTemp(self):
+        '''returns the current temperature inside the ship'''
+        return (100-self.distanceToSun)/100
+
     #add villagers
     def addVillager (self,villager):
         self.villagers.append(villager)
@@ -70,8 +84,8 @@ class Ship:
                     print('\t',str(v))
         print(result)
 
-    #get string version of above for display
     def getBuildingDisplay(self):
+        '''get string representation of buildings for display'''
         result = ""
         for b in self.buildings:
             result += b.buildingName + "\n"
@@ -82,8 +96,8 @@ class Ship:
                     result += '\t' + v.vName + "\n"
         return result
 
-    #called every tick
     def timeUpdate(self):
+        '''called every tick'''
         #get all necccesary data
         townData = dict()
         self.townAge += 1
@@ -98,6 +112,7 @@ class Ship:
         townData["mine"] = self.FindBuilding(Buildings.Mine)
         townData["farm"] = self.FindBuilding(Buildings.Farm)
         townData["trade"] = self.FindBuilding(Buildings.TradeHub)
+        townData["temp"] = self.getShipTemp()
         #update the villagers and buildings
         for v in self.villagers:
             v.update()
@@ -115,8 +130,8 @@ class Ship:
         if config.getboolean("VALUES","USEUI"):
             UI.update(townData)
 
-    #initialize the overseer
     def createOverseer(self):
+        '''initialize the overseer'''
         self.overseer = TownOverseer(self,self.townHall,self.villagers)
 
     def isViable(self):
@@ -180,6 +195,7 @@ def main():
         testTown.displayBuildings()
     except Exception as e:
         print(str(e))
+        print(traceback.format_exc())
         testTown.displayLocalTime()
         
     
