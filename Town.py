@@ -17,12 +17,8 @@ import nameGenerator
 
 #contains all ship-wide events and variables
 class Ship:
-
-
     def __init__(self,name):
         self.townName = name
-        
-
         #basic town information
         self.townName = ""
         self.townAge = -1
@@ -146,6 +142,7 @@ class Ship:
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
 def main():
+    #initialize a ship
     testTown = Ship("New New New York")
     townHall = Buildings.TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
@@ -185,10 +182,11 @@ def main():
     try:
         while testTown.isViable():
             testTown.timeUpdate()
+            #print to console
             if config.getboolean("DEBUG","VERBOSE"):
                 testTown.displayLocalTime()
                 testTown.displayBuildings()
-
+            #if not instant, wait fo the next frame
             if not config.getboolean("DEBUG","INSTANT"):
                 time.sleep((420/365)/config.getfloat("VALUES","TIMESPEED"))
         testTown.displayLocalTime()
@@ -200,7 +198,6 @@ def main():
         
     
     #de-initialize
-
     CaptainsLog.closeLogs()
     if config.getboolean("VALUES","USEUI"):
         if config.getboolean("DEBUG","INSTANT"):
@@ -208,4 +205,5 @@ def main():
         UI.deinitialize()
     return
 
-main()
+if __name__ == "__main__":
+    main()
