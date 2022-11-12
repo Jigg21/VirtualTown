@@ -6,7 +6,7 @@ import Villagers
 import CaptainsLog
 import Utilities
 import CONST
-from enum import Enum
+
 
 TAVERNCOMRADETHRESHOLD = 0
 
@@ -186,7 +186,7 @@ class Farm(Building):
             result += "({sCrop}:{sCount})".format(sCrop = cropB,sCount = fields[cropB])
         return result
         
-#Can mine gold for the treasury or iron for upgrades
+#Can mine various materials
 class Mine(Building):
     
     ironStockpile = 0
@@ -284,7 +284,9 @@ class Tavern(Building):
                     Villager.changeRelation(v,random.uniform(-1,1.002**(Villager.vDrunkeness)))
                     v.changeRelation(Villager,random.uniform(-1,1.002**(v.vDrunkeness)))
         
+class Factory(Building):
 
-    
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
 
 

@@ -5,8 +5,8 @@ import string
 import Utilities
 CROPDATA = None
 
-
 def getCropData():
+    '''load the crop data from file'''
     global CROPDATA
     if (CROPDATA != None):
         return CROPDATA
@@ -14,10 +14,9 @@ def getCropData():
         with open('CropData.json') as f:
             CROPDATA = json.load(f)
         return CROPDATA
-        
-
 
 class Crop():
+    '''Crop Class'''
     #name of the crop
     cropName = "DefaultFood"
     #when (in ticks) was it planted
@@ -44,7 +43,7 @@ class Crop():
         
         self.plantedTime = Utilities.convertTimeToTicks(plantedTime)
         self.cropName = cropName
-        CROPDATA = getCropData()
+        global CROPDATA
         self.farm = farm
         try:
             self.ripeTime = int(CROPDATA[cropName]["cropRipe"])
@@ -90,3 +89,5 @@ class Crop():
     def maintain(self):
         self.maintained = True
         self.lastMaintain = 0
+
+getCropData()

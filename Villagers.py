@@ -252,20 +252,22 @@ class townsperson:
     def romanceVillager(self,otherVillager):
         '''attempt a romantic relationship with another villager'''
         #if both parties are high enough relationship, add to the family
-        if self.reciprocateRomance(otherVillager) and otherVillager.reciprocateRomance(self):
+        if self.reciprocatesRomance(otherVillager) and otherVillager.reciprocatesRomance(self):
             pass
         else:
             #otherwise both lose 100 relation 
             self.changeRelation(otherVillager, -100)
             otherVillager.changeRelation(self,-100)
     
-    def reciprocateRomance(self,otherVillager):
+    def reciprocatesRomance(self,otherVillager):
+        '''checks if the villager loves the other back'''
         return self.Relationships[otherVillager] >= 750
     
     #string representation
     def __str__(self):
         result = self.vName + " " + self.vFamily.fName
         result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
+    
     def drink(self): 
         self.vDrunkeness += 1
     #string representation
