@@ -1,19 +1,26 @@
-from distutils.log import error
 import json
-from lib2to3.pytree import Base
-import string
+import csv
 import Utilities
 CROPDATA = None
 
 def getCropData():
-    '''load the crop data from file'''
+    '''load the crop data from file and return a dictionary'''
     global CROPDATA
     if (CROPDATA != None):
         return CROPDATA
     else:
-        with open('CropData.json') as f:
-            CROPDATA = json.load(f)
-        return CROPDATA
+        #with open('data\\CropData.json') as f:
+            #CROPDATA = json.load(f)
+
+        CROPDATA = {}
+        with open('data\\Crops.csv') as csvFile:
+            reader = csv.DictReader(csvFile)
+            for row in reader:
+                cropDict = {"cropRipe":int(row["ripeTime"]),"cropValue":int(row["cropValue"]),"cropHLabor":int(row["harvestLabor"]),"cropMLabor":int(row["maintainanceLabor"]),"cropColor":row["color"]}
+                CROPDATA[row["Name"]] = cropDict
+        
+    return CROPDATA
+        
 
 class Crop():
     '''Crop Class'''
@@ -90,4 +97,4 @@ class Crop():
         self.maintained = True
         self.lastMaintain = 0
 
-getCropData()
+print(getCropData())
