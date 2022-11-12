@@ -14,4 +14,7 @@ def loadRecipeData():
                     RECIPES[row["Name"]] = row
     return RECIPES
 
+class Recipe():
+    def __init__(self) -> None:
+         pass
 print(loadRecipeData())

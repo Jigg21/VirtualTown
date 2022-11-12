@@ -9,13 +9,11 @@ import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
 
 
-
-
-#displays the villagers and their stats
-class Villagers(tk.Frame):
+#takes a List and displays each value
+class ListDisplay(tk.Frame):
     def __init__(self,parent):
         self.parent = parent
-        super(Villagers,self).__init__(parent)
+        super(ListDisplay,self).__init__(parent)
         self.label = tk.Label(parent,text="Villagers")
         self.label.pack(padx=0,pady=0)
         self.text = tk.Text(parent,height=10)
@@ -77,7 +75,7 @@ class TownHall(tk.Frame):
         self.text.tag_add("center","1.0","end")
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)
 
-#Buildings Display
+#Just takes text and displays it
 class SimpleTextObj(tk.Frame):
     def __init__(self,parent,height=1,width=1,side='top'):
         self.parent = parent
@@ -227,13 +225,14 @@ class VillagerDisplayTab(tk.Frame):
 
 #home tab
 root = tk.Tk()
+root.iconbitmap("dish.ico")
 tabControl = ttk.Notebook(root)
 tab1 = tk.Frame(tabControl)
 tabControl.add(tab1,text= "Home")
 timeObj = TimeObj(root)
-villagers = Villagers(tab1)
+villagers = ListDisplay(tab1)
 townHall = TownHall(tab1)
-buildingTab = SimpleTextObj(tab1,height=20,width=35,side='left')
+buildingTab = SimpleTextObj(tab1,height=20,width=80,side='left')
 crops = Farm(buildingTab)
 LastDrawTime = time.time()
 

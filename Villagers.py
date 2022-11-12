@@ -114,7 +114,10 @@ class townsperson:
         self.vBirthCycle = birthCycle
         self.vGender = gender
         self.vName = name
-        self.vFamily = family
+        if family != None:
+            self.vFamily = family
+        else:
+            self.vFamily = Family()
         self.currentLocation = startLocation
         self.currentLocation.add_occupant(self)
         self.town = town
@@ -278,7 +281,7 @@ class townsperson:
         result += " Health: {health}".format(health=math.floor(self.vHealth))
         result += " Money: {money}".format(money=self.vMoney)
         result += " EXP: {exp}".format(exp=self.experience)
-        result += "State: {state}".format(state = str(self.vState))
+        result += "State: {state}".format(state = str(self.vState)[15:])
         result += "Task: {task}".format(task=str(self.vTask))
         return result
 

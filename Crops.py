@@ -24,34 +24,15 @@ def getCropData():
 
 class Crop():
     '''Crop Class'''
-    #name of the crop
-    cropName = "DefaultFood"
-    #when (in ticks) was it planted
-    plantedTime = 0
-    #how many growth units this crop has
-    growUnits = 0
-    #how many growthUnits it takes to grow
-    ripeTime = 0
-    #how much food is given upon harvest
-    harvestValue = 0
-    #how much labor is needed to harvest
-    harvestLaborReq = 0
-    #how much labor is required to maintain the crop
-    maintainLaborReq = 0
-    #has this crop been maintained?
-    maintained = True
-    #days since last maintainance
-    lastMaintain = 0
-    #The farm this crop belongs to
-    farm = None
-    #what color this crop should be on the display
-    cropColor = "#ff00ff"
     def __init__(self,farm,cropName,plantedTime):
         
         self.plantedTime = Utilities.convertTimeToTicks(plantedTime)
         self.cropName = cropName
         global CROPDATA
         self.farm = farm
+        self.growUnits = 0
+        self.maintained = False
+        self.lastMaintain = 0
         try:
             self.ripeTime = int(CROPDATA[cropName]["cropRipe"])
             self.harvestValue = CROPDATA[cropName]["cropValue"]
@@ -97,4 +78,4 @@ class Crop():
         self.maintained = True
         self.lastMaintain = 0
 
-print(getCropData())
+getCropData()
