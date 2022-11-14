@@ -9,6 +9,23 @@ class VillagerStates(Enum):
     READY = 5
     DEAD = 6
 
+class EventSeverity(Enum):
+    '''how severe is the event'''
+    NEGLIGIBLE = 0
+    TRIVIAL = 1
+    MINOR = 2
+    STANDARD = 3
+    PRESSING = 4
+    MAJOR = 5
+    EMERGENCY = 6
+
+class EventTypes(Enum):
+    '''enums for how events behave '''
+    NULL = 0
+    TEMPORARY = 1
+    CONDITIONAL = 2
+    INSTANT = 3
+
 class TaskStatus(Enum):
     '''Enum of task states'''
     WAITING = 1
@@ -17,11 +34,7 @@ class TaskStatus(Enum):
     COMPLETED = 4
     FAILED = 5
 
-class EventTypes(Enum):
-    NULL = 0
-    TEMPORARY = 1
-    CONDITIONAL = 2
-    INSTANT = 3
+
 
 class buildingClass(Enum):
     TOWNHALL = 0

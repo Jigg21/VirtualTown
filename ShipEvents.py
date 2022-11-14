@@ -1,4 +1,4 @@
-from CONST import EventTypes
+from CONST import EventTypes, EventSeverity
 from ConfigReader import ConfigData as config
 import random
 
@@ -35,9 +35,13 @@ class EventHandler():
         return result
 
 class ShipEvents():
+
+    #Class information for each event
     desc = "EVENT DESCRIPTION"
     eventType = EventTypes.NULL
     duration = -1
+    probability = .0001
+    severity = EventSeverity.NEGLIGIBLE
     def __init__(self,context) -> None:
         startTime = context["Cycle"]
 
@@ -81,9 +85,20 @@ class ShipEvents():
         return self.finished
 
 class GoldMeteoroidHitsShip(ShipEvents):
-    desc = "BREAKING: A meteoroid has hit the ship, initial scans reveal it to be made of solid gold"
+    desc = "BREAKING! A meteoroid has hit the ship, initial scans suggest it to be made of solid gold!"
     eventType = EventTypes.INSTANT
-
+    probability = 0.0001
+    severity = EventSeverity.MINOR
     def activate(self,context):
         ship = context["town"]
         ship.addTreasury(1000)
+
+class LibertariadTradeWar(ShipEvents):
+    desc = "The Libertariad has decreed our Town a threat to galactic security"
+    eventType = EventTypes.TEMPORARY
+    probability = 0.000001
+    severity = EventSeverity.EMERGENCY
+    duration = 10000
+    def activate(self,context):
+        ship = context["town"]
+        

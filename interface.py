@@ -112,6 +112,7 @@ class listMarquee(tk.Frame):
     def updateMarquee(self,newList):
         self.idx += 1
         if self.idx > self.speed:
+            self.idx = 0
             self.offset += 1
         marquee = ""
         self.text.delete("1.0",END)
@@ -120,11 +121,11 @@ class listMarquee(tk.Frame):
         lowBound = 0
         highBound = len(marquee)
         if highBound > self.width:
-            if self.offset / highBound == 2:
+            if self.offset / highBound > 2:
                 self.offset = len(marquee)
             lowBound = self.offset + self.width
             highBound = self.width + self.offset
-        self.text.insert(INSERT,marquee[-self.offset:])
+        self.text.insert(INSERT,marquee[lowBound:highBound])
         self.text.pack(padx=20,pady=1)
 
 #Displays townhall data
