@@ -68,9 +68,10 @@ class coopTask(Task):
 
 class bulletinBoard():
     '''use to give jobs to villagers'''
-    def __init__(self):
+    def __init__(self,ship):
         self.activeTasks = []
         self.taskCount = 0
+        self.ship = ship
     
     #assigns a job to the given villager
     def assignJob(self, villager):
@@ -83,8 +84,8 @@ class bulletinBoard():
             return None
     
     #adds a task to the board
-    def postJob(self,task,townHall):
-        if townHall.spendTreasury(task.pay):
+    def postJob(self,task):
+        if self.ship.spendTreasury(task.pay):
             self.activeTasks.append(task)
             self.taskCount += 1
 

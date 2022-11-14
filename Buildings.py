@@ -8,7 +8,6 @@ import Utilities
 import CONST
 import Items
 
-
 TAVERNCOMRADETHRESHOLD = 0
 
 #building base class
@@ -62,39 +61,12 @@ class Building:
 
 #Town Hall to coordinate villagers        
 class TownHall(Building):
-    stockPile = 1000
     treasury = 1000
     starving = False
 
     def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship)
         self.bClass = CONST.buildingClass.TOWNHALL
-
-    def addFood(self,amount):
-        self.stockPile += amount
-        CaptainsLog.logResource("Food",amount)
-    
-    def getFood(self):
-        return self.stockPile
-
-    def subtractFood(self,amount):
-        self.stockPile -= amount
-        CaptainsLog.logResource("Food",-1*amount)
-
-    def addTreasury(self,amount):
-        self.treasury += amount
-        CaptainsLog.logResource("Gold",amount)
-    
-    def spendTreasury(self,amount,acceptIncomplete = False):
-        if self.treasury > amount:
-            self.treasury -= amount
-            CaptainsLog.logResource("Gold",-1*amount)
-            return True
-        elif acceptIncomplete:
-            CaptainsLog.logResource("Gold",-1*self.treasury)
-            self.treasury = 0
-            return True
-        return False
 
     def enterStarving(self):
         self.starving = True
@@ -116,7 +88,7 @@ class Restaurant(Building):
 
     def activate(self,Villager):
         itemList = self.ship.getCargoList()
-        hall = self.ship.getTownHall()
+        hall = self.ship.townHall
         #if the town has food
         for item in itemList:
             itemobj = Items.getItemObj(item)
@@ -124,11 +96,11 @@ class Restaurant(Building):
                 self.ship.removeCargo(item,1)
                 if Villager.canAfford(5):
                     Villager.spendMoney(5)
-                    hall.addTreasury(5)
+                    self.ship.addTreasury(5)
                 else:
                     CurrentMoney = Villager.vMoney
                     Villager.spendMoney(CurrentMoney)
-                    hall.addTreasury(CurrentMoney)
+                    self.ship.addTreasury(CurrentMoney)
                 Villager.eat(self.hungerSatisfaction)
                 break
         else:
@@ -211,7 +183,7 @@ class Mine(Building):
         self.bClass= CONST.buildingClass.MINE
 
     def mineGold(self):
-        self.ship.townHall.addTreasury(self.mineEfficiency)
+        self.ship.addTreasury(self.mineEfficiency)
         
 
     def mineIron(self):

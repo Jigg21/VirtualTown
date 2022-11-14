@@ -93,16 +93,50 @@ class dictMarquee(tk.Frame):
         self.text.insert(INSERT,marquee[lowBound:highBound])
         self.text.pack(padx=20,pady=1)
 
+class listMarquee(tk.Frame):
+    def __init__(self,parent,title,width=80,speed = 5):
+        self.parent = parent
+        super(listMarquee,self).__init__(parent,width=width,height=1)
+        
+        self.label = tk.Label(parent,text=title)
+        self.label.pack(padx=0,pady=0)
+        self.text = tk.Text(parent,height=1)
+        self.text.tag_configure("center",justify='center')
+        self.text.tag_add("center","1.0","end")
+        self.text.pack(expand=False)
+        self.idx = 0
+        self.offset = 0
+        self.width = width
+        self.speed = speed
+
+    def updateMarquee(self,newList):
+        self.idx += 1
+        if self.idx > self.speed:
+            self.offset += 1
+        marquee = ""
+        self.text.delete("1.0",END)
+        for value in newList:
+            marquee += value
+        lowBound = 0
+        highBound = len(marquee)
+        if highBound > self.width:
+            if self.offset / highBound == 2:
+                self.offset = len(marquee)
+            lowBound = self.offset + self.width
+            highBound = self.width + self.offset
+        self.text.insert(INSERT,marquee[-self.offset:])
+        self.text.pack(padx=20,pady=1)
+
 #Displays townhall data
 class TownHall(tk.Frame):
     #text padding
     padX = 10
     padY = 1
-    def __init__(self,parent):
+    def __init__(self,parent,shipName):
         self.parent = parent
         super(TownHall,self).__init__(parent,width=20,height= 1)
         
-        self.label = tk.Label(parent,text="Town Hall")
+        self.label = tk.Label(parent,text=shipName)
         self.label.pack(padx=0,pady=0)
         self.text = tk.Text(parent,height=2)
         self.text.tag_configure("center",justify='center')
@@ -110,11 +144,11 @@ class TownHall(tk.Frame):
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)
         
     #displays gold and food as text
-    def updateTownHall(self,treasury,stockPile,temperature):
+    def updateTownHall(self,treasury,temperature,time):
         self.text.delete("1.0",END)
-        self.text.insert(INSERT,"Gold: {value}".format(value=treasury) + "\n")
-        self.text.insert(INSERT,"Food: {value}".format(value=stockPile) + "    ")
-        self.text.insert(INSERT,"Temp: {value}".format(value=temperature))
+        self.text.insert(INSERT,"Gold: {value} \t".format(value=treasury))
+        self.text.insert(INSERT,"Temp: {value} \n".format(value=temperature))
+        self.text.insert(INSERT,"Time: {value}".format(value=time))
         self.text.tag_add("center","1.0","end")
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)
 
@@ -272,9 +306,10 @@ root.iconbitmap("dish.ico")
 tabControl = ttk.Notebook(root)
 tab1 = tk.Frame(tabControl)
 tabControl.add(tab1,text= "Home")
-timeObj = TimeObj(root)
+header = TownHall(root,"New New New York")
 villagers = ListDisplay(tab1)
-cargo = dictMarquee(tab1,"cargo")
+cargo = dictMarquee(tab1,"Cargo")
+events = listMarquee(tab1,"Events")
 buildingTab = SimpleTextObj(tab1,height=20,width=80,side='left')
 crops = Farm(buildingTab)
 LastDrawTime = time.time()
@@ -294,8 +329,8 @@ villagerDisplay = VillagerDisplayTab(tab3,height=20,width=80)
 def update(args):
 
     #Update the time
-    timeObj.updateTime(args["Time"])
-    timeObj.pack(expand=False)
+    header.updateTownHall(args["gold"],args["temp"],args["Time"])
+    header.pack(expand=False)
 
     #update the villager list
     villagers.updateList(args["VillagerList"])
@@ -308,6 +343,9 @@ def update(args):
     #update the townHall
     cargo.updateMarquee(args["cargo"])
     cargo.pack(expand=False)
+
+    events.updateMarquee(args["eventHandler"].getEventDescriptions())
+    events.pack(expand=False)
 
     #update the buildings
     buildingTab.updateText(args["BuildingString"])

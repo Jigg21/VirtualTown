@@ -17,6 +17,11 @@ class TaskStatus(Enum):
     COMPLETED = 4
     FAILED = 5
 
+class EventTypes(Enum):
+    NULL = 0
+    TEMPORARY = 1
+    CONDITIONAL = 2
+    INSTANT = 3
 
 class buildingClass(Enum):
     TOWNHALL = 0

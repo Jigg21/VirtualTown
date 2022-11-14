@@ -1,7 +1,4 @@
-import numbers
 from ConfigReader import ConfigData as config
-from Crops import Crop
-from enum import Enum
 from OverseerClass import TownOverseer
 import CaptainsLog
 import time
@@ -12,16 +9,18 @@ import traceback
 import Buildings
 import Villagers
 import traceback
-import io
 import nameGenerator
-
+import ShipEvents
 #contains all ship-wide events and variables
 class Ship:
     def __init__(self,name):
         self.townName = name
+        
         #basic town information
         self.townName = ""
         self.townAge = -1
+        #current ship temperature
+        self.distanceToSun = 50
         #string representing the town age
         self.townAgeReadable = ""
         self.cargo = {}
@@ -30,9 +29,26 @@ class Ship:
         self.buildings = []
         self.townHall = None
         self.overseer = None
-        self.bulletin = Villagers.bulletinBoard()
-        #current ship temperature
-        self.distanceToSun = 50
+        self.treasury = 1000
+        self.bulletin = Villagers.bulletinBoard(self)
+        self.eventHandler = ShipEvents.EventHandler()
+
+
+    
+    def addTreasury(self,amount):
+        self.treasury += amount
+        CaptainsLog.logResource("Gold",amount)
+    
+    def spendTreasury(self,amount,acceptIncomplete = False):
+        if self.treasury > amount:
+            self.treasury -= amount
+            CaptainsLog.logResource("Gold",-1*amount)
+            return True
+        elif acceptIncomplete:
+            CaptainsLog.logResource("Gold",-1*self.treasury)
+            self.treasury = 0
+            return True
+        return False
 
     #getters and setters
     def setTownHall(self,townHall):
@@ -86,7 +102,7 @@ class Ship:
             if self.cargo[cargoItem] > 0:
                 cargoList.append(cargoItem)
         return cargoList
-            
+       
     #add villagers
     def addVillager (self,villager):
         self.villagers.append(villager)
@@ -138,9 +154,9 @@ class Ship:
         self.townAgeReadable = Utilities.convertTicksToTime(self.townAge)
         townData["town"] = self
         townData["Time"] = self.townAgeReadable
+        townData["Cycle"] = self.townAge
         townData["VillagerList"] = self.villagers
-        townData["gold"] = self.townHall.treasury
-        townData["food"] = self.townHall.stockPile
+        townData["gold"] = self.treasury
         townData["BuildingString"] = self.getBuildingDisplay()
         townData["crops"] = self.FindBuilding(Buildings.Farm).crops
         townData["mine"] = self.FindBuilding(Buildings.Mine)
@@ -148,6 +164,7 @@ class Ship:
         townData["trade"] = self.FindBuilding(Buildings.TradeHub)
         townData["temp"] = self.getShipTemp()
         townData["cargo"] = self.cargo
+        townData["eventHandler"] = self.eventHandler
         #update the villagers and buildings
         for v in self.villagers:
             v.update()
@@ -161,6 +178,7 @@ class Ship:
 
             self.overseer.designateDailyTasks(townData)
 
+        self.eventHandler.update(townData)
         #Draw
         if config.getboolean("VALUES","USEUI"):
             UI.update(townData)
