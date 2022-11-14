@@ -35,7 +35,6 @@ class logOBJ():
                     f.write("gathered {value} {resource}\n".format(value=value,resource=key))
                 if value < 0:
                     f.write("lost {value} {resource}\n".format(value=abs(value),resource=key))
-            
 
 def newDay():
     global currentLog

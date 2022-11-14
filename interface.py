@@ -23,7 +23,7 @@ class ListDisplay(tk.Frame):
     def updateList(self,newList):
         self.text.delete("1.0",END)
         for name in newList:
-            self.text.insert(INSERT,str(name) + "\n")
+            self.text.insert(INSERT,str(name) + "\t")
         self.text.pack(padx=20,pady=1)
 
 #displays the time and date
@@ -49,6 +49,49 @@ class TimeObj(tk.Frame):
         self.text.tag_add("center","1.0","end")
         self.text.pack(padx=self.timePadX,pady=self.timePadY,expand=False)
 
+class dictDisplay(tk.Frame):
+    def __init__(self,parent):
+        self.parent = parent
+        super(dictDisplay,self).__init__(parent,width=20,height= 1)
+        
+        self.label = tk.Label(parent,text="Time")
+        self.label.pack(padx=0,pady=0)
+        self.text = tk.Text(parent,height=1)
+        self.text.tag_configure("center",justify='center')
+        self.text.tag_add("center","1.0","end")
+        self.text.pack(expand=False)
+    
+    def updateDict(self,newDict):
+        self.text.delete("1.0",END)
+        for key in newDict.keys():
+            self.text.insert(INSERT,"{key}: {value}".format(key=key,value=newDict[key]) + "\n")
+        self.text.pack(padx=20,pady=1)
+
+class dictMarquee(tk.Frame):
+    def __init__(self,parent,title,width=80):
+        self.parent = parent
+        super(dictMarquee,self).__init__(parent,width=width,height=1)
+        
+        self.label = tk.Label(parent,text=title)
+        self.label.pack(padx=0,pady=0)
+        self.text = tk.Text(parent,height=1)
+        self.text.tag_configure("center",justify='center')
+        self.text.tag_add("center","1.0","end")
+        self.text.pack(expand=False)
+        self.idx = 0
+        self.width = width
+    def updateMarquee(self,newDict):
+        self.idx += 1
+        marquee = ""
+        self.text.delete("1.0",END)
+        for key in newDict.keys():
+            marquee += "{key}: {value} \t".format(key=str(key),value=str(newDict[key]))
+        lowBound = 0
+        highBound = len(marquee)
+        if highBound > self.width:
+            highBound = self.width
+        self.text.insert(INSERT,marquee[lowBound:highBound])
+        self.text.pack(padx=20,pady=1)
 
 #Displays townhall data
 class TownHall(tk.Frame):
@@ -231,7 +274,7 @@ tab1 = tk.Frame(tabControl)
 tabControl.add(tab1,text= "Home")
 timeObj = TimeObj(root)
 villagers = ListDisplay(tab1)
-townHall = TownHall(tab1)
+cargo = dictMarquee(tab1,"cargo")
 buildingTab = SimpleTextObj(tab1,height=20,width=80,side='left')
 crops = Farm(buildingTab)
 LastDrawTime = time.time()
@@ -263,8 +306,8 @@ def update(args):
     villagers.pack(expand=False)
 
     #update the townHall
-    townHall.updateTownHall(args["gold"],args["food"],args["temp"])
-    townHall.pack(expand=False)
+    cargo.updateMarquee(args["cargo"])
+    cargo.pack(expand=False)
 
     #update the buildings
     buildingTab.updateText(args["BuildingString"])

@@ -17,4 +17,5 @@ def loadRecipeData():
 class Recipe():
     def __init__(self) -> None:
          pass
-print(loadRecipeData())
+
+loadRecipeData()

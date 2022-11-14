@@ -1,3 +1,3 @@
-Name,ripeTime,cropValue,harvestLabor,maintainanceLabor,color
-SugarRice,150,500,30,20,#dbf7bc
-WinterBerries,25,150,40,20,#3d008c
+Crop,ripeTime,cropValue,harvestLabor,maintainanceLabor,color
+SUGAR_RICE,150,500,30,20,#dbf7bc
+WINTER_BERRIES,25,150,40,20,#3d008c

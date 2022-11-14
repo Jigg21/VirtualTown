@@ -17,7 +17,7 @@ def getCropData():
             reader = csv.DictReader(csvFile)
             for row in reader:
                 cropDict = {"cropRipe":int(row["ripeTime"]),"cropValue":int(row["cropValue"]),"cropHLabor":int(row["harvestLabor"]),"cropMLabor":int(row["maintainanceLabor"]),"cropColor":row["color"]}
-                CROPDATA[row["Name"]] = cropDict
+                CROPDATA[row["Crop"]] = cropDict
         
     return CROPDATA
         

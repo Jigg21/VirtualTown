@@ -6,6 +6,7 @@ import Villagers
 import CaptainsLog
 import Utilities
 import CONST
+import Items
 
 
 TAVERNCOMRADETHRESHOLD = 0
@@ -114,20 +115,32 @@ class Restaurant(Building):
         self.bClass = CONST.buildingClass.RESTAURANT
 
     def activate(self,Villager):
+        itemList = self.ship.getCargoList()
         hall = self.ship.getTownHall()
         #if the town has food
-        if hall.getFood() > 0 or config.getboolean("DEBUG","ENDLESSFOOD"):            
-            hall.subtractFood(1)
-            if Villager.canAfford(5):
-                Villager.spendMoney(5)
-                hall.addTreasury(5)
-            else:
-                CurrentMoney = Villager.vMoney
-                Villager.spendMoney(CurrentMoney)
-                hall.addTreasury(CurrentMoney)
-
-            Villager.eat(self.hungerSatisfaction)
+        for item in itemList:
+            itemobj = Items.getItemObj(item)
+            if itemobj.isEdible():
+                self.ship.removeCargo(item,1)
+                if Villager.canAfford(5):
+                    Villager.spendMoney(5)
+                    hall.addTreasury(5)
+                else:
+                    CurrentMoney = Villager.vMoney
+                    Villager.spendMoney(CurrentMoney)
+                    hall.addTreasury(CurrentMoney)
+                Villager.eat(self.hungerSatisfaction)
+                break
         else:
+            if config.getboolean("DEBUG","ENDLESSFOOD"):
+                if Villager.canAfford(5):
+                    Villager.spendMoney(5)
+                    hall.addTreasury(5)
+                else:
+                    CurrentMoney = Villager.vMoney
+                    Villager.spendMoney(CurrentMoney)
+                    hall.addTreasury(CurrentMoney)
+                Villager.eat(self.hungerSatisfaction)
             hall.enterStarving()
 
 #Grows food 
@@ -141,8 +154,9 @@ class Farm(Building):
 
     #harvest a crop and get food value
     def harvestCrop(self,crop):
+        #add the crop to the cargo
         harvestAmount = crop.getHarvest()
-        self.ship.getTownHall().addFood(harvestAmount)
+        self.ship.addItemtoCargo(crop.cropName,harvestAmount)
         if crop in self.crops:
             self.crops.remove(crop)
     
@@ -288,5 +302,7 @@ class Factory(Building):
 
     def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    
+
 
 

@@ -1,4 +1,3 @@
-from email.parser import BytesParser
 from ConfigReader import ConfigData as config
 import CONST
 from BehaviorTree import BT

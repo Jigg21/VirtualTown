@@ -24,7 +24,7 @@ class Ship:
         self.townAge = -1
         #string representing the town age
         self.townAgeReadable = ""
-
+        self.cargo = {}
         #the town objects
         self.villagers = []
         self.buildings = []
@@ -49,6 +49,44 @@ class Ship:
         '''returns the current temperature inside the ship'''
         return (100-self.distanceToSun)/100
 
+    def addItemtoCargo(self, item, quantity):
+        '''adds an item to cargo'''
+        if item in self.cargo.keys():
+            self.cargo[item] += quantity
+        else:
+            self.cargo[item] = quantity
+
+    def hasEnoughItem(self,item,quantity):
+        '''checks if the ship has enough of an item in the cargo'''
+        if item in self.cargo.keys():
+            return self.cargo[item] >= quantity
+        else:
+            return False
+    
+    def getCargoCount(self,item):
+        '''get how much of an item is in the cargo'''
+        if item in self.cargo.keys():
+            return self.cargo[item]
+        else:
+            return 0
+
+    def removeCargo(self,item,quantity):
+        '''remove a quanity of item from cargo'''
+        if item in self.cargo.keys():
+            self.cargo[item] -= quantity
+            if self.cargo[item] < 0:
+                self.cargo[item] =  0
+        else:
+            return False
+    
+    def getCargoList(self):
+        '''get a list of all the cargo onship'''
+        cargoList = list()
+        for cargoItem in self.cargo.keys():
+            if self.cargo[cargoItem] > 0:
+                cargoList.append(cargoItem)
+        return cargoList
+            
     #add villagers
     def addVillager (self,villager):
         self.villagers.append(villager)
@@ -109,6 +147,7 @@ class Ship:
         townData["farm"] = self.FindBuilding(Buildings.Farm)
         townData["trade"] = self.FindBuilding(Buildings.TradeHub)
         townData["temp"] = self.getShipTemp()
+        townData["cargo"] = self.cargo
         #update the villagers and buildings
         for v in self.villagers:
             v.update()
@@ -163,6 +202,8 @@ def main():
     townTavern = Buildings.Tavern("Tavern",False,5,testTown)
     testTown.addBuilding(townTavern)
     testTown.createOverseer()
+
+    testTown.addItemtoCargo("SUGAR_RICE",1000)
 
     #if just speedtesting, get average speed over TESTCOUNT ticks
     if config.getboolean("DEBUG","SPEEDTEST"):
