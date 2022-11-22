@@ -8,7 +8,7 @@ class EventHandler():
     def __init__(self) -> None:
         self.activeEvents = list()
 
-        #Events that can activate randomly (event)
+        #Events that can activate randomly
         self.randomEvents = list()
         self.randomEvents.append(GoldMeteoroidHitsShip)
     
@@ -25,7 +25,7 @@ class EventHandler():
         
         for randomEvent in self.randomEvents:
             #if the random event happens
-            if randomEvent[1] > 1-random.random():
+            if randomEvent.rollForActivation(context):
                 self.activeEvents.append(randomEvent[0](context))
     
     def getEventDescriptions(self):
@@ -71,12 +71,15 @@ class ShipEvents():
         '''if the event is conditional, what condition must be met to end it'''
         raise NotImplementedError("Conditional method was called, but none was supplied ")
 
-    def rollForActivation(self,context,roll) -> (bool):
-        if self.probability > roll:
-            if self.precondition(context):
-                self.activate()
+    def rollForActivation(cls,context) -> (bool):
+        '''roll for if the event should activate'''
+        roll = 1-random.random
+        if cls.probability > roll:
+            if cls.precondition(context):
+                return True
+        return False
 
-    def precondition(self,context) -> (bool):
+    def precondition(context) -> (bool):
         '''conditions that must be true for the event to trigger, defaults to true'''
         return True
     

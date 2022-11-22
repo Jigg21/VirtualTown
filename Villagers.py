@@ -4,7 +4,7 @@ from BehaviorTree import BT
 import math
 from VillagerNodes import tree_VillagerBehaviorTree
 import Utilities
-
+import nameGenerator
 
 class Task:
     '''base class for all tasks villagers can do'''
@@ -118,6 +118,7 @@ class townsperson:
             self.vFamily = family
         else:
             self.vFamily = Family()
+        #where the villager currently is
         self.currentLocation = startLocation
         self.currentLocation.add_occupant(self)
         self.town = town
@@ -130,6 +131,8 @@ class townsperson:
         self.offWork = False
         self.experience = 0
         self.Relationships = {}
+        self.romancable = True
+        self.romanceCoolDown = 10000
         #set up behavior tree
         self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
         self.vDrunkeness = 0
@@ -154,6 +157,12 @@ class townsperson:
             self.vHealth = Utilities.clamp(0,100,self.vHealth)
             self.vDrunkeness -= .25
             self.vDrunkeness = Utilities.clamp(0,100,self.vDrunkeness)
+
+            if not self.romancable:
+                self.romanceCoolDown -= 1
+                if self.romanceCoolDown <= 0:
+                    self.romanceCoolDown = 10000
+                    self.romancable = True
 
     def checkAlive(self):
         '''Check if the villager is alive'''
@@ -249,14 +258,16 @@ class townsperson:
         '''gain amount of friendship with otherVillager'''
         if otherVillager in self.Relationships.keys():
             self.Relationships[otherVillager] += amount
+            if self.Relationships[otherVillager] > 750:
+                self.romanceVillager(otherVillager)
         else:
             self.Relationships[otherVillager] = amount
 
     def romanceVillager(self,otherVillager):
         '''attempt a romantic relationship with another villager'''
-        #if both parties are high enough relationship, add to the family
+        #if both parties are high enough relationship
         if self.reciprocatesRomance(otherVillager) and otherVillager.reciprocatesRomance(self):
-            pass
+            self.town.addVillager(townsperson(nameGenerator.makeName(),  25,'M',self.vFamily,self.currentLocation,self.town))
         else:
             #otherwise both lose 100 relation 
             self.changeRelation(otherVillager, -100)
@@ -264,7 +275,7 @@ class townsperson:
     
     def reciprocatesRomance(self,otherVillager):
         '''checks if the villager loves the other back'''
-        return self.Relationships[otherVillager] >= 750
+        return self.Relationships[otherVillager] >= 750 and self.romancable
     
     #string representation
     def __str__(self):
