@@ -2,14 +2,15 @@ from CONST import EventTypes, EventSeverity
 from ConfigReader import ConfigData as config
 import random
 
+'''BASE CLASES'''
 class EventHandler():
     '''handles the events for the ship'''
     def __init__(self) -> None:
         self.activeEvents = list()
 
-        #Events that can activate randomly (event:probability)
+        #Events that can activate randomly (event)
         self.randomEvents = list()
-        self.randomEvents.append((GoldMeteoroidHitsShip,.0001))
+        self.randomEvents.append(GoldMeteoroidHitsShip)
     
     def addEvent(self,event):
         self.activeEvents.append(event)
@@ -70,6 +71,16 @@ class ShipEvents():
         '''if the event is conditional, what condition must be met to end it'''
         raise NotImplementedError("Conditional method was called, but none was supplied ")
 
+    def rollForActivation(self,context,roll) -> (bool):
+        if self.probability > roll:
+            if self.precondition(context):
+                self.activate()
+
+    def precondition(self,context) -> (bool):
+        '''conditions that must be true for the event to trigger, defaults to true'''
+        return True
+    
+    
     def update(self,context):
         '''called every cycle to check if the event is over'''
         if not self.finished:
@@ -83,6 +94,8 @@ class ShipEvents():
                         self.deactivate()
                     self.finished = True
         return self.finished
+
+'''EVENT DECLARATIONS'''
 
 class GoldMeteoroidHitsShip(ShipEvents):
     desc = "BREAKING! A meteoroid has hit the ship, initial scans suggest it to be made of solid gold!"
