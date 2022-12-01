@@ -33,8 +33,6 @@ class Ship:
         self.bulletin = Villagers.bulletinBoard(self)
         self.eventHandler = ShipEvents.EventHandler()
 
-
-    
     def addTreasury(self,amount):
         self.treasury += amount
         CaptainsLog.logResource("Gold",amount)

@@ -4,7 +4,7 @@ from Crops import *
 import Utilities
 import CaptainsLog
 import Villagers
-import Items
+import CargoItems
 
 class TownOverseer():
     ship = None
@@ -25,7 +25,7 @@ class TownOverseer():
         '''gets a tally of the food onboard'''
         foodLevel = 0
         for item in self.ship.getCargoList():
-            itemobj = Items.getItemObj(item)
+            itemobj = CargoItems.getItemObj(item)
             if itemobj.isEdible():
                 foodLevel += self.ship.getCargoCount(item)
             return foodLevel

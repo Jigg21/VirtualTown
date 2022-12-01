@@ -3,6 +3,7 @@ import csv
 ITEMS = None
 
 def loadItemData():
+    '''load the item data from file'''
     global ITEMS
     if ITEMS != None:
         return ITEMS
@@ -15,9 +16,10 @@ def loadItemData():
     return ITEMS
 
 def getItemObj(id):
-    return Item(id)
+    return cargoItem(id)
 
-class Item():
+class cargoItem():
+    '''class for cargo items when they are being handled'''
     def __init__(self,ID) -> None:
         global ITEMS
         if ITEMS == None:

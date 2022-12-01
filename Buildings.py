@@ -1,4 +1,3 @@
-import imp
 import math
 import random
 from ConfigReader import ConfigData as config
@@ -6,7 +5,7 @@ import Villagers
 import CaptainsLog
 import Utilities
 import CONST
-import Items
+import CargoItems
 
 TAVERNCOMRADETHRESHOLD = 0
 
@@ -91,7 +90,7 @@ class Restaurant(Building):
         hall = self.ship.townHall
         #if the town has food
         for item in itemList:
-            itemobj = Items.getItemObj(item)
+            itemobj = CargoItems.getItemObj(item)
             if itemobj.isEdible():
                 self.ship.removeCargo(item,1)
                 if Villager.canAfford(5):
