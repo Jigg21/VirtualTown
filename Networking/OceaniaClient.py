@@ -63,11 +63,12 @@ class shipUpdate(Thread):
         self.StopEvent = args
     
     def run(self):
+        #TODO:Attach to ship update
         for i in range(1,10):
             if (self.StopEvent.wait(0)):
                 print("Stopping")
                 return
-            #TODO:Attach to ship update
+
             print(i)           
         print("exiting!")
             

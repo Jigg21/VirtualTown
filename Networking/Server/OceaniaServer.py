@@ -1,9 +1,12 @@
 import socket
 import select
 import logging
-import threading
+from threading import Thread
+from threading import Event
 import time
 from enum import Enum
+from concurrent.futures import ThreadPoolExecutor
+import traceback
 
 logging.basicConfig(filename="ServerLog.log",level=logging.INFO)
 
@@ -17,8 +20,94 @@ class OceaniaServer():
     def __init__(self) -> None:
         #ship objects
         self.ships = []
+        self.newShips = []
+        self.purgeShips = []
         #current in-sim cycle
         self.currentCycle = 0
+        
+        self.animation = "|/-\\"
+        self.animationIdx = 0
+    
+    def launch(self):
+        '''launch the server '''
+        try:
+            #start the 
+            Stop = Event()
+            newConnections = acceptNewConnections(Stop,self.newShips)
+            newConnections.start()
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                while True:
+                    #get the start time of this cycle
+                    startTime = time.time()
+
+                    #if there are new connections, add them to the ship list and restart the joining thread
+                    if not newConnections.is_alive():
+                        newConnections.join()
+                        newConnections.sock.close()
+                        for ship in self.newShips:
+                            self.acceptNewShip(ship)
+                        self.newShips = list()
+                        newConnections = acceptNewConnections(Stop,self.newShips)
+                        newConnections.start()
+                    
+                    #perform any pre update functions before starting
+                    self.preExecution()
+                    #start the next cycle if there is at least one ship
+                    if len(self.ships) == 0:
+                        print("NO ONE! Waiting for new ship...")
+                    else:
+                        print("Starting Cycle {cycle}".format(cycle=self.currentCycle))
+                        #start the threads 
+                        ShipFutures = dict()
+                        for ship in self.ships:
+                            ShipFutures[ship] = executor.submit(ship.update)
+                        #wait some time
+                        time.sleep(.75)
+                        #proccess responses
+                        for future in ShipFutures.keys():
+                            #reject the ships that are not responding
+                            if not ShipFutures[future].done():
+                                self.purgeShips.append(future)
+                            else:
+                                #reject the timeouts
+                                result = ShipFutures[future].result()
+                                if result == NetworkResponses.TIMEOUT:
+                                    self.purgeShips.append(future)
+                                #for the ships that completed successfully
+                                elif result == NetworkResponses.COMPLETE:
+                                    pass
+                                #for the ships that need more time
+                                elif result == NetworkResponses.WAITING:
+                                    pass
+                        self.postExecution()
+                    time.sleep(1-(time.time()-startTime))        
+        except Exception:
+            print(traceback.format_exc())
+
+    def preExecution(self):
+        '''
+        actions that happen before update execution
+            
+        '''
+        pass
+
+    def postExecution(self):
+        '''actions that happen after ships have updated'''
+        for ship in self.purgeShips:
+            self.ships.remove(ship)
+        self.purgeShips = []
+        self.currentCycle += 1
+        pass
+    
+    def acceptNewShip(self,otherShip):
+        '''actions that execute when a ship joins the fold'''
+        self.ships.append(otherShip)
+
+class acceptNewConnections(Thread):
+    def __init__(self,stop,shipList) -> None:
+        super().__init__(daemon=True)
+        self.StopEvent = stop
+        self.shipList = shipList
         #initialize and setup a socket for communication
         self.sock = socket.socket()
         #self.sock.setblocking(0)
@@ -28,38 +117,13 @@ class OceaniaServer():
         logging.info("Socket bound to {port}".format(port=port))
         self.sock.listen(5)
         print("Server Listening!")
-        logging.info("Socket open...")
-        self.animation = "|/-\\"
-        self.animationIdx = 0
+        logging.info("Socket opened at {time}".format(time=time.ctime()))
     
-    def launch(self):
-        '''update each ship and wait for responses'''
-        try:
-            while True:
-                startTime = time.time()
-                print("Starting Cycle {cycle}".format(cycle=self.currentCycle))
-                if len(self.ships) == 0:
-                    print("NO ONE! Waiting for new ship...")
-                    self.acceptNewShips()
-                #TODO: add multithreading
-                purgeShips = []
-                for ship in self.ships:
-                    result = ship.update()
-                    if result == NetworkResponses.TIMEOUT:
-                        purgeShips.append(ship)
-                
-                for ship in purgeShips:
-                    self.ships.remove(ship)
-                time.sleep(1-(time.time()-startTime))
-                self.currentCycle += 1
-        except Exception as e:
-            print(e)
-
-    def acceptNewShips(self):
+    def run(self):
         connection, addr = self.sock.accept()
         logging.info("New ship connected from {addr}!".format(addr=addr))
         print("{addr} connected!".format(addr=addr))
-        self.ships.append(ShipClient(connection,addr))
+        self.shipList.append(ShipClient(connection,addr))
 
 class ShipClient():
     def __init__(self,socket,addr):
@@ -86,16 +150,11 @@ class ShipClient():
                         logging.info("Client {addr} timed out!".format(addr=self.addr))
                         return NetworkResponses.TIMEOUT
         except Exception as e:
-            print("Client Exception: ",e)
+            print("Exception in Client Update: ",e)
         
 def main():
     server = OceaniaServer()
-    server.acceptNewShips()
-    while True:
-        server.launch()
-
-
-
+    server.launch()
 
 if __name__ == "__main__":
     try:
