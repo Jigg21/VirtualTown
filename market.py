@@ -5,11 +5,7 @@ class tradeOffer():
     def __init__(self,id,isSale,p) -> None:
         '''create a trade object to represent a buy order'''
         self.item = CargoItems.getItemObj(id)
-        self.cost = 0
-        
-    
-    
-        
+        self.cost = 0    
 
 class Market():
     '''an object to handle the market'''
