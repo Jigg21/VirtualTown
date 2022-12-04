@@ -197,7 +197,7 @@ class Ship:
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
 def main():
-    #initialize a ship
+    #initialize a test ship
     testTown = Ship("New New New York")
     townHall = Buildings.TownHall("Town Hall",False,0,testTown)
     testTown.setTownHall(townHall)
@@ -261,6 +261,9 @@ def main():
             input("Close")
         UI.deinitialize()
     return
+
+def onlineMain():
+    pass
 
 if __name__ == "__main__":
     main()
