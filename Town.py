@@ -11,20 +11,26 @@ import Villagers
 import traceback
 import nameGenerator
 import ShipEvents
+from Networking import OceaniaNetworkingClient as ONC
+from threading import Thread
+
 #contains all ship-wide events and variables
 class Ship:
-    def __init__(self,name):
+    def __init__(self,name,townAge=-1,online=False):
         self.townName = name
-        
+        if online:
+            self.networkAdapter = ONC.ShipNetworkAdapter(self)
+        else:
+            self.networkAdapter = None
         #basic town information
         self.townName = ""
-        self.townAge = -1
+        self.townAge = townAge
         #current ship temperature
         self.distanceToSun = 50
         #string representing the town age
         self.townAgeReadable = ""
         self.cargo = {}
-        #the town objects
+        #the basic town objects
         self.villagers = []
         self.buildings = []
         self.townHall = None
@@ -33,7 +39,50 @@ class Ship:
         self.bulletin = Villagers.bulletinBoard(self)
         self.eventHandler = ShipEvents.EventHandler()
 
+        #buildings
+        townHall = Buildings.TownHall("Town Hall",False,0,self)
+        self.setTownHall(townHall)
+        townRestaurant = Buildings.Restaurant("Restaurant",False,1,self)
+        townFarm = Buildings.Farm("Farm",False,2,self)
+        townMine = Buildings.Mine("Mine",False,3,self)
+        self.addBuilding(townRestaurant)
+        self.addBuilding(townMine)
+        self.addBuilding(townFarm)
+        townTradeHub = Buildings.TradeHub("Trade Hub",False,4,self)
+        self.addBuilding(townTradeHub)
+        townTavern = Buildings.Tavern("Tavern",False,5,self)
+        self.addBuilding(townTavern)
+        self.createOverseer()
+
+        #villagers
+        family1 = Villagers.Family(nameGenerator.getLastName())
+        family2 = Villagers.Family(nameGenerator.getLastName())
+        family3 = Villagers.Family(nameGenerator.getLastName())
+        self.addVillager(Villagers.townsperson(nameGenerator.makeName(),  25,'M',family1,townHall,self))
+        self.addVillager(Villagers.townsperson(nameGenerator.makeName(),27,'F',family2,townFarm,self))
+        self.addVillager(Villagers.townsperson(nameGenerator.makeName(),37,'M',family3,townFarm,self))
+
+        #starting items
+        self.addItemtoCargo("SUGAR_RICE",1000)
+
+
+        #config
+        self.context = self.getSimState()
+        if config.getboolean("VALUES","USEUI"):
+            self.UI = UI.ShipWindow()
+
+    def offlineLaunch(self):
+        pass
+
+    def connect(self):
+        '''connect to the server and attach timeupdate to it'''
+        if config.getboolean("NETWORKING","ONLINE") and self.isOnline():
+            self.networkAdapter.connect()
+        else:
+            raise ConnectionError
+        
     def addTreasury(self,amount):
+        '''get gold'''
         self.treasury += amount
         CaptainsLog.logResource("Gold",amount)
     
@@ -150,19 +199,7 @@ class Ship:
         townData = dict()
         self.townAge += 1
         self.townAgeReadable = Utilities.convertTicksToTime(self.townAge)
-        townData["town"] = self
-        townData["Time"] = self.townAgeReadable
-        townData["Cycle"] = self.townAge
-        townData["VillagerList"] = self.villagers
-        townData["gold"] = self.treasury
-        townData["BuildingString"] = self.getBuildingDisplay()
-        townData["crops"] = self.FindBuilding(Buildings.Farm).crops
-        townData["mine"] = self.FindBuilding(Buildings.Mine)
-        townData["farm"] = self.FindBuilding(Buildings.Farm)
-        townData["trade"] = self.FindBuilding(Buildings.TradeHub)
-        townData["temp"] = self.getShipTemp()
-        townData["cargo"] = self.cargo
-        townData["eventHandler"] = self.eventHandler
+        townData = self.getSimState()
         #update the villagers and buildings
         for v in self.villagers:
             v.update()
@@ -177,9 +214,24 @@ class Ship:
             self.overseer.designateDailyTasks(townData)
 
         self.eventHandler.update(townData)
-        #Draw
-        if config.getboolean("VALUES","USEUI"):
-            UI.update(townData)
+        return townData
+
+    def getSimState(self):
+        townData = dict()
+        townData["town"] = self
+        townData["Time"] = self.townAgeReadable
+        townData["Cycle"] = self.townAge
+        townData["VillagerList"] = self.villagers
+        townData["gold"] = self.treasury
+        townData["BuildingString"] = self.getBuildingDisplay()
+        townData["crops"] = self.FindBuilding(Buildings.Farm).crops
+        townData["mine"] = self.FindBuilding(Buildings.Mine)
+        townData["farm"] = self.FindBuilding(Buildings.Farm)
+        townData["trade"] = self.FindBuilding(Buildings.TradeHub)
+        townData["temp"] = self.getShipTemp()
+        townData["cargo"] = self.cargo
+        townData["eventHandler"] = self.eventHandler
+        return townData
 
     def createOverseer(self):
         '''initialize the overseer'''
@@ -192,34 +244,35 @@ class Ship:
                 return True
         return False
     
+    def isOnline(self):
+        return self.networkAdapter != None
+
     #show local time
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
-def main():
-    #initialize a test ship
-    testTown = Ship("New New New York")
-    townHall = Buildings.TownHall("Town Hall",False,0,testTown)
-    testTown.setTownHall(townHall)
-    townRestaurant = Buildings.Restaurant("Restaurant",False,1,testTown)
-    townFarm = Buildings.Farm("Farm",False,2,testTown)
-    townMine = Buildings.Mine("Mine",False,3,testTown)
-    testTown.addBuilding(townRestaurant)
-    testTown.addBuilding(townMine)
-    testTown.addBuilding(townFarm)
-    family1 = Villagers.Family(nameGenerator.getLastName())
-    family2 = Villagers.Family(nameGenerator.getLastName())
-    family3 = Villagers.Family(nameGenerator.getLastName())
-    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),  25,'M',family1,townHall,testTown))
-    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),27,'F',family2,townFarm,testTown))
-    testTown.addVillager(Villagers.townsperson(nameGenerator.makeName(),37,'M',family3,townFarm,testTown))
-    townTradeHub = Buildings.TradeHub("Trade Hub",False,4,testTown)
-    testTown.addBuilding(townTradeHub)
-    townTavern = Buildings.Tavern("Tavern",False,5,testTown)
-    testTown.addBuilding(townTavern)
-    testTown.createOverseer()
+class OfflineUpdate(Thread):
+    def __init__(self,ship) -> None:
+        super().__init__(daemon=True)
+        self.ship = ship
+    def run(self) -> None:
+        while self.ship.isViable():
+            self.ship.context = self.ship.timeUpdate()
+            #print to console
+            if config.getboolean("DEBUG","VERBOSE"):
+                self.ship.displayLocalTime()
+                self.ship.displayBuildings()
+            #if not instant, wait for the next frame
+            if not config.getboolean("DEBUG","INSTANT"):
+                time.sleep((420/365)/config.getfloat("VALUES","TIMESPEED"))
+        self.ship.displayLocalTime()
+        self.ship.displayBuildings()
 
-    testTown.addItemtoCargo("SUGAR_RICE",1000)
+
+def main():
+    online = config.getboolean("NETWORKING","ONLINE")
+    #initialize a test ship
+    testTown = Ship("New New New York",online=online)
 
     #if just speedtesting, get average speed over TESTCOUNT ticks
     if config.getboolean("DEBUG","SPEEDTEST"):
@@ -232,38 +285,29 @@ def main():
         input("Close")
         return
     
-
-    if config.getboolean("VALUES","USEUI"):
-        UI.inititialize(testTown.townName)
     #CENTRAL FINITE CURVE
-    try:
-        while testTown.isViable():
-            testTown.timeUpdate()
-            #print to console
-            if config.getboolean("DEBUG","VERBOSE"):
-                testTown.displayLocalTime()
-                testTown.displayBuildings()
-            #if not instant, wait fo the next frame
-            if not config.getboolean("DEBUG","INSTANT"):
-                time.sleep((420/365)/config.getfloat("VALUES","TIMESPEED"))
-        testTown.displayLocalTime()
-        testTown.displayBuildings()
-    except Exception as e:
-        print(str(e))
-        print(traceback.format_exc())
-        testTown.displayLocalTime()
-        
+    
+    if config.getboolean("NETWORKING","ONLINE"):
+        '''if the ship is online, online behaviors are needed'''
+        testTown.connect()
+    else:
+        sim = OfflineUpdate(testTown)
+        try:
+            sim.start()
+            testTown.UI.inititialize(testTown.townName,testTown.context)
+        except Exception as e:
+            print(str(e))
+            print(traceback.format_exc())
+            testTown.displayLocalTime()
+            
     
     #de-initialize
-    CaptainsLog.closeLogs()
-    if config.getboolean("VALUES","USEUI"):
-        if config.getboolean("DEBUG","INSTANT"):
-            input("Close")
-        UI.deinitialize()
-    return
 
-def onlineMain():
-    pass
+    CaptainsLog.closeLogs()
+    if config.getboolean("DEBUG","INSTANT"):
+        input("Close")
+        
+    return
 
 if __name__ == "__main__":
     main()
