@@ -73,7 +73,6 @@ class TownHall(Building):
 
     def __str__(self):
         result = super().__str__()
-        result += "(Food: " + str(self.stockPile) + ")"
         result += "(Treasury: " + str(self.treasury) + ")"
         return result
 

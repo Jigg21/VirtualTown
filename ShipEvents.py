@@ -26,7 +26,7 @@ class EventHandler():
         for randomEvent in self.randomEvents:
             #if the random event happens
             if randomEvent.rollForActivation(context):
-                self.activeEvents.append(randomEvent[0](context))
+                self.activeEvents.append(randomEvent(context))
     
     def getEventDescriptions(self):
         '''gets a string representation of the active events'''
@@ -71,11 +71,11 @@ class ShipEvents():
         '''if the event is conditional, what condition must be met to end it'''
         raise NotImplementedError("Conditional method was called, but none was supplied ")
 
-    def rollForActivation(cls,context) -> (bool):
+    def rollForActivation(context) -> (bool):
         '''roll for if the event should activate'''
-        roll = 1-random.random
-        if cls.probability > roll:
-            if cls.precondition(context):
+        roll = 1-random.random()
+        if ShipEvents.probability > roll:
+            if ShipEvents.precondition(context):
                 return True
         return False
 

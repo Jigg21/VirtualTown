@@ -13,7 +13,6 @@ class Market():
         self.items = []
         self.agents = []
 
-
 class tradeAgent():
     '''class for how agents trade with one another'''
     def __init__(self) -> None:

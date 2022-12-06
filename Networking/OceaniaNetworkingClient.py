@@ -1,10 +1,8 @@
 import socket
-import time
 import select
 from threading import Thread
 from threading import Event
 from enum import Enum
-
 class Responses(Enum):
     COMPLETE = 0
     WAITING = 1
@@ -12,11 +10,12 @@ class Responses(Enum):
 
 #TODO: Add encryption and authentication
 class ShipNetworkAdapter():
-    def __init__(self) -> None:
+    def __init__(self,shipObj) -> None:
         '''How a ship communicates with a server '''
         self.sock = socket.socket()
         self.port = 12925
         self.sock.connect(('127.0.0.1',self.port))
+        self.ship = shipObj
     
     def __del__(self):
         #deconstructor
@@ -39,7 +38,8 @@ class ShipNetworkAdapter():
                     #update when the server commands it
                     if message == b"CMD_UPDATE":
                         Stop = Event()
-                        update = shipUpdate(Stop)
+                        newShipState = []
+                        update = shipUpdate(Stop,self.ship,newShipState)
                         update.start()
                         update.join(.8)
                         if update.is_alive():
@@ -58,23 +58,16 @@ class ShipNetworkAdapter():
 class shipUpdate(Thread):
     StopEvent = 0
 
-    def __init__(self,args) -> None:
+    def __init__(self,args,ship,output) -> None:
         super().__init__(daemon=True)
         self.StopEvent = args
+        self.ship = ship
+        self.output = output
     
     def run(self):
         #TODO:Attach to ship update
-        for i in range(1,10):
-            if (self.StopEvent.wait(0)):
-                print("Stopping")
-                return
-
-            print(i)           
+        if (self.StopEvent.wait(0)):
+            print("Stopping")
+            return
+        self.output.append(self.ship.timeUpdate())
         print("exiting!")
-            
-def main():
-    ship = ShipNetworkAdapter()
-    ship.connect()
-    
-if __name__ == "__main__":
-    main()

@@ -1,13 +1,90 @@
-from ast import arg
-from enum import Flag
-from math import exp, floor
-import math
 import tkinter as tk
 from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext
 import Utilities
 import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
+from threading import Thread
 
+class ShipWindow():
+    def __init__(self) -> None:
+        #home tab
+        self.root = tk.Tk()
+        self.root.iconbitmap("dish.ico")
+        self.tabControl = ttk.Notebook(self.root)
+        self.tab1 = tk.Frame(self.tabControl)
+        self.tabControl.add(self.tab1,text= "Home")
+        self.header = TownHall(self.root,"New New New York")
+        self.villagers = ListDisplay(self.tab1)
+        self.cargo = dictMarquee(self.tab1,"Cargo")
+        self.events = listMarquee(self.tab1,"Events")
+        self.buildingTab = SimpleTextObj(self.tab1,height=20,width=80,side='left')
+        self.crops = Farm(self.buildingTab)
+        self.LastDrawTime = time.time()
+        
+
+        #task display tab
+        self.tab2 = tk.Frame(self.tabControl)
+        self.tabControl.add(self.tab2,text="Tasks")
+        self.bTask = BuildingTaskDisplay(self.tab2,height=10,width=80)
+
+        #villager detail tab
+        self.tab3 = tk.Frame(self.tabControl)
+        self.tabControl.add(self.tab3,text="Villagers")
+        self.villagerDisplay = VillagerDisplayTab(self.tab3,height=20,width=80)     
+    
+    #update the ui to a new state
+    def update(self):
+        #Update the time
+        self.header.updateTownHall(self.context["gold"],self.context["temp"],self.context["Time"])
+        self.header.pack(expand=False)
+
+        #update the villager list
+        self.villagers.updateList(self.context["VillagerList"])
+        self.villagers.pack(expand=False)
+
+        #update the detailed villager tab
+        self.villagerDisplay.update(self.context)
+        self.villagers.pack(expand=False)
+
+        #update the townHall
+        self.cargo.updateMarquee(self.context["cargo"])
+        self.cargo.pack(expand=False)
+
+        self.events.updateMarquee(self.context["eventHandler"].getEventDescriptions())
+        self.events.pack(expand=False)
+
+        #update the buildings
+        self.buildingTab.updateText(self.context["BuildingString"])
+        self.buildingTab.pack(expand=False)
+
+        self.root.after(10,self.update)
+        
+
+        #update the Farm
+        if (time.time() - self.LastDrawTime)  > 1:
+            self.crops.updateCrops(self.context["crops"],self.context["Time"])
+            self.crops.pack(expand=False)
+            self.LastDrawTime = time.time()
+        
+
+        self.bTask.updateTasks(self.context["town"].bulletin.getTaskList())
+        self.bTask.pack()
+
+
+        self.root.after(10,self.update)
+
+    def inititialize(self,name,initialState):
+        '''start the root and begin the execution'''
+        self.root.title(name)
+        self.tabControl.pack(expand=True,fill=BOTH)
+        self.context = initialState
+        self.root.after(10,self.update)
+        self.root.mainloop()
+    
+    def deinitialize(self):
+        self.displayThread.join()
+        global exit
+        exit = True
 
 #takes a List and displays each value
 class ListDisplay(tk.Frame):
@@ -299,81 +376,7 @@ class VillagerDisplayTab(tk.Frame):
             if self.dropDownVariable.get() != "Choose Villager":
                 self.getVillager()
             return super().update()
-            
 
-#home tab
-root = tk.Tk()
-root.iconbitmap("dish.ico")
-tabControl = ttk.Notebook(root)
-tab1 = tk.Frame(tabControl)
-tabControl.add(tab1,text= "Home")
-header = TownHall(root,"New New New York")
-villagers = ListDisplay(tab1)
-cargo = dictMarquee(tab1,"Cargo")
-events = listMarquee(tab1,"Events")
-buildingTab = SimpleTextObj(tab1,height=20,width=80,side='left')
-crops = Farm(buildingTab)
-LastDrawTime = time.time()
-
-#task display tab
-tab2 = tk.Frame(tabControl)
-tabControl.add(tab2,text="Tasks")
-bTask = BuildingTaskDisplay(tab2,height=10,width=80)
-
-#villager detail tab
-tab3 = tk.Frame(tabControl)
-tabControl.add(tab3,text="Villagers")
-villagerDisplay = VillagerDisplayTab(tab3,height=20,width=80)
-
-
-#called every tick
-def update(args):
-
-    #Update the time
-    header.updateTownHall(args["gold"],args["temp"],args["Time"])
-    header.pack(expand=False)
-
-    #update the villager list
-    villagers.updateList(args["VillagerList"])
-    villagers.pack(expand=False)
-
-    #update the detailed villager tab
-    villagerDisplay.update(args)
-    villagers.pack(expand=False)
-
-    #update the townHall
-    cargo.updateMarquee(args["cargo"])
-    cargo.pack(expand=False)
-
-    events.updateMarquee(args["eventHandler"].getEventDescriptions())
-    events.pack(expand=False)
-
-    #update the buildings
-    buildingTab.updateText(args["BuildingString"])
-    buildingTab.pack(expand=False)
-
-    #update the Farm
-    global LastDrawTime
-    if (time.time() - LastDrawTime)  > 1:
-        crops.updateCrops(args["crops"],args["Time"])
-        crops.pack(expand=False)
-        LastDrawTime = time.time()
-    
-
-    bTask.updateTasks(args["town"].bulletin.getTaskList())
-    bTask.pack()
-
-
-    root.update()
-
-def inititialize(name):
-  root.title(name)
-  tabControl.pack(expand=True,fill=BOTH)
-  
-
-def deinitialize():
-    root.quit()
-    global exit
-    exit = True
+          
 
 
