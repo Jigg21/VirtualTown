@@ -107,7 +107,7 @@ class TownOverseer():
             #Plant up to the maximum crops    
             if (len(farm.crops) < farm.maximumCrops):
                 for i in range(0,farm.maximumCrops- len(farm.crops)):
-                    newCrop = Crop(farm, self.chooseBestCrop(),townData["Time"])
+                    newCrop = Crop(farm, self.chooseBestCrop(),townData["Cycle"])
                     self.ship.bulletin.postJob(Villagers.Task(farm.plantCrop,newCrop.harvestLaborReq,farm,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
         
         #TODO: Add mine logic

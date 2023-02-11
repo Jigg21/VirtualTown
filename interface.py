@@ -35,7 +35,8 @@ class ShipWindow():
     
     #update the ui to a new state
     def update(self):
-        #Update the time
+        self.context = self.ship.getSimState()
+        #Update the townhall
         self.header.updateTownHall(self.context["gold"],self.context["temp"],self.context["Time"])
         self.header.pack(expand=False)
 
@@ -47,7 +48,7 @@ class ShipWindow():
         self.villagerDisplay.update(self.context)
         self.villagers.pack(expand=False)
 
-        #update the townHall
+        #update cargo
         self.cargo.updateMarquee(self.context["cargo"])
         self.cargo.pack(expand=False)
 
@@ -77,13 +78,13 @@ class ShipWindow():
             signal.raise_signal(signal.SIGTERM)
             self.root.destroy()
             
-
     def inititialize(self,name,initialState):
         '''start the root and begin the execution'''
         try:
             self.root.title(name)
             self.tabControl.pack(expand=True,fill=BOTH)
             self.context = initialState
+            self.ship = initialState["town"]
             self.root.after(10,self.update)
             self.root.protocol("WM_DELETE_WINDOW",self.onClosing)
             self.root.mainloop()

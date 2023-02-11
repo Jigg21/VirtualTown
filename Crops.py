@@ -25,8 +25,7 @@ def getCropData():
 class Crop():
     '''Crop Class'''
     def __init__(self,farm,cropName,plantedTime):
-        
-        self.plantedTime = Utilities.convertTimeToTicks(plantedTime)
+        self.plantedTime = plantedTime
         self.cropName = cropName
         global CROPDATA
         self.farm = farm

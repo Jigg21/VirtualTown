@@ -3,6 +3,7 @@ from OverseerClass import TownOverseer
 from Networking import TownNetworkingClient as ONC
 from threading import Thread
 from NameGenerator import nameGenerator
+from Events import ShipEvents
 import CaptainsLog
 import time
 import math
@@ -12,23 +13,22 @@ import traceback
 import Buildings
 import Villagers
 import traceback
-import ShipEvents
 import CONST
 import signal
 
 #contains all ship-wide events and variables
 class Ship:
     def __init__(self,name,townAge=-1,online=False):
-        self.townName = name
+        
         if online:
             self.networkAdapter = ONC.ShipNetworkAdapter(self)
         else:
             self.networkAdapter = None
         #basic town information
-        self.townName = ""
+        self.townName = name
         self.townAge = townAge
         #current ship temperature
-        self.distanceToSun = 50
+        self.distanceToSurface = 50
         #string representing the town age
         self.townAgeReadable = ""
         self.cargo = {}
@@ -68,8 +68,10 @@ class Ship:
         self.addItemtoCargo("SUGAR_RICE",1000)
 
 
-        #config
+        
         self.context = self.getSimState()
+
+        #config
         if config.getboolean("VALUES","USEUI"):
             self.UI = UI.ShipWindow()
 
@@ -109,7 +111,7 @@ class Ship:
 
     def getShipTemp(self):
         '''returns the current temperature inside the ship'''
-        return (100-self.distanceToSun)/100
+        return (100-self.distanceToSurface)/100
 
     def addItemtoCargo(self, item, quantity):
         '''adds an item to cargo'''
@@ -195,10 +197,10 @@ class Ship:
     def timeUpdate(self):
         '''called every tick'''
         #get all necccesary data
-        townData = dict()
+        townData = self.context
+        #add to time
         self.townAge += 1
         self.townAgeReadable = Utilities.convertTicksToTime(self.townAge)
-        townData = self.getSimState()
         #update the villagers and buildings
         for v in self.villagers:
             v.update()
@@ -213,7 +215,10 @@ class Ship:
             self.overseer.designateDailyTasks(townData)
 
         self.eventHandler.update(townData)
-        return townData
+
+        #update the context and return it
+        self.context = self.getSimState()
+        return self.context
 
     def getSimState(self):
         townData = dict()
@@ -267,7 +272,7 @@ class OfflineUpdate(Thread):
 
     def run(self) -> None:
         while self.ship.isViable() and not self.threadEnder.killNow:
-            self.ship.context = self.ship.timeUpdate()
+            self.ship.timeUpdate()
             #print to console
             if config.getboolean("DEBUG","VERBOSE"):
                 self.ship.displayLocalTime()
@@ -299,9 +304,9 @@ def main():
         #if the ship is online, online behaviors are needed
         testTown.connect()
     else:
-        #start the offline update loop
-        sim = OfflineUpdate(testTown)
         try:
+            #start the offline update loop
+            sim = OfflineUpdate(testTown)
             sim.start()
             if config.getboolean("VALUES","USEUI"):
                 testTown.UI.inititialize(testTown.townName,testTown.context)

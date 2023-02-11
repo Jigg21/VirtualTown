@@ -199,8 +199,8 @@ class townsperson:
     
     def goEat(self):
         '''Go to a restuarant if the villager is not already there'''
-        if self.currentLocation.bClass == CONST.buildingClass.RESTAURANT:
-            self.goTo(self.town.getRestaurant())    
+        if self.currentLocation.bClass != CONST.buildingClass.RESTAURANT:
+            self.goTo(self.town.FindBuilding(CONST.buildingClass.RESTAURANT))    
     
     def goToBuildingType(self,bType):
         '''Go to a building of type btype, in the case of multiples it will go to the first'''
