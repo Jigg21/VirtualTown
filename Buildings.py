@@ -11,18 +11,14 @@ TAVERNCOMRADETHRESHOLD = 0
 
 #building base class
 class Building:
-    Occupants = []
-    IsPrivate = False
-    buildingNumber = 0
-    buildingName = ""
-    ship = None
     WorkerSalary = 5
-    def __init__(self,buidingName,IsPrivate, buildingNumber,ship):
+
+    def __init__(self,buidingName,IsPrivate, buildingNumber,town):
         self.buildingName = buidingName
         self.IsPrivate = IsPrivate
         self.Occupants = []
         self.buildingNumber = buildingNumber
-        self.ship = ship
+        self.Town = town
         self.bClass = CONST.buildingClass.MISC
         return
 
@@ -44,13 +40,13 @@ class Building:
         pass
     
     #manage occupants
-    def add_occupant(self,Villager):
+    def addOccupant(self,Villager):
         self.Occupants.append(Villager)
     
-    def remove_occupant(self,Villager):
+    def removeOccupant(self,Villager):
         self.Occupants.remove(Villager)
     
-    def get_occupants(self):
+    def getOccupants(self):
         return self.Occupants.copy()
     
     #string representation
@@ -85,20 +81,20 @@ class Restaurant(Building):
         self.bClass = CONST.buildingClass.RESTAURANT
 
     def activate(self,Villager):
-        itemList = self.ship.getCargoList()
-        hall = self.ship.townHall
+        itemList = self.Town.getCargoList()
+        hall = self.Town.townHall
         #if the town has food
         for item in itemList:
             itemobj = CargoItems.getItemObj(item)
             if itemobj.isEdible():
-                self.ship.removeCargo(item,1)
+                self.Town.removeCargo(item,1)
                 if Villager.canAfford(5):
                     Villager.spendMoney(5)
-                    self.ship.addTreasury(5)
+                    self.Town.addTreasury(5)
                 else:
                     CurrentMoney = Villager.vMoney
                     Villager.spendMoney(CurrentMoney)
-                    self.ship.addTreasury(CurrentMoney)
+                    self.Town.addTreasury(CurrentMoney)
                 Villager.eat(self.hungerSatisfaction)
                 break
         else:
@@ -126,7 +122,7 @@ class Farm(Building):
     def harvestCrop(self,crop):
         #add the crop to the cargo
         harvestAmount = crop.getHarvest()
-        self.ship.addItemtoCargo(crop.cropName,harvestAmount)
+        self.Town.addItemtoCargo(crop.cropName,harvestAmount)
         if crop in self.crops:
             self.crops.remove(crop)
     
@@ -181,7 +177,7 @@ class Mine(Building):
         self.bClass= CONST.buildingClass.MINE
 
     def mineGold(self):
-        self.ship.addTreasury(self.mineEfficiency)
+        self.Town.addTreasury(self.mineEfficiency)
         
 
     def mineIron(self):
@@ -200,10 +196,10 @@ class TradeHub(Building):
     dailyTradeRate = 0
     def __init__(self, buidingName, IsPrivate, buildingNumber, town):
         super().__init__(buidingName, IsPrivate, buildingNumber, town)
-    
+        self.bClass.TRADE
     def sellFood(self,amount):
-        self.ship.townHall.subtractFood(amount)
-        self.ship.townHall.addTreasury(amount*self.dailyTradeRate)
+        self.Town.townHall.subtractFood(amount)
+        self.Town.townHall.addTreasury(amount*self.dailyTradeRate)
         CaptainsLog.logSale("Food",amount,amount*self.dailyTradeRate)
     
     def dailyUpdate(self,data):
@@ -216,6 +212,7 @@ class TradeHub(Building):
 class GameHall(Building):
     def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+        self.bClass = CONST.buildingClass.GAMEHALL
         self.betters = []
     '''Villagers can play games between each other'''
     def activate(self, Villager):
@@ -238,12 +235,12 @@ class GameHall(Building):
 
 
         
-    def add_occupant(self, Villager):
-        super().add_occupant(Villager)
+    def addOccupant(self, Villager):
+        super().addOccupant(Villager)
         self.betters.append(Villager)
 
-    def remove_occupant(self, Villager):
-        super().remove_occupant(Villager)
+    def removeOccupant(self, Villager):
+        super().removeOccupant(Villager)
         try:
             self.betters.remove(Villager)
         except ValueError:

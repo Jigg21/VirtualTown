@@ -1,10 +1,11 @@
 from ConfigReader import ConfigData as config
-import CONST
-from BehaviorTree import BT
-import math
 from VillagerNodes import tree_VillagerBehaviorTree
+from NameGenerator import nameGenerator
+from BehaviorTree import BT
+import CONST
+import math
 import Utilities
-import nameGenerator
+
 
 class Task:
     '''base class for all tasks villagers can do'''
@@ -120,7 +121,7 @@ class townsperson:
             self.vFamily = Family()
         #where the villager currently is
         self.currentLocation = startLocation
-        self.currentLocation.add_occupant(self)
+        self.currentLocation.addOccupant(self)
         self.town = town
         self.vTask = None
         self.vHunger = 100
@@ -192,13 +193,13 @@ class townsperson:
    
     def goTo(self,location):
         '''sends villager to location and removes it it's current location'''
-        self.currentLocation.remove_occupant(self)
+        self.currentLocation.removeOccupant(self)
         self.currentLocation = location
-        self.currentLocation.add_occupant(self)
+        self.currentLocation.addOccupant(self)
     
     def goEat(self):
         '''Go to a restuarant if the villager is not already there'''
-        if self.currentLocation != self.town.getRestaurant():
+        if self.currentLocation.bClass == CONST.buildingClass.RESTAURANT:
             self.goTo(self.town.getRestaurant())    
     
     def goToBuildingType(self,bType):

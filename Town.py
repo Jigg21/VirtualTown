@@ -1,5 +1,8 @@
 from ConfigReader import ConfigData as config
 from OverseerClass import TownOverseer
+from Networking import TownNetworkingClient as ONC
+from threading import Thread
+from NameGenerator import nameGenerator
 import CaptainsLog
 import time
 import math
@@ -9,10 +12,8 @@ import traceback
 import Buildings
 import Villagers
 import traceback
-import nameGenerator
 import ShipEvents
-from Networking import TownNetworkingClient as ONC
-from threading import Thread
+import CONST
 
 #contains all ship-wide events and variables
 class Ship:
@@ -96,7 +97,7 @@ class Ship:
             self.treasury = 0
             return True
         return False
-
+    
     #getters and setters
     def setTownHall(self,townHall):
         self.townHall = townHall
@@ -105,9 +106,6 @@ class Ship:
     def getTownHall(self):
         return self.townHall
 
-    def getRestaurant(self):
-        return self.FindBuilding(Buildings.Restaurant)
-    
     def getShipTemp(self):
         '''returns the current temperature inside the ship'''
         return (100-self.distanceToSun)/100
@@ -159,9 +157,9 @@ class Ship:
         self.buildings.append(building)
     
     #find a building of a certain type
-    def FindBuilding(self, targetType):
+    def FindBuilding(self, targetClass):
         for b in self.buildings:
-            if (isinstance(b,targetType)):
+            if b.bClass == targetClass :
                 return b
  
     #disply the town in terms of villagers or buildings
@@ -177,7 +175,7 @@ class Ship:
             if len(b.Occupants) == 0:
                 print("\tNone")
             else:
-                for v in b.get_occupants():
+                for v in b.getOccupants():
                     print('\t',str(v))
         print(result)
 
@@ -189,7 +187,7 @@ class Ship:
             if len(b.Occupants) == 0:
                 result += "\tNone\n"
             else:
-                for v in b.get_occupants():
+                for v in b.getOccupants():
                     result += '\t' + v.vName + "\n"
         return result
 
@@ -224,10 +222,10 @@ class Ship:
         townData["VillagerList"] = self.villagers
         townData["gold"] = self.treasury
         townData["BuildingString"] = self.getBuildingDisplay()
-        townData["crops"] = self.FindBuilding(Buildings.Farm).crops
-        townData["mine"] = self.FindBuilding(Buildings.Mine)
-        townData["farm"] = self.FindBuilding(Buildings.Farm)
-        townData["trade"] = self.FindBuilding(Buildings.TradeHub)
+        townData["crops"] = self.FindBuilding(CONST.buildingClass.FARM).crops
+        townData["mine"] = self.FindBuilding(CONST.buildingClass.MINE)
+        townData["farm"] = self.FindBuilding(CONST.buildingClass.FARM)
+        townData["trade"] = self.FindBuilding(CONST.buildingClass.TRADE)
         townData["temp"] = self.getShipTemp()
         townData["cargo"] = self.cargo
         townData["eventHandler"] = self.eventHandler
@@ -253,8 +251,9 @@ class Ship:
 
 class OfflineUpdate(Thread):
     def __init__(self,ship) -> None:
-        super().__init__(daemon=True)
+        super().__init__(daemon=False)
         self.ship = ship
+
     def run(self) -> None:
         while self.ship.isViable():
             self.ship.context = self.ship.timeUpdate()
@@ -285,15 +284,15 @@ def main():
         return
     
     #CENTRAL FINITE CURVE
-    
-    if config.getboolean("NETWORKING","ONLINE"):
+    if online:
         '''if the ship is online, online behaviors are needed'''
         testTown.connect()
     else:
         sim = OfflineUpdate(testTown)
         try:
             sim.start()
-            testTown.UI.inititialize(testTown.townName,testTown.context)
+            if config.getboolean("VALUES","USEUI"):
+                testTown.UI.inititialize(testTown.townName,testTown.context)
         except Exception as e:
             print(str(e))
             print(traceback.format_exc())

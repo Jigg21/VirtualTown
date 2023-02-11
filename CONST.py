@@ -34,8 +34,6 @@ class TaskStatus(Enum):
     COMPLETED = 4
     FAILED = 5
 
-
-
 class buildingClass(Enum):
     TOWNHALL = 0
     RESTAURANT = 1
@@ -44,4 +42,5 @@ class buildingClass(Enum):
     MISC = 4
     FARM = 5
     TRADE = 6
+    GAMEHALL = 7
 
