@@ -11,7 +11,7 @@ import Villagers
 import traceback
 import nameGenerator
 import ShipEvents
-from Networking import OceaniaNetworkingClient as ONC
+from Networking import TownNetworkingClient as ONC
 from threading import Thread
 
 #contains all ship-wide events and variables
