@@ -56,8 +56,6 @@ class ShipWindow():
         #update the buildings
         self.buildingTab.updateText(self.context["BuildingString"])
         self.buildingTab.pack(expand=False)
-
-        self.root.after(10,self.update)
         
 
         #update the Farm
@@ -70,15 +68,15 @@ class ShipWindow():
         self.bTask.updateTasks(self.context["town"].bulletin.getTaskList())
         self.bTask.pack()
 
-
-        self.root.after(10,self.update)
+        #Start it all over again
+        self.root.after(1,self.update)
 
     def inititialize(self,name,initialState):
         '''start the root and begin the execution'''
         self.root.title(name)
         self.tabControl.pack(expand=True,fill=BOTH)
         self.context = initialState
-        self.root.after(5,self.update)
+        self.root.after(10,self.update)
         self.root.mainloop()
     
     def deinitialize(self):
