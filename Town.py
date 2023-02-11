@@ -268,7 +268,6 @@ class OfflineUpdate(Thread):
         self.ship.displayLocalTime()
         self.ship.displayBuildings()
 
-
 def main():
     online = config.getboolean("NETWORKING","ONLINE")
     #initialize a test ship
