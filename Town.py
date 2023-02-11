@@ -306,6 +306,7 @@ def main():
             if config.getboolean("VALUES","USEUI"):
                 testTown.UI.inititialize(testTown.townName,testTown.context)
         except Exception as e:
+            print("====EXITING===")
             print(str(e))
             print(traceback.format_exc())
             testTown.displayLocalTime()

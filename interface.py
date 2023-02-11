@@ -1,9 +1,10 @@
 import tkinter as tk
-from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext
+from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext, messagebox
 import Utilities
 import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
 from threading import Thread
+import signal
 
 class ShipWindow():
     def __init__(self) -> None:
@@ -71,13 +72,23 @@ class ShipWindow():
         #Start it all over again
         self.root.after(1,self.update)
 
+    def onClosing(self):
+        if messagebox.askokcancel("Quit","Ready to stop?"):
+            signal.raise_signal(signal.SIGTERM)
+            self.root.destroy()
+            
+
     def inititialize(self,name,initialState):
         '''start the root and begin the execution'''
-        self.root.title(name)
-        self.tabControl.pack(expand=True,fill=BOTH)
-        self.context = initialState
-        self.root.after(10,self.update)
-        self.root.mainloop()
+        try:
+            self.root.title(name)
+            self.tabControl.pack(expand=True,fill=BOTH)
+            self.context = initialState
+            self.root.after(10,self.update)
+            self.root.protocol("WM_DELETE_WINDOW",self.onClosing)
+            self.root.mainloop()
+        except:
+            pass
     
     def deinitialize(self):
         self.displayThread.join()
