@@ -78,7 +78,7 @@ class ShipWindow():
         self.root.title(name)
         self.tabControl.pack(expand=True,fill=BOTH)
         self.context = initialState
-        self.root.after(10,self.update)
+        self.root.after(5,self.update)
         self.root.mainloop()
     
     def deinitialize(self):
