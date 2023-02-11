@@ -14,6 +14,7 @@ import Villagers
 import traceback
 import ShipEvents
 import CONST
+import signal
 
 #contains all ship-wide events and variables
 class Ship:
@@ -249,13 +250,23 @@ class Ship:
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
+class ThreadEnder():
+    killNow = False
+    def __init__(self):
+        signal.signal(signal.SIGINT, self.exitGracefully)
+        signal.signal(signal.SIGTERM, self.exitGracefully)
+    
+    def exitGracefully(self,*args):
+        self.killNow = True
+
 class OfflineUpdate(Thread):
     def __init__(self,ship) -> None:
         super().__init__(daemon=False)
         self.ship = ship
+        self.threadEnder = ThreadEnder()
 
     def run(self) -> None:
-        while self.ship.isViable():
+        while self.ship.isViable() and not self.threadEnder.killNow:
             self.ship.context = self.ship.timeUpdate()
             #print to console
             if config.getboolean("DEBUG","VERBOSE"):
@@ -266,6 +277,7 @@ class OfflineUpdate(Thread):
                 time.sleep((420/365)/config.getfloat("VALUES","TIMESPEED"))
         self.ship.displayLocalTime()
         self.ship.displayBuildings()
+        
 
 def main():
     online = config.getboolean("NETWORKING","ONLINE")
@@ -285,9 +297,10 @@ def main():
     
     #CENTRAL FINITE CURVE
     if online:
-        '''if the ship is online, online behaviors are needed'''
+        #if the ship is online, online behaviors are needed
         testTown.connect()
     else:
+        #start the offline update loop
         sim = OfflineUpdate(testTown)
         try:
             sim.start()
@@ -297,6 +310,8 @@ def main():
             print(str(e))
             print(traceback.format_exc())
             testTown.displayLocalTime()
+            signal.raise_signal(signal.SIGTERM)
+            sim.join()
             
     
     #de-initialize
