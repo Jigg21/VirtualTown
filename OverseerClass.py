@@ -5,6 +5,7 @@ import Utilities
 import CaptainsLog
 import Villagers
 import CargoItems
+import TaskMngmt
 
 class TownOverseer():
     ship = None
@@ -100,19 +101,19 @@ class TownOverseer():
                 #harvest ripe crops
                 harvestPercentage = c.getHarvestPercentage()
                 if (harvestPercentage >= self.gHarvestThreshold):
-                    self.ship.bulletin.postJob(Villagers.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5,[c]))
+                    self.ship.bulletin.postJob(TaskMngmt.Task(farm.harvestCrop,c.harvestLaborReq,farm,"Harvesting Crop",5,[c]))
                 #maintain all unripe crops
                 else:
-                    self.ship.bulletin.postJob(Villagers.Task(farm.maintainCrop,c.maintainLaborReq,farm,"Maintaining Crop",5,[c]))
+                    self.ship.bulletin.postJob(TaskMngmt.Task(farm.maintainCrop,c.maintainLaborReq,farm,"Maintaining Crop",5,[c]))
             #Plant up to the maximum crops    
             if (len(farm.crops) < farm.maximumCrops):
                 for i in range(0,farm.maximumCrops- len(farm.crops)):
                     newCrop = Crop(farm, self.chooseBestCrop(),townData["Cycle"])
-                    self.ship.bulletin.postJob(Villagers.Task(farm.plantCrop,newCrop.harvestLaborReq,farm,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
+                    self.ship.bulletin.postJob(TaskMngmt.Task(farm.plantCrop,newCrop.harvestLaborReq,farm,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
         
         #TODO: Add mine logic
         if ("mine" in townData):
             mine = townData["mine"]
             for i in range(50):
-                self.ship.bulletin.postJob(Villagers.Task(mine.mineGold,5,mine,"Mining Gold",5))
+                self.ship.bulletin.postJob(TaskMngmt.Task(mine.mineGold,5,mine,"Mining Gold",5))
         

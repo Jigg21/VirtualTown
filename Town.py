@@ -15,6 +15,8 @@ import Villagers
 import traceback
 import CONST
 import signal
+import TaskMngmt
+import Familes
 
 #contains all ship-wide events and variables
 class Ship:
@@ -37,7 +39,7 @@ class Ship:
         self.townHall = None
         self.overseer = None
         self.treasury = 1000
-        self.bulletin = Villagers.bulletinBoard(self)
+        self.bulletin = TaskMngmt.bulletinBoard(self)
         self.eventHandler = ShipEvents.EventHandler()
 
         #buildings
@@ -57,9 +59,9 @@ class Ship:
         self.createOverseer()
 
         #villagers
-        family1 = Villagers.Family(nameGenerator.getLastName())
-        family2 = Villagers.Family(nameGenerator.getLastName())
-        family3 = Villagers.Family(nameGenerator.getLastName())
+        family1 = Familes.Family(nameGenerator.getLastName())
+        family2 = Familes.Family(nameGenerator.getLastName())
+        family3 = Familes.Family(nameGenerator.getLastName())
         self.addVillager(Villagers.Villager(nameGenerator.makeName(),  25,'M',family1,townHall,self))
         self.addVillager(Villagers.Villager(nameGenerator.makeName(),27,'F',family2,townFarm,self))
         self.addVillager(Villagers.Villager(nameGenerator.makeName(),37,'M',family3,townFarm,self))

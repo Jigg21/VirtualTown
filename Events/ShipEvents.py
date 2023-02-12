@@ -10,7 +10,7 @@ class EventHandler():
 
         #Events that can activate randomly
         self.randomEvents = list()
-        self.randomEvents.append(GoldMeteoroidHitsShip)
+        self.randomEvents.append(GoldHitsShip)
     
     def addEvent(self,event):
         self.activeEvents.append(event)
@@ -100,8 +100,8 @@ class ShipEvents():
 
 '''EVENT DECLARATIONS'''
 
-class GoldMeteoroidHitsShip(ShipEvents):
-    desc = "BREAKING! A meteoroid has hit the ship, initial scans suggest it to be made of solid gold!"
+class GoldHitsShip(ShipEvents):
+    desc = "BREAKING! A rock has hit the ship, initial scans suggest it to be made of solid gold!"
     eventType = EventTypes.INSTANT
     probability = 0.0001
     severity = EventSeverity.MINOR
@@ -110,11 +110,10 @@ class GoldMeteoroidHitsShip(ShipEvents):
         ship.addTreasury(1000)
 
 class LibertariadTradeWar(ShipEvents):
-    desc = "The Libertariad has decreed our Town a threat to galactic security"
+    desc = "The Libertariad has decreed our Town a threat to oceanic security"
     eventType = EventTypes.TEMPORARY
     probability = 0.000001
     severity = EventSeverity.EMERGENCY
     duration = 10000
     def activate(self,context):
-        ship = context["town"]
-        
+        ship = context["town"]     
