@@ -107,7 +107,7 @@ class bulletinBoard():
         return result
 
 #villager class
-class townsperson:
+class Villager:
 
     def __init__(self,name,birthCycle,gender,family=None,startLocation=None,town=None):
         '''name: villager name\n
@@ -119,6 +119,8 @@ class townsperson:
             self.vFamily = family
         else:
             self.vFamily = Family()
+        
+        self.vName += " " + self.vFamily.fName
         #where the villager currently is
         self.currentLocation = startLocation
         self.currentLocation.addOccupant(self)
@@ -133,10 +135,11 @@ class townsperson:
         self.experience = 0
         self.Relationships = {}
         self.romancable = True
-        self.romanceCoolDown = 10000
+        self.romanceCoolDown = 0
         #set up behavior tree
         self.behaviorTree = tree_VillagerBehaviorTree(BT.SequenceNode("ROOT NODE"))
         self.vDrunkeness = 0
+
     #called once a tick
     def update(self):
         self.checkAlive()
@@ -162,7 +165,6 @@ class townsperson:
             if not self.romancable:
                 self.romanceCoolDown -= 1
                 if self.romanceCoolDown <= 0:
-                    self.romanceCoolDown = 10000
                     self.romancable = True
 
     def checkAlive(self):
@@ -259,7 +261,8 @@ class townsperson:
         '''gain amount of friendship with otherVillager'''
         if otherVillager in self.Relationships.keys():
             self.Relationships[otherVillager] += amount
-            if self.Relationships[otherVillager] > 750:
+            #if above a certain level and open to romance, attempt a romance
+            if self.Relationships[otherVillager] > config.getint("PASSENGERS","ROMANCETHRESH") and self.romancable:
                 self.romanceVillager(otherVillager)
         else:
             self.Relationships[otherVillager] = amount
@@ -268,26 +271,30 @@ class townsperson:
         '''attempt a romantic relationship with another villager'''
         #if both parties are high enough relationship
         if self.reciprocatesRomance(otherVillager) and otherVillager.reciprocatesRomance(self):
-            self.town.addVillager(townsperson(nameGenerator.makeName(),  25,'M',self.vFamily,self.currentLocation,self.town))
+            self.town.addVillager(Villager(nameGenerator.makeName(),  25,'M',self.vFamily,self.currentLocation,self.town))
         else:
-            #otherwise both lose 100 relation 
+            #otherwise the villager loses 100 relation 
             self.changeRelation(otherVillager, -100)
-            otherVillager.changeRelation(self,-100)
+            self.rejectedRomance(otherVillager)
     
+    def rejectedRomance(self,otherVillager):
+        self.romancable = False
+        self.romanceCoolDown = 10000
+
     def reciprocatesRomance(self,otherVillager):
         '''checks if the villager loves the other back'''
-        return self.Relationships[otherVillager] >= 750 and self.romancable
+        thresh = config.getint("PASSENGERS","ROMANCETHRESH")
+        if self.Relationships[otherVillager] >= thresh:
+            self.rejectedRomance(otherVillager)
+        return self.Relationships[otherVillager] >= thresh
     
-    #string representation
-    def __str__(self):
-        result = self.vName + " " + self.vFamily.fName
-        result += " ({age}/{gender})".format(age=self.vAge,gender=self.vGender)
-    
+
     def drink(self): 
         self.vDrunkeness += 1
+    
     #string representation
     def __str__(self):
-        result = self.vName
+        result = self.vName 
         result += " ({age}/{gender})".format(age=self.vBirthCycle,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
         result += " Health: {health}".format(health=math.floor(self.vHealth))
@@ -307,4 +314,4 @@ class Family():
         return len(self.fMembers) < len(otherFam.fMembers)
     
 
-    
+

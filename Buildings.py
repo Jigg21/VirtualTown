@@ -13,13 +13,15 @@ TAVERNCOMRADETHRESHOLD = 0
 class Building:
     WorkerSalary = 5
 
-    def __init__(self,buidingName,IsPrivate, buildingNumber,town):
+    def __init__(self,buidingName,IsPrivate, buildingNumber,town,coords):
         self.buildingName = buidingName
         self.IsPrivate = IsPrivate
         self.Occupants = []
         self.buildingNumber = buildingNumber
         self.Town = town
         self.bClass = CONST.buildingClass.MISC
+        #list representing all the coords this building takes up
+        self.coords = coords
         return
 
     #for actions that are activated by villagers
@@ -59,8 +61,8 @@ class TownHall(Building):
     treasury = 1000
     starving = False
 
-    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
-        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
         self.bClass = CONST.buildingClass.TOWNHALL
 
     def enterStarving(self):
@@ -76,8 +78,8 @@ class Restaurant(Building):
     '''Place for villagers to eat'''
     #how much hunger each food satisfies
     hungerSatisfaction = 10
-    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
-        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship,coords)
         self.bClass = CONST.buildingClass.RESTAURANT
 
     def activate(self,Villager):
@@ -114,8 +116,8 @@ class Farm(Building):
     crops = []
     maximumCrops = 100
 
-    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
-        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
         self.bClass = CONST.buildingClass.FARM
 
     #harvest a crop and get food value
@@ -172,8 +174,8 @@ class Mine(Building):
     ironStockpile = 0
     mineEfficiency = 1
 
-    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
-        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
         self.bClass= CONST.buildingClass.MINE
 
     def mineGold(self):
@@ -194,8 +196,8 @@ class Mine(Building):
 class TradeHub(Building):
     '''A place to sell food for gold'''
     dailyTradeRate = 0
-    def __init__(self, buidingName, IsPrivate, buildingNumber, town):
-        super().__init__(buidingName, IsPrivate, buildingNumber, town)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, town, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, town, coords)
         self.bClass.TRADE
     def sellFood(self,amount):
         self.Town.townHall.subtractFood(amount)
@@ -210,8 +212,8 @@ class TradeHub(Building):
         CaptainsLog.log("Today's trade rate for food is: {rate}".format(rate=self.dailyTradeRate))
 
 class GameHall(Building):
-    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
-        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
         self.bClass = CONST.buildingClass.GAMEHALL
         self.betters = []
     '''Villagers can play games between each other'''
@@ -248,8 +250,8 @@ class GameHall(Building):
 
 class Tavern(Building):
 
-    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
-        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
         self.bClass = CONST.buildingClass.TAVERN
         self.comaraderie = 0
     
@@ -267,8 +269,8 @@ class Tavern(Building):
         
 class Factory(Building):
 
-    def __init__(self, buidingName, IsPrivate, buildingNumber, ship):
-        super().__init__(buidingName, IsPrivate, buildingNumber, ship)
+    def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
     
 
 

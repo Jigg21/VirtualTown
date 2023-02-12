@@ -19,7 +19,6 @@ import signal
 #contains all ship-wide events and variables
 class Ship:
     def __init__(self,name,townAge=-1,online=False):
-        
         if online:
             self.networkAdapter = ONC.ShipNetworkAdapter(self)
         else:
@@ -42,17 +41,18 @@ class Ship:
         self.eventHandler = ShipEvents.EventHandler()
 
         #buildings
-        townHall = Buildings.TownHall("Town Hall",False,0,self)
+        coords = [(1,1),(1,-1),(-1,1),(-1,-1)]
+        townHall = Buildings.TownHall("Town Hall",False,0,self,coords)
         self.setTownHall(townHall)
-        townRestaurant = Buildings.Restaurant("Restaurant",False,1,self)
-        townFarm = Buildings.Farm("Farm",False,2,self)
-        townMine = Buildings.Mine("Mine",False,3,self)
+        townRestaurant = Buildings.Restaurant("Restaurant",False,1,self, coords)
+        townFarm = Buildings.Farm("Farm",False,2,self, coords)
+        townMine = Buildings.Mine("Mine",False,3,self, coords)
         self.addBuilding(townRestaurant)
         self.addBuilding(townMine)
         self.addBuilding(townFarm)
-        townTradeHub = Buildings.TradeHub("Trade Hub",False,4,self)
+        townTradeHub = Buildings.TradeHub("Trade Hub",False,4,self,coords)
         self.addBuilding(townTradeHub)
-        townTavern = Buildings.Tavern("Tavern",False,5,self)
+        townTavern = Buildings.Tavern("Tavern",False,5,self, coords)
         self.addBuilding(townTavern)
         self.createOverseer()
 
@@ -60,9 +60,9 @@ class Ship:
         family1 = Villagers.Family(nameGenerator.getLastName())
         family2 = Villagers.Family(nameGenerator.getLastName())
         family3 = Villagers.Family(nameGenerator.getLastName())
-        self.addVillager(Villagers.townsperson(nameGenerator.makeName(),  25,'M',family1,townHall,self))
-        self.addVillager(Villagers.townsperson(nameGenerator.makeName(),27,'F',family2,townFarm,self))
-        self.addVillager(Villagers.townsperson(nameGenerator.makeName(),37,'M',family3,townFarm,self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(),  25,'M',family1,townHall,self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(),27,'F',family2,townFarm,self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(),37,'M',family3,townFarm,self))
 
         #starting items
         self.addItemtoCargo("SUGAR_RICE",1000)

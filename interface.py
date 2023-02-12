@@ -15,7 +15,7 @@ class ShipWindow():
         self.tab1 = tk.Frame(self.tabControl)
         self.tabControl.add(self.tab1,text= "Home")
         self.header = TownHall(self.root,"New New New York")
-        self.villagers = ListDisplay(self.tab1)
+        self.villagers = ListDisplay(self.tab1,width=120)
         self.cargo = dictMarquee(self.tab1,"Cargo")
         self.events = listMarquee(self.tab1,"Events")
         self.buildingTab = SimpleTextObj(self.tab1,height=20,width=80,side='left')
@@ -98,19 +98,19 @@ class ShipWindow():
 
 #takes a List and displays each value
 class ListDisplay(tk.Frame):
-    def __init__(self,parent):
+    def __init__(self,parent,width = 80):
         self.parent = parent
         super(ListDisplay,self).__init__(parent)
         self.label = tk.Label(parent,text="Villagers")
         self.label.pack(padx=0,pady=0)
-        self.text = tk.Text(parent,height=10)
+        self.text = tk.Text(parent,height=10,width=width)
         self.text.pack(padx=10,pady=10)
         self.scr = tk.Scrollbar(self.text,orient=VERTICAL,command=self.text.yview)
     
     def updateList(self,newList):
         self.text.delete("1.0",END)
         for name in newList:
-            self.text.insert(INSERT,str(name) + "\t")
+            self.text.insert(INSERT,str(name) + "\n")
         self.text.pack(padx=20,pady=1)
 
 #displays the time and date
@@ -386,7 +386,3 @@ class VillagerDisplayTab(tk.Frame):
             if self.dropDownVariable.get() != "Choose Villager":
                 self.getVillager()
             return super().update()
-
-          
-
-
