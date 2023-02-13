@@ -1,10 +1,11 @@
 import tkinter as tk
-from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext, messagebox
+from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext, messagebox, filedialog
 import Utilities
 import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
 from threading import Thread
 import signal
+import pickle
 
 class ShipWindow():
     def __init__(self) -> None:
@@ -22,7 +23,13 @@ class ShipWindow():
         self.crops = Farm(self.buildingTab)
         self.LastDrawTime = time.time()
         
-
+        #File menu
+        self.menuBar = tk.Menu(self.root)
+        self.fileMenu = tk.Menu(self.menuBar,tearoff=0)
+        self.fileMenu.add_command(label="Save Town",command=self.saveTown)
+        self.fileMenu.add_command(label="Load Town",command=self.loadTown)
+        self.menuBar.add_cascade(label="File",menu=self.fileMenu)
+        self.root.config(menu=self.menuBar)
         #task display tab
         self.tab2 = tk.Frame(self.tabControl)
         self.tabControl.add(self.tab2,text="Tasks")
@@ -35,6 +42,7 @@ class ShipWindow():
     
     #update the ui to a new state
     def update(self):
+        
         self.context = self.ship.getSimState()
         #Update the townhall
         self.header.updateTownHall(self.context["gold"],self.context["temp"],self.context["Time"])
@@ -78,7 +86,7 @@ class ShipWindow():
             signal.raise_signal(signal.SIGTERM)
             self.root.destroy()
             
-    def inititialize(self,name,initialState):
+    def inititialize(self,name,initialState,pauseEvent):
         '''start the root and begin the execution'''
         try:
             self.root.title(name)
@@ -87,6 +95,7 @@ class ShipWindow():
             self.ship = initialState["town"]
             self.root.after(10,self.update)
             self.root.protocol("WM_DELETE_WINDOW",self.onClosing)
+            self.pauseEvent = pauseEvent
             self.root.mainloop()
         except:
             pass
@@ -95,6 +104,17 @@ class ShipWindow():
         self.displayThread.join()
         global exit
         exit = True
+
+    def saveTown(self):
+        self.pauseEvent.set()
+        self.ship.save()
+        print("Saved!")
+        self.pauseEvent.clear()
+
+    def loadTown(self):
+        with filedialog.askopenfile(mode='rb', filetypes=[('Town Files', '*.SSF')]) as f:
+            pickle.load(f)
+        print("Loaded!")
 
 #takes a List and displays each value
 class ListDisplay(tk.Frame):
@@ -167,6 +187,7 @@ class dictMarquee(tk.Frame):
         self.text.pack(expand=False)
         self.idx = 0
         self.width = width
+        
     def updateMarquee(self,newDict):
         self.idx += 1
         marquee = ""
