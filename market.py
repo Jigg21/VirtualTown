@@ -8,7 +8,7 @@ class tradeOffer():
         self.cost = 0    
 
 class Market():
-    '''an object to handle the market'''
+    '''an object to handle the market, including all the agents'''
     def __init__(self) -> None:
         self.items = []
         self.agents = []
@@ -23,11 +23,11 @@ class tradeAgent():
             for row in reader:
                 row["Name"] = row
 
-def getItemCost() -> int:
-    pass
+    def getItemCost() -> int:
+        pass
 
-def sellItem() -> int:
-    pass
+    def sellItem() -> int:
+        pass
 
-def buyItem() -> str:
-    pass
+    def buyItem() -> str:
+        pass

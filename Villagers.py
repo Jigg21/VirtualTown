@@ -5,7 +5,7 @@ from BehaviorTree import BT
 import CONST
 import math
 import Utilities
-
+import Familes
 #villager class
 class Villager:
 
@@ -18,7 +18,7 @@ class Villager:
         if family != None:
             self.vFamily = family
         else:
-            self.vFamily = Family()
+            self.vFamily = Familes.Family()
         
         self.vName += " " + self.vFamily.fName
         #where the villager currently is

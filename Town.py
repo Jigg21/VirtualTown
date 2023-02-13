@@ -1,7 +1,7 @@
 from ConfigReader import ConfigData as config
 from OverseerClass import TownOverseer
 from Networking import TownNetworkingClient as ONC
-from threading import Thread
+from threading import Thread, Event
 from NameGenerator import nameGenerator
 from Events import ShipEvents
 import CaptainsLog
@@ -17,6 +17,7 @@ import CONST
 import signal
 import TaskMngmt
 import Familes
+import pickle
 
 #contains all ship-wide events and variables
 class Ship:
@@ -72,10 +73,6 @@ class Ship:
 
         
         self.context = self.getSimState()
-
-        #config
-        if config.getboolean("VALUES","USEUI"):
-            self.UI = UI.ShipWindow()
 
     def offlineLaunch(self):
         pass
@@ -257,9 +254,18 @@ class Ship:
     def displayLocalTime(self):
         print("Local Time: Y{y} D{d} {h}:{m}".format(y=math.floor(self.townAge/525600), d=math.floor(self.townAge/1440), h = math.floor(self.townAge/60)%24,m=str(self.townAge%60) if self.townAge%60 > 9 else "0"+ str(self.townAge%60) ))
 
+    def save(self):
+        with open("Saves/{town}.SSF".format(town=self.townName.replace(" ", "")), 'wb') as f:
+            pickle.dump(self,f)
+
+    def load(townName):
+        with open("Saves/{town}.SSF".format(town=townName), 'rb') as f:
+            return pickle.load(f)
+
 class ThreadEnder():
-    killNow = False
+    
     def __init__(self):
+        self.killNow = False
         signal.signal(signal.SIGINT, self.exitGracefully)
         signal.signal(signal.SIGTERM, self.exitGracefully)
     
@@ -267,13 +273,16 @@ class ThreadEnder():
         self.killNow = True
 
 class OfflineUpdate(Thread):
-    def __init__(self,ship) -> None:
+    def __init__(self,ship, pauseEvent) -> None:
         super().__init__(daemon=False)
         self.ship = ship
         self.threadEnder = ThreadEnder()
+        self.pause = pauseEvent
 
     def run(self) -> None:
         while self.ship.isViable() and not self.threadEnder.killNow:
+            if self.pause.is_set():
+                continue
             self.ship.timeUpdate()
             #print to console
             if config.getboolean("DEBUG","VERBOSE"):
@@ -284,7 +293,7 @@ class OfflineUpdate(Thread):
                 time.sleep((420/365)/config.getfloat("VALUES","TIMESPEED"))
         self.ship.displayLocalTime()
         self.ship.displayBuildings()
-        
+
 def main():
     online = config.getboolean("NETWORKING","ONLINE")
     #initialize a test ship
@@ -301,17 +310,23 @@ def main():
         input("Close")
         return
     
+    #TODO Delete me
+    #save(testTown,"NewNewNewYork")
+    #testTown = load("NewNewNewYork")
+
     #CENTRAL FINITE CURVE
     if online:
         #if the ship is online, online behaviors are needed
         testTown.connect()
     else:
         try:
-            #start the offline update loop
-            sim = OfflineUpdate(testTown)
+            #start the offline update thread
+            pauseEvent = Event()
+            sim = OfflineUpdate(testTown,pauseEvent)
             sim.start()
             if config.getboolean("VALUES","USEUI"):
-                testTown.UI.inititialize(testTown.townName,testTown.context)
+                shipUI = UI.ShipWindow()
+                shipUI.inititialize(testTown.townName,testTown.context,pauseEvent)
         except Exception as e:
             print("====EXITING===")
             print(str(e))
