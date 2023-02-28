@@ -85,5 +85,5 @@ def coordsInRange(upperCorner,lowerCorner,Coord):
     '''returns true if coord is within a box defined by upperCorner and lowerCorner
         coords should be given in a tuple of ints'''
     x = upperCorner[0] <= Coord[0] and Coord[0] <= lowerCorner[0]
-    y = upperCorner[1] >= Coord[0] and Coord[1] >= lowerCorner[1]
+    y = upperCorner[1] >= Coord[1] and Coord[1] >= lowerCorner[1]
     return x and y

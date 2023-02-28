@@ -84,6 +84,7 @@ class ShipWindow():
 
         #update the map
         self.map.draw(self.context)
+
         #Start it all over again
         self.root.after(1,self.update)
 
@@ -200,10 +201,9 @@ class MapCanvas(tk.Frame):
     def draw(self,data):
         '''draw the town'''
         #testing buildings
-        basicBuilding = (1,1)
-        basicBuilding2 = (0,0)
-        basicBuilding3 = (2,2)
-        buildings = [basicBuilding,basicBuilding2,basicBuilding3]
+        buildings = []
+        for b in data["town"].buildings:
+            buildings.append(b.coords)
         
         #reset the window
         self.mapCanvas.delete("all")

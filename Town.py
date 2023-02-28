@@ -45,17 +45,17 @@ class Ship:
 
         #buildings
         coords = [(1,1),(1,-1),(-1,1),(-1,-1)]
-        townHall = Buildings.TownHall("Town Hall",False,0,self,coords)
+        townHall = Buildings.TownHall("Town Hall",False,0,self,(0,0))
         self.setTownHall(townHall)
-        townRestaurant = Buildings.Restaurant("Restaurant",False,1,self, coords)
-        townFarm = Buildings.Farm("Farm",False,2,self, coords)
-        townMine = Buildings.Mine("Mine",False,3,self, coords)
+        townRestaurant = Buildings.Restaurant("Restaurant",False,1,self, (1,1))
+        townFarm = Buildings.Farm("Farm",False,2,self, (2,2))
+        townMine = Buildings.Mine("Mine",False,3,self, (-1,-1))
         self.addBuilding(townRestaurant)
         self.addBuilding(townMine)
         self.addBuilding(townFarm)
-        townTradeHub = Buildings.TradeHub("Trade Hub",False,4,self,coords)
+        townTradeHub = Buildings.TradeHub("Trade Hub",False,4,self,(-1,0))
         self.addBuilding(townTradeHub)
-        townTavern = Buildings.Tavern("Tavern",False,5,self, coords)
+        townTavern = Buildings.Tavern("Tavern",False,5,self, (-1,-2))
         self.addBuilding(townTavern)
         self.createOverseer()
 
@@ -111,6 +111,8 @@ class Ship:
     def getShipTemp(self):
         '''returns the current temperature inside the ship'''
         return (100-self.distanceToSurface)/100
+
+    #CARGO
 
     def addItemtoCargo(self, item, quantity):
         '''adds an item to cargo'''
