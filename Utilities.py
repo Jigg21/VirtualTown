@@ -45,7 +45,6 @@ def ListHasDuplicates(inputlist):
     else:
         return True 
 
-
 #takes float from 0.0 to 1.0 and displays color gradient equivalent in hex
 def interpolateRedtoGreen(amount):
     r,g,b = 0,0,0
@@ -64,7 +63,7 @@ def interpolateRedtoGreen(amount):
     b = clamp(0,255,b)
     return '#%02x%02x%02x' % (int(r), int(g), int(b))
 
-#count the number of places for a given number
+#count the number of decimal places for a given number
 def countPlaces(number):
     count = 0
     while number != 0:
@@ -81,3 +80,10 @@ def getRandomValue(min,max):
     '''get a random number between min and max, inclusive'''
     result = random.randint(min,max)
     return result
+
+def coordsInRange(upperCorner,lowerCorner,Coord):
+    '''returns true if coord is within a box defined by upperCorner and lowerCorner
+        coords should be given in a tuple of ints'''
+    x = upperCorner[0] <= Coord[0] and Coord[0] <= lowerCorner[0]
+    y = upperCorner[1] >= Coord[0] and Coord[1] >= lowerCorner[1]
+    return x and y

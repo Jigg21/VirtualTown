@@ -22,7 +22,7 @@ class ShipWindow():
         self.buildingTab = SimpleTextObj(self.tab1,height=20,width=80,side='left')
         self.crops = Farm(self.buildingTab)
         self.LastDrawTime = time.time()
-        
+
         #File menu
         self.menuBar = tk.Menu(self.root)
         self.fileMenu = tk.Menu(self.menuBar,tearoff=0)
@@ -38,7 +38,11 @@ class ShipWindow():
         #villager detail tab
         self.tab3 = tk.Frame(self.tabControl)
         self.tabControl.add(self.tab3,text="Villagers")
-        self.villagerDisplay = VillagerDisplayTab(self.tab3,height=20,width=80)     
+        self.villagerDisplay = VillagerDisplayTab(self.tab3,height=20,width=80)
+
+        self.tab4 = tk.Frame(self.tabControl)
+        self.tabControl.add(self.tab4,text="Map")
+        self.mapCanvas = MapCanvas(self.tab4) 
     
     #update the ui to a new state
     def update(self):
@@ -132,6 +136,48 @@ class ListDisplay(tk.Frame):
         for name in newList:
             self.text.insert(INSERT,str(name) + "\n")
         self.text.pack(padx=20,pady=1)
+
+#Class to display the town as a map
+class MapCanvas(tk.Frame):
+
+    def __init__(self,root):
+        self.mapCanvas = tk.Canvas(root,bg="grey",width=512,height=512)
+        self.mapCanvas.pack()
+        self.zoomLevel = 1
+        self.center = (1,1)
+
+        self.draw(None)
+    
+    #draw a rectangle
+    def createBuilding(self,coords):
+        #TODO: Make it look better
+        self.mapCanvas.create_rectangle()
+    
+    def draw(self,data):
+        '''draw the town'''
+        #testing buildings
+        basicBuilding = (1,1)
+        basicBuilding2 = (0,0)
+        basicBuilding3 = (2,2)
+        buildings = [basicBuilding,basicBuilding2,basicBuilding3]
+        
+        #calculate the draw window
+        #if the zoom level is 9, just check the center
+        if self.zoomLevel == 0:
+            if self.center in buildings:
+                self.mapCanvas.create_rectangle(0,0,512,512,fill="black")
+        else:
+            #determine the draw window by number of units 
+            upperCorner = (self.center[0] - self.zoomLevel, self.center[1] + self.zoomLevel)
+            lowerCorner = (self.center[0] + self.zoomLevel, self.center[1] - self.zoomLevel)
+            unitSize = 512/2**(self.zoomLevel)
+            for building in buildings:
+                if Utilities.coordsInRange(upperCorner,lowerCorner,building):
+                    pCoordsX = (building[0] - upperCorner[0]) * unitSize
+                    pCoordsY = (upperCorner[1] - building[1]) * unitSize
+                    print(pCoordsX,pCoordsY)
+                    self.mapCanvas.create_rectangle(pCoordsX,pCoordsY,pCoordsX+unitSize,pCoordsY+unitSize,fill="black")
+
 
 #displays the time and date
 class TimeObj(tk.Frame):
