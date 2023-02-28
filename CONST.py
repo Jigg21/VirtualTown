@@ -44,3 +44,16 @@ class buildingClass(Enum):
     TRADE = 6
     GAMEHALL = 7
 
+class season(Enum):
+    EARLYSPRING = 0
+    SPRING = 1
+    LATESPRING = 2
+    EARLYSUMMER = 3
+    SUMMER = 4
+    LATESUMMER = 5
+    EARLYFALL = 6
+    FALL = 7
+    LATEFALL = 8
+    EARLYWINTER = 9
+    WINTER = 10
+    LATEWINTER = 11
