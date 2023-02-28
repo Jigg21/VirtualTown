@@ -42,7 +42,7 @@ class ShipWindow():
 
         self.tab4 = tk.Frame(self.tabControl)
         self.tabControl.add(self.tab4,text="Map")
-        self.mapCanvas = MapCanvas(self.tab4) 
+        self.map = MapCanvas(self.tab4) 
     
     #update the ui to a new state
     def update(self):
@@ -78,10 +78,12 @@ class ShipWindow():
             self.crops.pack(expand=False)
             self.LastDrawTime = time.time()
         
-
+        #update the task list
         self.bTask.updateTasks(self.context["town"].bulletin.getTaskList())
         self.bTask.pack()
 
+        #update the map
+        self.map.draw(self.context)
         #Start it all over again
         self.root.after(1,self.update)
 
@@ -143,11 +145,53 @@ class MapCanvas(tk.Frame):
     def __init__(self,root):
         self.mapCanvas = tk.Canvas(root,bg="grey",width=512,height=512)
         self.mapCanvas.pack()
-        self.zoomLevel = 1
+        self.zoomLevel = 3
         self.center = (1,1)
 
-        self.draw(None)
+        self.controlPanel = tk.Frame(root)
+        self.zoomButtons = tk.Frame(root)
+
+        self.zoomInButton = tk.Button(self.zoomButtons,text="+",command=self.zoomIn)
+        self.zoomInButton.pack()
+
+        self.zoomOutButton = tk.Button(self.zoomButtons,text="-",command=self.zoomOut)
+        self.zoomOutButton.pack()
+
+        self.moveButtons = tk.Frame(self.controlPanel)
+
+        self.moveUpButton = tk.Button(self.moveButtons,text="^",command=self.moveCenterUp)
+        self.moveUpButton.pack()
+
+        self.moveDownButton = tk.Button(self.moveButtons,text="v",command=self.moveCenterDown)
+        self.moveDownButton.pack(side=tk.BOTTOM) 
+
+        self.moveLeftButton = tk.Button(self.moveButtons,text=">",command=self.moveCenterLeft)
+        self.moveLeftButton.pack(side=tk.RIGHT)
+
+        self.moveRightButton = tk.Button(self.moveButtons,text="<",command=self.moveCenterRight)
+        self.moveRightButton.pack(side=tk.LEFT) 
+        self.zoomButtons.pack(side=tk.LEFT)
+        self.moveButtons.pack(side=tk.RIGHT)
+        self.controlPanel.pack()
+
+    def zoomOut(self):
+        self.zoomLevel += 1
     
+    def zoomIn(self):
+        self.zoomLevel -= 1
+
+    def moveCenterUp(self):
+        self.center = (self.center[0],self.center[1]+1)
+    
+    def moveCenterDown(self):
+        self.center = (self.center[0],self.center[1]-1)
+    
+    def moveCenterLeft(self):
+        self.center = (self.center[0]+1,self.center[1])
+    
+    def moveCenterRight(self):
+        self.center = (self.center[0] -1 ,self.center[1])
+
     #draw a rectangle
     def createBuilding(self,coords):
         #TODO: Make it look better
@@ -161,6 +205,8 @@ class MapCanvas(tk.Frame):
         basicBuilding3 = (2,2)
         buildings = [basicBuilding,basicBuilding2,basicBuilding3]
         
+        #reset the window
+        self.mapCanvas.delete("all")
         #calculate the draw window
         #if the zoom level is 9, just check the center
         if self.zoomLevel == 0:
@@ -175,9 +221,7 @@ class MapCanvas(tk.Frame):
                 if Utilities.coordsInRange(upperCorner,lowerCorner,building):
                     pCoordsX = (building[0] - upperCorner[0]) * unitSize
                     pCoordsY = (upperCorner[1] - building[1]) * unitSize
-                    print(pCoordsX,pCoordsY)
                     self.mapCanvas.create_rectangle(pCoordsX,pCoordsY,pCoordsX+unitSize,pCoordsY+unitSize,fill="black")
-
 
 #displays the time and date
 class TimeObj(tk.Frame):
