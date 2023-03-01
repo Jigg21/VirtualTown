@@ -188,7 +188,6 @@ class Villager:
             self.rejectedRomance(otherVillager)
         return self.Relationships[otherVillager] >= thresh
     
-
     def drink(self): 
         self.vDrunkeness += 1
     
