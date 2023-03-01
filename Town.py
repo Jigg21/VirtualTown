@@ -1,5 +1,5 @@
 from ConfigReader import ConfigData as config
-from OverseerClass import TownOverseer
+from Advisor import TownAdvisor
 from Networking import TownNetworkingClient as ONC
 from threading import Thread, Event
 from NameGenerator import nameGenerator
@@ -39,7 +39,7 @@ class Ship:
         self.villagers = []
         self.buildings = []
         self.townHall = None
-        self.overseer = None
+        self.advisor = None
         self.treasury = 1000
         self.bulletin = TaskMngmt.bulletinBoard(self)
         self.eventHandler = ShipEvents.EventHandler()
@@ -58,7 +58,7 @@ class Ship:
         self.addBuilding(townTradeHub)
         townTavern = Buildings.Tavern("Tavern",False,5,self, (-1,-2))
         self.addBuilding(townTavern)
-        self.createOverseer()
+        self.createAdvisor()
 
         #villagers
         family1 = Familes.Family(nameGenerator.getLastName())
@@ -70,8 +70,6 @@ class Ship:
 
         #starting items
         self.addItemtoCargo("SUGAR_RICE",1000)
-
-
         
         self.context = self.getSimState()
 
@@ -214,7 +212,7 @@ class Ship:
             for building in self.buildings:
                 building.dailyUpdate(townData)
 
-            self.overseer.designateDailyTasks(townData)
+            self.advisor.designateDailyTasks(townData)
 
         self.eventHandler.update(townData)
 
@@ -239,9 +237,9 @@ class Ship:
         townData["eventHandler"] = self.eventHandler
         return townData
 
-    def createOverseer(self):
+    def createAdvisor(self):
         '''initialize the overseer'''
-        self.overseer = TownOverseer(self,self.townHall,self.villagers)
+        self.advisor = TownAdvisor(self,self.townHall,self.villagers)
 
     def isViable(self):
         '''is the town viable (are there any villagers alive)'''
@@ -316,9 +314,6 @@ def main():
         input("Close")
         return
     
-    #TODO Delete me
-    #save(testTown,"NewNewNewYork")
-    #testTown = load("NewNewNewYork")
 
     #CENTRAL FINITE CURVE
     if online:

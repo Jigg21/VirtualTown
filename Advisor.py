@@ -7,7 +7,7 @@ import Villagers
 import CargoItems
 import TaskMngmt
 
-class TownOverseer():
+class TownAdvisor():
     ship = None
     TownHall = None 
     villagers = None
