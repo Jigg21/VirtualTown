@@ -1,4 +1,5 @@
 import tkinter as tk
+from ConfigReader import ConfigData as config
 from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext, messagebox, filedialog
 import Utilities
 import time
@@ -11,12 +12,14 @@ class ShipWindow():
     def __init__(self) -> None:
         #home tab
         self.root = tk.Tk()
+        bgColor = config["UI"]["darkbackground"]
+        self.root["background"] = bgColor
         self.root.iconbitmap("dish.ico")
         self.tabControl = ttk.Notebook(self.root)
-        self.tab1 = tk.Frame(self.tabControl)
+        self.tab1 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab1,text= "Home")
-        self.header = TownHall(self.root,"New New New York")
-        self.villagers = ListDisplay(self.tab1,width=120)
+        self.header = TownHall(self.root,"New New New York",bg=bgColor)
+        self.villagers = ListDisplay(self.tab1,width=120,bg=bgColor)
         self.cargo = dictMarquee(self.tab1,"Cargo")
         self.events = listMarquee(self.tab1,"Events")
         self.buildingTab = SimpleTextObj(self.tab1,height=20,width=80,side='left')
@@ -24,23 +27,25 @@ class ShipWindow():
         self.LastDrawTime = time.time()
 
         #File menu
-        self.menuBar = tk.Menu(self.root)
-        self.fileMenu = tk.Menu(self.menuBar,tearoff=0)
+        self.menuBar = tk.Menu(self.root,bg=bgColor)
+        self.fileMenu = tk.Menu(self.menuBar,tearoff=0,bg=bgColor)
         self.fileMenu.add_command(label="Save Town",command=self.saveTown)
         self.fileMenu.add_command(label="Load Town",command=self.loadTown)
         self.menuBar.add_cascade(label="File",menu=self.fileMenu)
         self.root.config(menu=self.menuBar)
+
         #task display tab
-        self.tab2 = tk.Frame(self.tabControl)
+        self.tab2 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab2,text="Tasks")
         self.bTask = BuildingTaskDisplay(self.tab2,height=10,width=80)
 
         #villager detail tab
-        self.tab3 = tk.Frame(self.tabControl)
+        self.tab3 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab3,text="Villagers")
         self.villagerDisplay = VillagerDisplayTab(self.tab3,height=20,width=80)
 
-        self.tab4 = tk.Frame(self.tabControl)
+        #map tab 
+        self.tab4 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab4,text="Map")
         self.map = MapCanvas(self.tab4) 
     
@@ -125,14 +130,14 @@ class ShipWindow():
 
 #takes a List and displays each value
 class ListDisplay(tk.Frame):
-    def __init__(self,parent,width = 80):
+    def __init__(self,parent,width = 80,**kwargs):
         self.parent = parent
-        super(ListDisplay,self).__init__(parent)
-        self.label = tk.Label(parent,text="Villagers")
+        super().__init__(parent,**kwargs)
+        self.label = tk.Label(parent,text="Villagers",bg=config["UI"]["lightbackground"])
         self.label.pack(padx=0,pady=0)
-        self.text = tk.Text(parent,height=10,width=width)
+        self.text = tk.Text(parent,height=10,width=width,bg=config["UI"]["background"])
         self.text.pack(padx=10,pady=10)
-        self.scr = tk.Scrollbar(self.text,orient=VERTICAL,command=self.text.yview)
+        self.scr = tk.Scrollbar(self.text,orient=VERTICAL,command=self.text.yview,bg=config["UI"]["darkbackground"])
     
     def updateList(self,newList):
         self.text.delete("1.0",END)
@@ -331,13 +336,13 @@ class TownHall(tk.Frame):
     #text padding
     padX = 10
     padY = 1
-    def __init__(self,parent,shipName):
+    def __init__(self,parent,shipName, **kwargs):
         self.parent = parent
-        super(TownHall,self).__init__(parent,width=20,height= 1)
+        super().__init__(parent,width=20,height= 1, **kwargs)
         
-        self.label = tk.Label(parent,text=shipName)
+        self.label = tk.Label(parent,text=shipName,bg=config["UI"]["lightbackground"])
         self.label.pack(padx=0,pady=0)
-        self.text = tk.Text(parent,height=2)
+        self.text = tk.Text(parent,height=2,bg=config["UI"]["background"])
         self.text.tag_configure("center",justify='center')
         self.text.tag_add("center","1.0","end")
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)

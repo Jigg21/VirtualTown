@@ -69,8 +69,6 @@ class Ship:
 
         #starting items
         self.addItemtoCargo("SUGAR_RICE",1000)
-
-
         
         self.context = self.getSimState()
 
