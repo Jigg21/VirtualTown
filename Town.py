@@ -4,6 +4,7 @@ from Networking import TownNetworkingClient as ONC
 from threading import Thread, Event
 from NameGenerator import nameGenerator
 from Events import ShipEvents
+from Weather import weatherGenerator
 import CaptainsLog
 import time
 import math
@@ -295,6 +296,9 @@ class OfflineUpdate(Thread):
         self.ship.displayBuildings()
 
 def main():
+    test = weatherGenerator.weatherManager()
+    print(test.getDayLightHours())
+    return 
     online = config.getboolean("NETWORKING","ONLINE")
     #initialize a test ship
     testTown = Ship("New New New York",online=online)
