@@ -12,27 +12,28 @@ class ShipWindow():
     def __init__(self) -> None:
         #home tab
         self.root = tk.Tk()
-        bgColor = config["UI"]["darkbackground"]
-        self.root["background"] = bgColor
+        self.root.configure(bg=config["UI"]["DARKBACKGROUND"])
+        bgColor = config["UI"]["DARKBACKGROUND"]
         self.root.iconbitmap("dish.ico")
         self.tabControl = ttk.Notebook(self.root)
         self.tab1 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab1,text= "Home")
         self.header = TownHall(self.root,"New New New York",bg=bgColor)
-        self.villagers = ListDisplay(self.tab1,width=120,bg=bgColor)
+        self.villagers = ListDisplay(self.tab1,width=120,bg=config["UI"]["DARKBACKGROUND"])
         self.cargo = dictMarquee(self.tab1,"Cargo")
         self.events = listMarquee(self.tab1,"Events")
         self.buildingTab = SimpleTextObj(self.tab1,height=20,width=80,side='left')
+        self.buildingTab.configure(bg=config["UI"]["DARKBACKGROUND"])
         self.crops = Farm(self.buildingTab)
         self.LastDrawTime = time.time()
 
         #File menu
         self.menuBar = tk.Menu(self.root,bg=bgColor)
-        self.fileMenu = tk.Menu(self.menuBar,tearoff=0,bg=bgColor)
+        self.fileMenu = tk.Menu(self.menuBar,tearoff=0)
         self.fileMenu.add_command(label="Save Town",command=self.saveTown)
         self.fileMenu.add_command(label="Load Town",command=self.loadTown)
         self.menuBar.add_cascade(label="File",menu=self.fileMenu)
-        self.root.config(menu=self.menuBar)
+        self.root.configure(menu=self.menuBar)
 
         #task display tab
         self.tab2 = tk.Frame(self.tabControl,bg=bgColor)
@@ -133,11 +134,12 @@ class ListDisplay(tk.Frame):
     def __init__(self,parent,width = 80,**kwargs):
         self.parent = parent
         super().__init__(parent,**kwargs)
-        self.label = tk.Label(parent,text="Villagers",bg=config["UI"]["lightbackground"])
+        self.label = tk.Label(parent,text="Villagers",bg=config["UI"]["LIGHTBACKGROUND"])
         self.label.pack(padx=0,pady=0)
-        self.text = tk.Text(parent,height=10,width=width,bg=config["UI"]["background"])
+        self.text = tk.Text(parent,height=10,width=width,bg=config["UI"]["BACKGROUND"])
+        self.text.configure(borderwidth=0)
         self.text.pack(padx=10,pady=10)
-        self.scr = tk.Scrollbar(self.text,orient=VERTICAL,command=self.text.yview,bg=config["UI"]["darkbackground"])
+        self.scr = tk.Scrollbar(self.text,orient=VERTICAL,command=self.text.yview,bg=config["UI"]["DARKBACKGROUND"])
     
     def updateList(self,newList):
         self.text.delete("1.0",END)
@@ -274,9 +276,10 @@ class dictMarquee(tk.Frame):
         self.parent = parent
         super(dictMarquee,self).__init__(parent,width=width,height=1)
         
-        self.label = tk.Label(parent,text=title)
+        self.label = tk.Label(parent,text=title,bg=config["UI"]["LIGHTBACKGROUND"])
         self.label.pack(padx=0,pady=0)
-        self.text = tk.Text(parent,height=1)
+        self.text = tk.Text(parent,height=1,bg=config["UI"]["BACKGROUND"])
+        self.text.configure(borderwidth=0)
         self.text.tag_configure("center",justify='center')
         self.text.tag_add("center","1.0","end")
         self.text.pack(expand=False)
@@ -301,9 +304,9 @@ class listMarquee(tk.Frame):
         self.parent = parent
         super(listMarquee,self).__init__(parent,width=width,height=1)
         
-        self.label = tk.Label(parent,text=title)
+        self.label = tk.Label(parent,text=title,bg=config["UI"]["LIGHTBACKGROUND"])
         self.label.pack(padx=0,pady=0)
-        self.text = tk.Text(parent,height=1)
+        self.text = tk.Text(parent,height=1,bg=config["UI"]["BACKGROUND"],borderwidth=0)
         self.text.tag_configure("center",justify='center')
         self.text.tag_add("center","1.0","end")
         self.text.pack(expand=False)
@@ -338,11 +341,11 @@ class TownHall(tk.Frame):
     padY = 1
     def __init__(self,parent,shipName, **kwargs):
         self.parent = parent
-        super().__init__(parent,width=20,height= 1, **kwargs)
+        super().__init__(parent,width=20,height= 1, bg=config["UI"]["DARKBACKGROUND"])
         
-        self.label = tk.Label(parent,text=shipName,bg=config["UI"]["lightbackground"])
+        self.label = tk.Label(parent,text=shipName,bg=config["UI"]["LIGHTBACKGROUND"])
         self.label.pack(padx=0,pady=0)
-        self.text = tk.Text(parent,height=2,bg=config["UI"]["background"])
+        self.text = tk.Text(parent,height=2,bg=config["UI"]["BACKGROUND"],borderwidth=0)
         self.text.tag_configure("center",justify='center')
         self.text.tag_add("center","1.0","end")
         self.text.pack(padx=self.padX,pady=self.padY,expand=False)
@@ -358,11 +361,12 @@ class TownHall(tk.Frame):
 
 #Just takes text and displays it
 class SimpleTextObj(tk.Frame):
-    def __init__(self,parent,height=1,width=1,side='top'):
+    def __init__(self,parent,height=1,width=1,side='top',**kwargs):
         self.parent = parent
-        super(SimpleTextObj,self).__init__(parent,width=width,height= height)
+        super().__init__(parent,width=width,height= height,**kwargs)
         
         self.text = tk.Text(parent,height=height,width=width)
+        self.text.configure(bg=config["UI"]["BACKGROUND"])
         self.text.pack(expand=False,side=side,padx=40)
 
         
@@ -376,10 +380,10 @@ class SimpleTextObj(tk.Frame):
 class Farm(tk.Frame):
     def __init__(self,parent):
         self.parent = parent
-        super(Farm,self).__init__(parent,width=20,height= 1)
+        super(Farm,self).__init__(parent,width=20,height= 1,bg=config["UI"]["DARKBACKGROUND"])
         
         #label
-        self.label = tk.Label(parent,text="Crops")
+        self.label = tk.Label(parent,text="Crops",bg=config["UI"]["lightbackground"])
         self.label.pack(padx=0,pady=0)
         
         #canvas
@@ -420,13 +424,19 @@ class BuildingTaskDisplay(tk.Frame):
         super(BuildingTaskDisplay,self).__init__(parent,width=width,height=height)
         
         self.taskCount = tk.Text(parent,height=1,width=width)
+        self.taskCount.configure(background=config["UI"]["BACKGROUND"])
+        self.taskCount.configure(borderwidth=0)
         self.taskCount.pack(expand=False,side=side,padx=40)
         self.dropDownVariable = StringVar(parent)
         self.dropDownVariable.set("Choose Building")
         self.dropDown = OptionMenu(parent,self.dropDownVariable,"All","Farm","Mine",command=self.displayTasks)
+        self.dropDown.configure(background=config["UI"]["LIGHTBACKGROUND"])
+        self.dropDown.configure(borderwidth=0)
         self.dropDown.pack()
 
         self.text = tk.Text(parent,height=height,width=width)
+        self.text.configure(bg=config["UI"]["BACKGROUND"])
+        self.text.configure(borderwidth=0)
         self.text.pack(expand=False,side=side,padx=40)
     
     def displayTasks(self,*args):
@@ -470,10 +480,13 @@ class VillagerDisplayTab(tk.Frame):
             self.dropDownVariable = StringVar(parent)
             self.dropDownVariable.set("Choose Villager")
             self.dropDown = OptionMenu(parent,self.dropDownVariable,"Villager",command=self.getVillager)
+            self.dropDown.configure(bg=config["UI"]["BACKGROUND"])
             self.dropDown.pack()
             self.villagers = []
 
             self.relationsText = scrolledtext.ScrolledText(self.parent,height=10,width=width)
+            self.relationsText.configure(bg=config["UI"]["BACKGROUND"])
+            self.relationsText.configure(borderwidth=0)
             self.relationsText.pack(expand=False,side=side,padx=4)
         
         #center a villager and get their information
