@@ -9,22 +9,41 @@ import Familes
 #villager class
 class Villager:
 
-    def __init__(self,name,birthCycle,gender,family=None,startLocation=None,town=None):
+    def __init__(self,name,birthCycle,gender,**kwargs):
         '''name: villager name\n
         age: defaults to 0'''
         self.vBirthCycle = birthCycle
         self.vGender = gender
         self.vName = name
-        if family != None:
-            self.vFamily = family
+
+        #parse keyword arguments
+
+        if "family" in kwargs.keys():
+            self.vFamily = kwargs["family"]
         else:
             self.vFamily = Familes.Family()
+
+        if "town" in kwargs.keys():
+            self.town = kwargs["town"] 
+
+        if "startLocation" in kwargs.keys():
+            self.currentLocation = kwargs["startLocation"]
+            self.currentLocation.addOccupant(self)
+        else:
+            self.currentLocation = self.town.getTownHall()
+            self.currentLocation.addOccupant(self)
+
+        if "home" in kwargs.keys():
+            self.currentLocation = kwargs["home"]
+            self.home = kwargs["home"]
+        else:
+            self.home = None
+
+
         
         self.vName += " " + self.vFamily.fName
         #where the villager currently is
-        self.currentLocation = startLocation
-        self.currentLocation.addOccupant(self)
-        self.town = town
+
         self.vTask = None
         self.vHunger = 100
         self.vState = CONST.VillagerStates.IDLE
@@ -191,6 +210,9 @@ class Villager:
     def drink(self): 
         self.vDrunkeness += 1
     
+    def changeFamily(self,newFamily):
+        self.vFamily = newFamily
+
     #string representation
     def __str__(self):
         result = self.vName 
