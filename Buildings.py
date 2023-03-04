@@ -271,6 +271,32 @@ class Factory(Building):
 
     def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
+
+class Home(Building):
+    def __init__(self, buidingName, IsPrivate, buildingNumber, town, coords):
+        super().__init__(buidingName, IsPrivate, buildingNumber, town, coords)
+        self.popLimit = config.getint("BUILDINGS","HOUSEMAX")
+        self.residents = []
+        self.headFamily = None
     
+    def addResident(self,resident):
+        '''adds a villager to the house as a resident'''
+        self.residents.append(resident)
+        #if the house is empty, the villager takes over the house
+        if len(self.residents) == 1:
+            self.headFamily = resident.family
+        else:
+            resident.changeFamily(self.headFamily)
+    
+    def removeResident(self,resident):
+        '''remove a resident from the house'''
+        if resident in self.residents:
+            self.residents.remove(resident)
+            if len(self.residents) == 0:
+                self.headFamily = None
+        else:
+            return False
+
+
 
 

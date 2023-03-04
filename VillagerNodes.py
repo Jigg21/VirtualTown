@@ -217,6 +217,22 @@ class node_goToTavern(BT.Node):
         villager = context["villager"]
         villager.goToBuildingType(CONST.buildingClass.TAVERN)
 
+class node_hasRoominHouse():
+    def activate(self,context):
+        #if the villager has no home
+        if context["villager"].home == None:
+            return BT.nodeStates.FAILED
+        
+class tree_haveChild(BT.Tree):
+    def __init__(self, rootnode=None) -> None:
+        self.addRootNode(BT.FinishDecorator("Have Children tree"))
+        super().__init__(rootnode)
+        root = BT.SequenceNode()
+        self.addNode(root)
+        root.addChild
+
+
+
         
 
 

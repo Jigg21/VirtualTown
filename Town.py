@@ -45,7 +45,6 @@ class Ship:
         self.eventHandler = ShipEvents.EventHandler()
 
         #buildings
-        coords = [(1,1),(1,-1),(-1,1),(-1,-1)]
         townHall = Buildings.TownHall("Town Hall",False,0,self,(0,0))
         self.setTownHall(townHall)
         townRestaurant = Buildings.Restaurant("Restaurant",False,1,self, (1,1))
@@ -64,9 +63,9 @@ class Ship:
         family1 = Familes.Family(nameGenerator.getLastName())
         family2 = Familes.Family(nameGenerator.getLastName())
         family3 = Familes.Family(nameGenerator.getLastName())
-        self.addVillager(Villagers.Villager(nameGenerator.makeName(),  25,'M',family1,townHall,self))
-        self.addVillager(Villagers.Villager(nameGenerator.makeName(),27,'F',family2,townFarm,self))
-        self.addVillager(Villagers.Villager(nameGenerator.makeName(),37,'M',family3,townFarm,self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(),  25,'M',family=family1,startLocation=townHall,town=self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(),27,'F',family=family2,startlocation=townFarm,town=self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(),37,'M',family=family3,startLocation=townFarm,town=self))
 
         #starting items
         self.addItemtoCargo("SUGAR_RICE",1000)
