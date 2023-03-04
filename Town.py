@@ -296,9 +296,9 @@ class OfflineUpdate(Thread):
         self.ship.displayBuildings()
 
 def main():
-    test = weatherGenerator.weatherManager()
-    print(test.getDayLightHours())
-    return 
+    #test = weatherGenerator.weatherManager()
+    #print(test.getDayLightHours())
+    #return 
     online = config.getboolean("NETWORKING","ONLINE")
     #initialize a test ship
     testTown = Ship("New New New York",online=online)
