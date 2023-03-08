@@ -114,7 +114,8 @@ def regexTerminal(file):
                 cmd = input("What command?")
                 if cmd == "del":
                     for line in fileList:
-                        if search.match()
+                        if search.match():
+                            pass
 
 
 
