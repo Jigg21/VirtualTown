@@ -12,6 +12,8 @@ def generatePath(culture):
         cultureFile += "Roman/"
     if culture == CONST.cultures.NOMAD:
         cultureFile += "Nomadic/"
+    if culture == CONST.cultures.LIBERTARIAD:
+        cultureFile += "Libertariad/"
     return cultureFile 
 #generate a name from the nameGen.txt file
 def makeName(culture):
@@ -85,4 +87,4 @@ def testNames(culture,iterations):
 
 
 if __name__ == "__main__":
-    testNames(CONST.cultures.NOMAD,10)
+    testNames(CONST.cultures.LIBERTARIAD,10)
