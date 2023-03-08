@@ -5,7 +5,7 @@ import math
 def makeName():
     sets = []
     #open the syllable file 
-    with open("data/nameGen.txt") as f:
+    with open("data/Cultures/Nomadic/nameGen.txt") as f:
         sets = []
         set = []
         pos = 0
@@ -46,11 +46,24 @@ def main():
 def getLastName():
     '''gets a random last name'''
     #opens the surname file and takes one at random
-    with open("data/surnames.txt") as f:
+    with open("data/Cultures/Nomadic/surnames.txt") as f:
         name = f.readlines()[random.randint(0,20000)].strip()
         name = name.capitalize()
         return name
 
+def getPlaceName():
+    cityBits = []
+    
+    with open("cities.txt",encoding="UTF-8") as f:
+        for line in f.readlines():
+            line.strip()
+            for bit in line.split(" "):
+                cityBits.append(bit)
+    result = ""
+    for i in range(random.randrange(1,4)):
+        result += cityBits[random.randrange(0,len(cityBits))]
+    return result
+
 if __name__ == "__main__":
     for x in range(10):
-        main()
+        print(getPlaceName())
