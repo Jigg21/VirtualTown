@@ -28,7 +28,7 @@ class tradeAgent():
         self.relations = dict()
         #a dictionary of each item : this agent's need for it 
         self.needs = dict()
-        #get a few 
+        #get a few random Towns
         with open('data\\defaultAgents.csv') as csvFile:
             reader = csv.DictReader(csvFile)
             for row in reader:

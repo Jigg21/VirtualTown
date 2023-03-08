@@ -1,11 +1,24 @@
 import random
-import math
+import os
+import sys
+root_folder = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(root_folder)
 
+import CONST
+
+def generatePath(culture):
+    cultureFile = "data/Cultures/"
+    if culture == CONST.cultures.ROMAN:
+        cultureFile += "Roman/"
+    if culture == CONST.cultures.NOMAD:
+        cultureFile += "Nomadic/"
+    return cultureFile 
 #generate a name from the nameGen.txt file
-def makeName():
+def makeName(culture):
     sets = []
     #open the syllable file 
-    with open("data/Cultures/Nomadic/nameGen.txt") as f:
+    cultureFolderPath = generatePath(culture)
+    with open(cultureFolderPath+"nameGen.txt") as f:
         sets = []
         set = []
         pos = 0
@@ -43,27 +56,33 @@ def main():
     print(makeName() + " " + getLastName())
 
 
-def getLastName():
+def getLastName(culture):
     '''gets a random last name'''
     #opens the surname file and takes one at random
-    with open("data/Cultures/Nomadic/surnames.txt") as f:
-        name = f.readlines()[random.randint(0,20000)].strip()
+    cultureFolderPath = generatePath(culture)
+    with open(cultureFolderPath + "surnames.txt") as f:
+        names = f.readlines()
+        name = names[random.randint(0,len(names)-1)].strip()
         name = name.capitalize()
         return name
 
-def getPlaceName():
+def getPlaceName(culture):
     cityBits = []
-    
-    with open("cities.txt",encoding="UTF-8") as f:
-        for line in f.readlines():
-            line.strip()
-            for bit in line.split(" "):
-                cityBits.append(bit)
-    result = ""
-    for i in range(random.randrange(1,4)):
-        result += cityBits[random.randrange(0,len(cityBits))]
-    return result
+    cultureFolderPath = generatePath(culture)
+    with open(cultureFolderPath + "placeNamePatterns.txt") as f:
+        patterns = f.readlines()
+        pattern = patterns[random.randint(0,len(patterns)-1)].strip()
+        pattern = pattern.format(NAME=makeName(culture))
+        return pattern
+
+def testNames(culture,iterations):
+    for x in range(iterations):
+        first = makeName(culture)
+        last = getLastName(culture)
+        #location = "ipanema"
+        location = getPlaceName(culture)
+        print("{first} {last} from {location}".format(first=first,last=last,location=location))
+
 
 if __name__ == "__main__":
-    for x in range(10):
-        print(getPlaceName())
+    testNames(CONST.cultures.NOMAD,10)

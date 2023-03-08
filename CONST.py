@@ -57,3 +57,8 @@ class season(Enum):
     EARLYWINTER = 9
     WINTER = 10
     LATEWINTER = 11
+
+class cultures(Enum):
+    LIBERTARIAD = 0
+    NOMAD = 1
+    ROMAN = 2

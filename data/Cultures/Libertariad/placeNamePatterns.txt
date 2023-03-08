@@ -1,0 +1,9 @@
+Ad {NAME}
+Aquae {NAME}
+{NAME}um
+{NAME} Cantiacorum
+Isca {NAME}
+Isca {NAME}ia
+{NAME}is
+Portus {NAME}
+{NAME}ae

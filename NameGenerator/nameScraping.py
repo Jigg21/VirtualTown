@@ -120,7 +120,11 @@ def regexTerminal(file):
 
 
 if __name__ == "__main__":
-    main()
+    NS = NameScraper()
+    NS.scrapeSyllables("input.txt")
+    NS.output("output.txt")
+    
+
 
 
 
