@@ -60,12 +60,12 @@ class Ship:
         self.createAdvisor()
 
         #villagers
-        family1 = Familes.Family(nameGenerator.getLastName())
-        family2 = Familes.Family(nameGenerator.getLastName())
-        family3 = Familes.Family(nameGenerator.getLastName())
-        self.addVillager(Villagers.Villager(nameGenerator.makeName(),  25,'M',family=family1,startLocation=townHall,town=self))
-        self.addVillager(Villagers.Villager(nameGenerator.makeName(),27,'F',family=family2,startlocation=townFarm,town=self))
-        self.addVillager(Villagers.Villager(nameGenerator.makeName(),37,'M',family=family3,startLocation=townFarm,town=self))
+        family1 = Familes.Family(nameGenerator.getLastName(CONST.cultures.NOMAD))
+        family2 = Familes.Family(nameGenerator.getLastName(CONST.cultures.ROMAN))
+        family3 = Familes.Family(nameGenerator.getLastName(CONST.cultures.LIBERTARIAD))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(CONST.cultures.NOMAD),  25,'M',family=family1,startLocation=townHall,town=self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(CONST.cultures.ROMAN),27,'F',family=family2,startlocation=townFarm,town=self))
+        self.addVillager(Villagers.Villager(nameGenerator.makeName(CONST.cultures.LIBERTARIAD),37,'M',family=family3,startLocation=townFarm,town=self))
 
         #starting items
         self.addItemtoCargo("SUGAR_RICE",1000)

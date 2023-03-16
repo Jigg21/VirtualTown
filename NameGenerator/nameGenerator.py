@@ -59,7 +59,7 @@ def main():
 
 
 def getLastName(culture):
-    '''gets a random last name'''
+    '''gets a random last name from the culture data files'''
     #opens the surname file and takes one at random
     cultureFolderPath = generatePath(culture)
     with open(cultureFolderPath + "surnames.txt") as f:
@@ -68,16 +68,31 @@ def getLastName(culture):
         name = name.capitalize()
         return name
 
+def getNoun(culture):
+    '''gets a random noun from the culture data file'''
+    cultureFolderPath = generatePath(culture)
+    with open(cultureFolderPath + "nouns.txt") as f:
+        nouns = f.readlines()
+        noun = nouns[random.randint(0,len(nouns)-1)].strip()
+        noun = noun.capitalize()
+        return noun
+
 def getPlaceName(culture):
+    '''constructs a location name'''
     cityBits = []
     cultureFolderPath = generatePath(culture)
     with open(cultureFolderPath + "placeNamePatterns.txt") as f:
         patterns = f.readlines()
         pattern = patterns[random.randint(0,len(patterns)-1)].strip()
-        pattern = pattern.format(NAME=makeName(culture))
+        #sub in values
+        if "{NAME}" in pattern:
+            pattern = pattern.format(NAME=makeName(culture))
+        if "{NOUN}" in pattern:
+            pattern = pattern.format(NOUN=getNoun(culture))
         return pattern
 
 def testNames(culture,iterations):
+    '''creates iterations number of person and location names'''
     for x in range(iterations):
         first = makeName(culture)
         last = getLastName(culture)
@@ -87,4 +102,4 @@ def testNames(culture,iterations):
 
 
 if __name__ == "__main__":
-    testNames(CONST.cultures.LIBERTARIAD,10)
+    testNames(CONST.cultures.NOMAD,10)
