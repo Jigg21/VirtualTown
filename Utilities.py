@@ -81,6 +81,12 @@ def getRandomValue(min,max):
     result = random.randint(min,max)
     return result
 
+def truncateDecimal(f,places):
+    result =  f * 10**places
+    result //= 10**places
+    return result
+
+
 def coordsInRange(upperCorner,lowerCorner,Coord):
     '''returns true if coord is within a box defined by upperCorner and lowerCorner
         coords should be given in a tuple of ints'''
