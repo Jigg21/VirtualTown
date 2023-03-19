@@ -24,6 +24,7 @@ class cargoItem():
         global ITEMS
         if ITEMS == None:
             loadItemData()
+        self.ID = ID
         self.category = ITEMS[ID]["Category"]
         self.bulk = ITEMS[ID]["Bulk"]
 
