@@ -6,9 +6,16 @@ import CONST
 from NameGenerator import nameGenerator
 
 class tradeOffer():
-    def __init__(self,itemId) -> None:
+    def __init__(self,itemId,agent) -> None:
         '''create a trade object to represent a buy offer'''
         self.item = CargoItems.getItemObj(itemId)
+        self.agent = agent
+    
+    def eval(self,otherAgent):
+        agentAneed = self.agent.relations[otherAgent]
+        agentBneed = otherAgent.relations[self.agent]
+        relationMult = abs(agentAneed + agentBneed)
+        
         
 class Market():
     '''an object to handle the market, including all the agents'''
@@ -91,4 +98,6 @@ if __name__ == "__main__":
     cargoList = CargoItems.ITEMS.keys()
     mark = Market(cargoList)
     agentA = mark.agents[0]
-    mark.newTradeOffer(tradeOffer())
+    print
+    mark.newTradeOffer(tradeOffer("RICE_BEER"))
+    print(mark)
