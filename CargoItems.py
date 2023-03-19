@@ -1,5 +1,7 @@
-from enum import Enum
 import csv
+import os
+
+FILEPATH = os.getcwd()
 ITEMS = None
 
 def loadItemData():
@@ -9,7 +11,7 @@ def loadItemData():
         return ITEMS
     else:
         ITEMS = {}
-        with open('data\\Items.csv') as csvFile:
+        with open(os.path.join(FILEPATH,"data","Items.csv")) as csvFile:
                 reader = csv.DictReader(csvFile)
                 for row in reader:
                     ITEMS[row["Name"]] = row

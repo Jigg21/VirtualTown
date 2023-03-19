@@ -1,4 +1,3 @@
-from tkinter import Message
 import random
 
 logs = []

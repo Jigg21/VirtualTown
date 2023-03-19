@@ -1,7 +1,11 @@
 import json
 import csv
 import Utilities
+import os
+
 CROPDATA = None
+FILEPATH = os.getcwd()
+
 
 def getCropData():
     '''load the crop data from file and return a dictionary'''
@@ -13,7 +17,7 @@ def getCropData():
             #CROPDATA = json.load(f)
 
         CROPDATA = {}
-        with open('data\\Crops.csv') as csvFile:
+        with open(os.path.join(FILEPATH,"data","Crops.csv")) as csvFile:
             reader = csv.DictReader(csvFile)
             for row in reader:
                 cropDict = {"cropRipe":int(row["ripeTime"]),"cropValue":int(row["cropValue"]),"cropHLabor":int(row["harvestLabor"]),"cropMLabor":int(row["maintainanceLabor"]),"cropColor":row["color"]}

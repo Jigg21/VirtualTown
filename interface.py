@@ -7,6 +7,9 @@ from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
 from threading import Thread
 import signal
 import pickle
+import os
+
+FILEPATH = os.getcwd()
 
 class ShipWindow():
     def __init__(self) -> None:
@@ -14,7 +17,9 @@ class ShipWindow():
         self.root = tk.Tk()
         self.root.configure(bg=config["UI"]["DARKBACKGROUND"])
         bgColor = config["UI"]["DARKBACKGROUND"]
-        self.root.iconbitmap("dish.ico")
+        #if running Windows
+        if os.name == 'nt':
+            self.root.iconbitmap(os.path.join(FILEPATH,"Dish.ico"))
         
         style = ttk.Style()
         style.theme_create( "DarkMode", parent="alt", settings={
