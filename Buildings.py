@@ -249,13 +249,13 @@ class GameHall(Building):
             pass
 
 class Tavern(Building):
-
+    '''a place for villagers to build relations with others'''
     def __init__(self, buidingName, IsPrivate, buildingNumber, ship, coords):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
         self.bClass = CONST.buildingClass.TAVERN
         self.comaraderie = 0
     
-    '''a place for villagers to build relations with others'''
+
     def activate(self, Villager):
         super().activate(Villager)
         self.comaraderie += 1
@@ -273,6 +273,7 @@ class Factory(Building):
         super().__init__(buidingName, IsPrivate, buildingNumber, ship, coords)
 
 class Home(Building):
+    '''a place for villagers tor rest, center of family dynamics'''
     def __init__(self, buidingName, IsPrivate, buildingNumber, town, coords):
         super().__init__(buidingName, IsPrivate, buildingNumber, town, coords)
         self.popLimit = config.getint("BUILDINGS","HOUSEMAX")

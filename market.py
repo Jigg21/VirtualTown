@@ -1,3 +1,4 @@
+import math
 import CargoItems
 import csv
 import random
@@ -11,10 +12,8 @@ class tradeOffer():
         self.item = CargoItems.getItemObj(itemId)
         self.agent = agent
     
-    def eval(self,otherAgent):
-        agentAneed = self.agent.relations[otherAgent]
-        agentBneed = otherAgent.relations[self.agent]
-        relationMult = abs(agentAneed + agentBneed)
+    def getAgent(self):
+        return self.agent
         
         
 class Market():
@@ -23,12 +22,18 @@ class Market():
         self.offers = []
         self.agents = []
         self.items = itemList
+        #generate the Libertariad
         self.itemsBaseLine = dict()
+        self.Liber = tradeAgent(self)
+        self.agents.append(self.Liber)
+        #generate a number of random agents specified in config.ini
         for i in range(int(config["VALUES"]["TRADEAGENTS"])):
             newAgent = tradeAgent(self)
             self.agents.append(newAgent)
             newAgent.initRandom()
 
+    def getLiberPrices(self,item):
+        return self.itemsBaseLine[item]
 
     def newTradeOffer(self,offer):
         '''accept a new trade offer into the market, and returns the price dictionary'''
@@ -91,13 +96,31 @@ class tradeAgent():
         self.setAgentRelations(agent,relationsNew)
 
     def evaluateOffer(self,offer):
-        '''evaluates the '''
-        pass
+        '''evaluates the offer based on the other agent  '''
+        otherAgent = offer.getAgent()
+        #get agent relations and calculate the relationship multiplier
+        agentARelation = self.relations[otherAgent]
+        agentBRelation = otherAgent.relations[self.agent]
+        relationVal = agentARelation + agentBRelation
+        c = config.getfloat("MARKET","RELATIONSCONSTANT")
+        relationMult = c * math.log(relationVal+2)+1.5
+
+        #get agent needs
+
+
+
+        
+
+
 
 if __name__ == "__main__":
     cargoList = CargoItems.ITEMS.keys()
     mark = Market(cargoList)
-    agentA = mark.agents[0]
-    print
-    mark.newTradeOffer(tradeOffer("RICE_BEER"))
+    agentA = mark.agents[1]
+    agentB = mark.agents[2]
+    offer = tradeOffer("RICE_BEER",agentA)
     print(mark)
+    print()
+    mark.newTradeOffer(offer)
+    print(agentA.evaluateOffer(offer))
+    print(mark) 
