@@ -29,9 +29,13 @@ class cargoItem():
         self.ID = ID
         self.category = ITEMS[ID]["Category"]
         self.bulk = ITEMS[ID]["Bulk"]
+        self.defaultValue = ITEMS[ID]["Default_Value"]
 
     def isEdible(self):
         '''checks if this item is edible'''
         return self.category == "FOOD"
+    
+    def getitemDefaultValue(self):
+        return self.defaultValue
 
 loadItemData()

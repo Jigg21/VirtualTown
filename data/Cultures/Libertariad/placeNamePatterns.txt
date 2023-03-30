@@ -10,3 +10,5 @@
 {NAME}ingston Beach
 {NAME} Beach
 {NOUN} Beach
+Port {NOUN}
+Port {NAME}
