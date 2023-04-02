@@ -19,12 +19,9 @@ class tradeOffer():
     def __str__(self):
         return "{Agent} is selling {count} {item}s".format(Agent=self.agent.name,count=self.amount,item=self.item.ID)
         
-
-
-
 class Market():
     '''an object to handle the market, including all the agents'''
-    def __init__(self,itemList) -> None:
+    def __init__(self,itemList,agentList=None) -> None:
         self.offers = []
         self.agents = []
         self.items = itemList
@@ -35,12 +32,16 @@ class Market():
         self.Liber = tradeAgent(self)
         self.Liber.name = "Libertariad"
         self.agents.append(self.Liber)
-        #generate a number of random agents specified in config.ini
-        for i in range(int(config["VALUES"]["TRADEAGENTS"])):
-            newAgent = tradeAgent(self)
-            self.agents.append(newAgent)
-            newAgent.initRandom()
-
+        
+        if agentList == None:
+            #generate a number of random agents specified in config.ini
+            for i in range(int(config["VALUES"]["TRADEAGENTS"])):
+                newAgent = tradeAgent(self)
+                self.agents.append(newAgent)
+                newAgent.initRandom()
+        else:
+            self.agents = agentList
+    
     def getLiberPrices(self,item):
         return self.itemsBaseLine[item]["Default_Value"]
 
@@ -50,6 +51,16 @@ class Market():
 
     def getTradeOffers(self):
         return self.offers
+
+    def makeTrade(self,offer,buyer):
+        '''make a trade and reverberate that through the market'''
+        seller = offer.getAgent()
+        buyerValue,itemCount = buyer.evaluateOffer(offer)
+        saleValue = buyerValue * itemCount
+        seller.makeSale()
+
+        buyer.payGold(saleValue)
+        buyer.alterAgentRelations(seller,(0.1,0.01))
 
     def __str__(self) -> str:
         result = ""
@@ -71,7 +82,6 @@ class Market():
                 result += ")"
             result += "]\n"
         return result
-
 
 class tradeAgent():
     '''class for how agents trade with one another'''
@@ -110,7 +120,7 @@ class tradeAgent():
         self.setAgentRelations(agent,relationsNew)
 
     def evaluateOffer(self,offer,otherAgent = None):
-        '''evaluates the offer based on the other agent, returns tuple (cost per unit, number of units) '''
+        '''evaluates the offer, returns tuple (cost per unit, number of units) '''
         if otherAgent == None:
             otherAgent = offer.getAgent()
         #get agent relations and calculate the relationship multiplier
@@ -143,17 +153,12 @@ class tradeAgent():
             self.gold = 0
         else:
             self.gold -= amount
-    def makeTrade(self,offer):
-        '''accept an offer, make relavant changes to each agent'''
-        itemValue = self.evaluateOffer(offer)
-        saleValue = itemValue[0] * itemValue[1]
-        offer.agent.addGold(saleValue)
-        self.payGold(saleValue)
-        offer.agent.alterAgentRelations(self,(0.1,0.01))
-        self.alterAgentRelations(offer.agent,(0.1,0.01))
-
     
-
+    def makePurchase(self,offer):
+        '''make changes to the agent to pay for an item'''
+        pass
+    
+    def makeSale(self,)
 
 
 if __name__ == "__main__":
@@ -172,7 +177,12 @@ if __name__ == "__main__":
     buyOfferC = agentC.evaluateOffer(offer)
     print("{Name} would buy {count} {offer} for {value} each".format(Name=agentB.name,count=buyOfferB[1],offer=offer.item.ID,value = buyOfferB[0]))
     print("{Name} would buy {count} {offer} for {value} each".format(Name=agentC.name,count=buyOfferC[1],offer=offer.item.ID,value = buyOfferC[0]))
-    agentC.makeTrade(offer)
+    mark.makeTrade(offer,agentB)
     print("{Name} bought {count} {offer} for {value} total".format(Name=agentC.name,count=buyOfferC[1],offer=offer.item.ID,value = buyOfferC[0]*buyOfferC[1]))
     print()
     print(mark)
+    print()
+    buyOfferB = agentB.evaluateOffer(offer)
+    buyOfferC = agentC.evaluateOffer(offer)
+    print("{Name} would buy {count} {offer} for {value} each".format(Name=agentB.name,count=buyOfferB[1],offer=offer.item.ID,value = buyOfferB[0]))
+    print("{Name} would buy {count} {offer} for {value} each".format(Name=agentC.name,count=buyOfferC[1],offer=offer.item.ID,value = buyOfferC[0]))
