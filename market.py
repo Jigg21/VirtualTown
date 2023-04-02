@@ -158,7 +158,6 @@ class tradeAgent():
         '''make changes to the agent to pay for an item'''
         pass
     
-    def makeSale(self,)
 
 
 if __name__ == "__main__":
