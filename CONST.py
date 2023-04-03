@@ -7,7 +7,8 @@ class VillagerStates(Enum):
     WORKING = 3
     HOSPITALIZED = 4
     READY = 5
-    DEAD = 6
+    SLEEPING = 6
+    DEAD = 7
 
 class EventSeverity(Enum):
     '''how severe is the event'''

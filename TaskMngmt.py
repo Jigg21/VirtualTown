@@ -36,9 +36,6 @@ class Task:
             self.state = CONST.TaskStatus.COMPLETED
         return self.state == CONST.TaskStatus.COMPLETED
 
-    def isCompleted(self):
-        return self.completed
-
     def __str__(self):
         return "({location}){desc} for {pay} gold, {labor} work left".format(location=self.location.buildingName, desc=self.desc,pay=self.pay,labor=self.laborReq)      
 

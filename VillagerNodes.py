@@ -118,9 +118,7 @@ class node_workUntilJobdone(BT.Node):
         #returns success if the job is done, waiting if it's still working, or failed if there is no job
         if villager.vTask is not None:
             villager.goWork()
-            villager.vTask.work(villager)
-            if villager.vTask.isComplete():
-                villager.finishWork()
+            if villager.work():
                 return BT.nodeStates.SUCCESS
             else:
                 return BT.nodeStates.WAITING
@@ -217,7 +215,26 @@ class node_goToTavern(BT.Node):
         villager = context["villager"]
         villager.goToBuildingType(CONST.buildingClass.TAVERN)
 
-class node_hasRoominHouse():
+class node_villagerSleep(BT.Node):
+    def activate(self, context):
+        super().activate(context)
+        villager = context["villager"]
+        villager.goSleep()
+
+class node_needSleep(BT.Node):
+    def activate(self, context):
+        super().activate(context)
+        town = context["town"]
+        time = town.townAge
+        time%=525600
+        hr = time//1440
+        time%=1440
+        min = time//60
+        time%=60
+        print(hr,min,flush=True)
+        
+
+class node_hasRoominHouse(BT.Node):
     def activate(self,context):
         #if the villager has no home
         if context["villager"].home == None:
@@ -227,12 +244,18 @@ class tree_haveChild(BT.Tree):
     def __init__(self, rootnode=None) -> None:
         self.addRootNode(BT.FinishDecorator("Have Children tree"))
         super().__init__(rootnode)
-        root = BT.SequenceNode()
-        self.addNode(root)
-        root.addChild
 
+class tree_SleepUntilRested(BT.Tree):
+    
+    def activate(self, context):
+        self.addRootNode(BT.SequenceNode("Sleep Tree"))
+        super().__init__(context)
+        needSleepNode = node_needSleep("Needs Sleep?")
+        self.addNodetoRoot(needSleepNode)
+        sleepNode = node_villagerSleep("sleeping...")
+        self.addNodetoRoot(sleepNode)
 
-
+        
         
 
 
@@ -241,6 +264,7 @@ class tree_VillagerBehaviorTree(BT.Tree):
     def __init__(self, rootnode=None) -> None:
         self.addRootNode(BT.SequenceNode("Root"))
         self.addNodetoRoot(tree_HungerSatisfactionTree())
+        self.addNodetoRoot(tree_SleepUntilRested("Checking for sleep"))
         self.addNodetoRoot(tree_workTree())
         self.addNodetoRoot(tree_doWork())
         self.addNodetoRoot(node_goToTavern("Go to the pub"))

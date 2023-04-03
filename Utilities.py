@@ -19,7 +19,6 @@ def convertTimeToTicks(timeString):
 
 #converts ticks to a readable time
 def convertTicksToTime(time):
-    workingTime = time
     result = ""
     result += str(time//525600) + ":"
     time%=525600

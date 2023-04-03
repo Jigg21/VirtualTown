@@ -12,9 +12,9 @@ class Villager:
     def __init__(self,name,birthCycle,gender,**kwargs):
         '''name: villager name\n
         age: defaults to 0'''
+        self.vName = name
         self.vBirthCycle = birthCycle
         self.vGender = gender
-        self.vName = name
 
         #parse keyword arguments
 
@@ -49,6 +49,7 @@ class Villager:
         self.vState = CONST.VillagerStates.IDLE
         self.vMoney = 10
         self.vHealth = 100
+        self.vEnergy = 1000
         self.alive = True
         self.offWork = False
         self.experience = 0
@@ -123,6 +124,9 @@ class Villager:
         if self.currentLocation.bClass != CONST.buildingClass.RESTAURANT:
             self.goTo(self.town.FindBuilding(CONST.buildingClass.RESTAURANT))    
     
+    def goSleep(self):
+        self.vState = CONST.VillagerStates.SLEEPING
+
     def goToBuildingType(self,bType):
         '''Go to a building of type btype, in the case of multiples it will go to the first'''
         if (not self.currentLocation.isClassOf(bType)):
@@ -160,9 +164,13 @@ class Villager:
     #perform one labor on the current task
     def work(self):
         if self.vTask is not None:
-            self.vTask.work(self)
-            if self.vTask.completed:
-                self.finishWork()
+            if self.vEnergy > 0:
+                self.vEnergy -= 1
+                self.vTask.work(self)
+                if self.vTask.isComplete():
+                    self.finishWork()
+                    return True
+        return False
     
     #does the villager have something to do
     def hasWork(self):
@@ -219,7 +227,7 @@ class Villager:
         result += " ({age}/{gender})".format(age=self.vBirthCycle,gender=self.vGender)
         result += " Hunger: {hunger}".format(hunger = math.floor(self.vHunger))
         result += " Health: {health}".format(health=math.floor(self.vHealth))
-        result += " Money: {money}".format(money=self.vMoney)
+        result += " Energy: {energy}".format(energy=self.vEnergy)
         result += " EXP: {exp}".format(exp=self.experience)
         result += "State: {state}".format(state = str(self.vState)[15:])
         result += "Task: {task}".format(task=str(self.vTask))
