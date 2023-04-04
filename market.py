@@ -16,6 +16,14 @@ class tradeOffer():
     def getAgent(self):
         return self.agent
     
+    def sell(self, amount):
+        '''removes an amount of the item and returns how much is left on the offer'''
+        self.amount -= amount
+        if self.amount >= 0:
+            return self.amount
+        else:
+            return 0
+    
     def __str__(self):
         return "{Agent} is selling {count} {item}s".format(Agent=self.agent.name,count=self.amount,item=self.item.ID)
         
@@ -54,18 +62,24 @@ class Market():
 
     def makeTrade(self,offer,buyer):
         '''make a trade and reverberate that through the market'''
+        #get trade values
         seller = offer.getAgent()
+        item = offer.item
         buyerValue,itemCount = buyer.evaluateOffer(offer)
         saleValue = buyerValue * itemCount
-        seller.makeSale()
 
-        buyer.payGold(saleValue)
+        #make the sale/purchase
+        seller.makeSale(item,itemCount,saleValue)
+        buyer.makePurchase(item,itemCount,saleValue)
+
+        #update the relationships
         buyer.alterAgentRelations(seller,(0.1,0.01))
 
     def __str__(self) -> str:
         result = ""
         for a in self.agents:
             result += a.name
+            result += "Gold: {gold} ".format(gold=a.gold)
             result += str(a.needs)
             result += "\n"
             result += "Relations: ["
@@ -92,7 +106,7 @@ class tradeAgent():
         self.econSize = 0
         #a dictionary of each trade agent : their relationship to each other
         self.relations = dict()
-        #a dictionary of each item : this agent's need for it 
+        #a dictionary of each item : this agent's need for it Austin, TX
         self.needs = dict()
     
     def initRandom(self):
@@ -154,8 +168,18 @@ class tradeAgent():
         else:
             self.gold -= amount
     
-    def makePurchase(self,offer):
-        '''make changes to the agent to pay for an item'''
+    def makePurchase(self,item,count,value):
+        '''make changes to the agent to buy an item '''
+        self.needs[item.ID] -= count/self.econSize
+        self.payGold(value)
+        self.econSize += 1
+        pass
+    
+    def makeSale(self,item,count,value):
+        '''make changes to the agent to sell an item'''
+        self.needs[item.ID] += count/self.econSize
+        self.addGold(value)
+        self.econSize += 1
         pass
     
 
@@ -177,7 +201,7 @@ if __name__ == "__main__":
     print("{Name} would buy {count} {offer} for {value} each".format(Name=agentB.name,count=buyOfferB[1],offer=offer.item.ID,value = buyOfferB[0]))
     print("{Name} would buy {count} {offer} for {value} each".format(Name=agentC.name,count=buyOfferC[1],offer=offer.item.ID,value = buyOfferC[0]))
     mark.makeTrade(offer,agentB)
-    print("{Name} bought {count} {offer} for {value} total".format(Name=agentC.name,count=buyOfferC[1],offer=offer.item.ID,value = buyOfferC[0]*buyOfferC[1]))
+    print("{Name} bought {count} {offer} for {value} total".format(Name=agentB.name,count=buyOfferB[1],offer=offer.item.ID,value = buyOfferB[0]*buyOfferB[1]))
     print()
     print(mark)
     print()
