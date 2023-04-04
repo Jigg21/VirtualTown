@@ -64,7 +64,11 @@ class Villager:
     def update(self):
         self.checkAlive()
         if self.alive:
-            self.vHunger -=  config.getfloat("PASSENGERS","HUNGERDRAIN")
+            if self.vState != CONST.VillagerStates.SLEEPING and self.vState != CONST.VillagerStates.DEAD:
+                self.vHunger -=  config.getfloat("PASSENGERS","HUNGERDRAIN")
+            else:
+                self.vHunger -=  .25 * config.getfloat("PASSENGERS","HUNGERDRAIN")
+
             if self.vHunger <= 0:
                 self.vHealth -= config.getfloat("PASSENGERS","HUNGERDEATH")
             if self.vHunger > 25 and self.vHealth < 100:
@@ -77,6 +81,10 @@ class Villager:
             context["board"] = self.town.bulletin
             context["Verbose"] = config.getboolean("DEBUG","BTVerbose")
             self.behaviorTree.traverse(context)
+            if self.vState == CONST.VillagerStates.SLEEPING:
+                self.vHunger = Utilities.clamp(-100,100,self.vHunger)
+                self.vHealth = Utilities.clamp(0,100,self.vHealth)
+
             self.vHunger = Utilities.clamp(-100,100,self.vHunger)
             self.vHealth = Utilities.clamp(0,100,self.vHealth)
             self.vDrunkeness -= .25
@@ -125,7 +133,14 @@ class Villager:
             self.goTo(self.town.FindBuilding(CONST.buildingClass.RESTAURANT))    
     
     def goSleep(self):
-        self.vState = CONST.VillagerStates.SLEEPING
+        self.vEnergy += 2
+        if self.vEnergy >= 1000:
+            self.vEnergy = 1000
+            self.vState = CONST.VillagerStates.SLEEPING
+            return True
+        else:
+            self.vState = CONST.VillagerStates.IDLE
+            return False
 
     def goToBuildingType(self,bType):
         '''Go to a building of type btype, in the case of multiples it will go to the first'''

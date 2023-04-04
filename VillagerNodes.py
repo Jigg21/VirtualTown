@@ -219,7 +219,10 @@ class node_villagerSleep(BT.Node):
     def activate(self, context):
         super().activate(context)
         villager = context["villager"]
-        villager.goSleep()
+        if villager.goSleep():
+            return BT.nodeStates.WAITING
+        else:
+            return BT.nodeStates.SUCCESS
 
 class node_needSleep(BT.Node):
     def activate(self, context):
@@ -227,12 +230,14 @@ class node_needSleep(BT.Node):
         town = context["town"]
         time = town.townAge
         time%=525600
-        hr = time//1440
         time%=1440
-        min = time//60
+        hr = time//60
         time%=60
-        print(hr,min,flush=True)
-        
+        min = time%60
+        if hr > 22 or hr < 7 or context["villager"].vEnergy <= 10:
+            return BT.nodeStates.FAILED
+        else:
+            return BT.nodeStates.SUCCESS
 
 class node_hasRoominHouse(BT.Node):
     def activate(self,context):
@@ -246,10 +251,9 @@ class tree_haveChild(BT.Tree):
         super().__init__(rootnode)
 
 class tree_SleepUntilRested(BT.Tree):
-    
-    def activate(self, context):
-        self.addRootNode(BT.SequenceNode("Sleep Tree"))
-        super().__init__(context)
+    def __init__(self, rootNode=None):
+        super().__init__()
+        self.addRootNode(BT.FallBackNode("Sleep Tree"))
         needSleepNode = node_needSleep("Needs Sleep?")
         self.addNodetoRoot(needSleepNode)
         sleepNode = node_villagerSleep("sleeping...")
@@ -264,7 +268,7 @@ class tree_VillagerBehaviorTree(BT.Tree):
     def __init__(self, rootnode=None) -> None:
         self.addRootNode(BT.SequenceNode("Root"))
         self.addNodetoRoot(tree_HungerSatisfactionTree())
-        self.addNodetoRoot(tree_SleepUntilRested("Checking for sleep"))
+        self.addNodetoRoot(tree_SleepUntilRested())
         self.addNodetoRoot(tree_workTree())
         self.addNodetoRoot(tree_doWork())
         self.addNodetoRoot(node_goToTavern("Go to the pub"))
