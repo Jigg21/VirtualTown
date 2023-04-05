@@ -133,13 +133,14 @@ class Villager:
             self.goTo(self.town.FindBuilding(CONST.buildingClass.RESTAURANT))    
     
     def goSleep(self):
-        self.vEnergy += 2
+        '''sends the villager to sleep'''
+        self.goToBuildingType(CONST.buildingClass.TOWNHALL)
         if self.vEnergy >= 1000:
             self.vEnergy = 1000
-            self.vState = CONST.VillagerStates.SLEEPING
             return True
         else:
-            self.vState = CONST.VillagerStates.IDLE
+            self.vEnergy += 2
+            self.vState = CONST.VillagerStates.SLEEPING
             return False
 
     def goToBuildingType(self,bType):

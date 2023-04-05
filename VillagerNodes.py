@@ -219,10 +219,9 @@ class node_villagerSleep(BT.Node):
     def activate(self, context):
         super().activate(context)
         villager = context["villager"]
-        if villager.goSleep():
-            return BT.nodeStates.WAITING
-        else:
-            return BT.nodeStates.SUCCESS
+        #villager goes to sleep and returns success if the villager is fully rested
+        villager.goSleep()
+        return BT.nodeStates.WAITING
 
 class node_needSleep(BT.Node):
     def activate(self, context):
@@ -234,10 +233,13 @@ class node_needSleep(BT.Node):
         hr = time//60
         time%=60
         min = time%60
-        if hr > 22 or hr < 7 or context["villager"].vEnergy <= 10:
-            return BT.nodeStates.FAILED
-        else:
+        #if the time is past 10PM or earlier than 7AM
+        if (hr > 22 or hr < 7) or context["villager"].vEnergy <= 10:
+            #the villager needs sleep
             return BT.nodeStates.SUCCESS
+        else:
+            #the villager doesn't need sleep
+            return BT.nodeStates.FAILED
 
 class node_hasRoominHouse(BT.Node):
     def activate(self,context):
@@ -253,11 +255,13 @@ class tree_haveChild(BT.Tree):
 class tree_SleepUntilRested(BT.Tree):
     def __init__(self, rootNode=None):
         super().__init__()
-        self.addRootNode(BT.FallBackNode("Sleep Tree"))
+        self.addRootNode(BT.FinishDecorator())
+        sequenceRoot = BT.SequenceNode("Sleep Tree")
+        self.addNodetoRoot(sequenceRoot)
         needSleepNode = node_needSleep("Needs Sleep?")
-        self.addNodetoRoot(needSleepNode)
+        self.addNode(needSleepNode,sequenceRoot)
         sleepNode = node_villagerSleep("sleeping...")
-        self.addNodetoRoot(sleepNode)
+        self.addNode(sleepNode,sequenceRoot)
 
         
         
@@ -266,6 +270,7 @@ class tree_SleepUntilRested(BT.Tree):
 class tree_VillagerBehaviorTree(BT.Tree):
     '''constructed villager behavior tree'''
     def __init__(self, rootnode=None) -> None:
+        super().__init__()
         self.addRootNode(BT.SequenceNode("Root"))
         self.addNodetoRoot(tree_HungerSatisfactionTree())
         self.addNodetoRoot(tree_SleepUntilRested())
