@@ -59,6 +59,13 @@ class season(Enum):
     WINTER = 10
     LATEWINTER = 11
 
+class VillageTypes(Enum):
+    AGRICULTURAL = 0,
+    CULTURE = 1,
+    ENERGISTIC = 2,
+    INDUSTRIOUS = 3,
+    MILITANT = 4
+
 class cultures(Enum):
     LIBERTARIAD = 0
     NOMAD = 1
