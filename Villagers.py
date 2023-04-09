@@ -136,10 +136,10 @@ class Villager:
         self.vEnergy += 2
         if self.vEnergy >= 1000:
             self.vEnergy = 1000
-            self.vState = CONST.VillagerStates.SLEEPING
+            self.vState = CONST.VillagerStates.IDLE
             return True
         else:
-            self.vState = CONST.VillagerStates.IDLE
+            self.vState = CONST.VillagerStates.SLEEPING
             return False
 
     def goToBuildingType(self,bType):
