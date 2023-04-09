@@ -28,6 +28,7 @@ class cargoItem():
             loadItemData()
         self.ID = ID
         self.category = ITEMS[ID]["Category"]
+        self.subcategory = ITEMS[ID]["Subcategory"]
         self.bulk = ITEMS[ID]["Bulk"]
         self.defaultValue = ITEMS[ID]["Default_Value"]
 

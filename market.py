@@ -60,6 +60,28 @@ class Market():
     def getTradeOffers(self):
         return self.offers
 
+    def DailyUpdate(self):
+        '''update the market for a new day, closes outstanding deals'''
+        currentOffers = self.getTradeOffers()
+        bestPrices = dict()
+        #for each agent, make deals and update needs/gold
+        for agent in self.agents:
+            #make deals for items
+            for need in agent.needs:
+                #if the agent needs the item
+                if agent.needs[need] > 0:
+                    #get the best offer
+                    for offer in currentOffers:
+                        if offer.item == need:
+                            evaluation = agent.evaluateOffer(offer)
+                            if offer.item in bestPrices:
+                                if evaluation[0] < bestPrices[offer.item]:
+                                    bestPrices[offer.item] = offer
+            
+            #then update the needs and gold
+            
+
+
     def makeTrade(self,offer,buyer):
         '''make a trade and reverberate that through the market'''
         #get trade values
@@ -108,6 +130,9 @@ class tradeAgent():
         self.relations = dict()
         #a dictionary of each item : this agent's need for it Austin, TX
         self.needs = dict()
+        #construct the agent's production dictionary
+        self.agentType = None
+        self.production = dict()
     
     def initRandom(self):
         '''completely randomizes the trade agent'''
@@ -115,9 +140,81 @@ class tradeAgent():
         self.name = nameGenerator.getPlaceName(culture)
         self.gold = random.randrange(1000,10000)
         self.econSize =  random.randrange(100,500)
-        
+        self.agentType = random.choice(list(CONST.VillageTypes))
+
+        #generate needs and production 
         for item in self.market.items:
-            self.needs[item] = random.random()
+            #initialize a random starting need/surplus for each item
+            self.needs[item] = random.uniform(-1,1)
+            item = CargoItems.getItemObj(item)
+
+            #construct the production dictionary 
+            if  item.subcategory == "PROCCESSED_FOOD":
+                if self.agentType == CONST.VillageTypes.AGRICULTURAL:
+                    self.production[item] = random.random()
+                if self.agentType == CONST.VillageTypes.CULTURE:
+                    self.production[item] = -random.random()
+                if self.agentType == CONST.VillageTypes.MILITANT:
+                    self.production[item] = -random.random()
+            
+            if item.subcategory == "CROP":
+                if self.agentType == CONST.VillageTypes.AGRICULTURAL:
+                    self.production[item] = random.random()
+                if self.agentType == CONST.VillageTypes.INDUSTRIOUS:
+                    self.production[item] = -random.random()
+
+            if item.subcategory == "DELICACY":
+                pass
+
+            if item.subcategory == "ORE":
+                pass
+            
+            if item.subcategory == "RAW_MATERIALS":
+                if self.agentType == CONST.VillageTypes.INDUSTRIOUS:
+                    self.production[item] = -random.random()
+                if self.agentType == CONST.VillageTypes.MILITANT:
+                    self.production[item] = random.random()
+                pass
+                
+            if item.subcategory == "RESOURCE":
+                if self.agentType == CONST.VillageTypes.ENERGISTIC:
+                    self.production[item] = -random.random()
+                if self.agentType == CONST.VillageTypes.INDUSTRIOUS:
+                    self.production[item] = -random.random()
+                pass
+                
+            if item.subcategory == "FUEL":
+                if self.agentType == CONST.VillageTypes.ENERGISTIC:
+                    self.production[item] = random.random()
+                if self.agentType == CONST.VillageTypes.MILITANT:
+                    self.production[item] = -random.random()
+                pass
+                
+            if item.subcategory == "MEDICAL":
+                pass
+
+            if item.subcategory == "CONSUMER":
+                if self.agentType == CONST.VillageTypes.AGRICULTURAL:
+                    self.production[item] = -random.random()
+                if self.agentType == CONST.VillageTypes.ENERGISTIC:
+                    self.production[item] = -random.random()
+                if self.agentType == CONST.VillageTypes.INDUSTRIOUS:
+                    self.production[item] = random.random()
+
+            if item.subcategory == "TOOLS":
+                if self.agentType == CONST.VillageTypes.AGRICULTURAL:
+                    self.production[item] = -random.random()
+                if self.agentType == CONST.VillageTypes.INDUSTRIOUS:
+                    self.production[item] = random.random()
+                if self.agentType == CONST.VillageTypes.MILITANT:
+                    self.production[item] = random.random()
+                pass
+
+            if item.subcategory == "MEDIA":
+                pass
+
+            if item.subcategory == "INDUSTRIAL":
+                pass
 
         for agent in self.market.agents:
             #if the agent isn't itself, add a new relationship between them
@@ -160,9 +257,11 @@ class tradeAgent():
         return (unitCost , unitCount)
 
     def addGold(self,amount):
+        '''gain gold'''
         self.gold += 1
     
     def payGold(self,amount):
+        '''lose gold'''
         if self.gold < amount:
             self.gold = 0
         else:
@@ -181,9 +280,15 @@ class tradeAgent():
         self.addGold(value)
         self.econSize += 1
         pass
-    
 
-
+    def produce(self):
+        for item in self.needs:
+            self.needs[item] += self.production[item]
+            if self.needs[item] > 1: 
+                self.needs[item] = 1
+            if self.needs[item] < -1:
+                self.needs[item] = -1
+        
 if __name__ == "__main__":
     cargoList = CargoItems.ITEMS.keys()
     mark = Market(cargoList)
@@ -200,8 +305,7 @@ if __name__ == "__main__":
     buyOfferC = agentC.evaluateOffer(offer)
     print("{Name} would buy {count} {offer} for {value} each".format(Name=agentB.name,count=buyOfferB[1],offer=offer.item.ID,value = buyOfferB[0]))
     print("{Name} would buy {count} {offer} for {value} each".format(Name=agentC.name,count=buyOfferC[1],offer=offer.item.ID,value = buyOfferC[0]))
-    mark.makeTrade(offer,agentB)
-    print("{Name} bought {count} {offer} for {value} total".format(Name=agentB.name,count=buyOfferB[1],offer=offer.item.ID,value = buyOfferB[0]*buyOfferB[1]))
+    mark.DailyUpdate()
     print()
     print(mark)
     print()
