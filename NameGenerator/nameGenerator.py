@@ -62,6 +62,8 @@ def main():
 def getLastName(culture):
     '''gets a random last name from the culture data files'''
     #opens the surname file and takes one at random
+    if type(culture) != CONST.cultures:
+        culture = getMajorCulture(culture)
     cultureFolderPath = generatePath(culture)
     with open(cultureFolderPath + "surnames.txt") as f:
         names = f.readlines()

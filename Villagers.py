@@ -6,22 +6,33 @@ import CONST
 import math
 import Utilities
 import Familes
+import random
 #villager class
 class Villager:
 
-    def __init__(self,name,birthCycle,gender,**kwargs):
+    def __init__(self,name,birthCycle,gender,culture=None,**kwargs):
         '''name: villager name\n
         age: defaults to 0'''
         self.vName = name
         self.vBirthCycle = birthCycle
         self.vGender = gender
 
+        if culture == None:
+            culture = random.choice(list(CONST.cultures))
+            simpleCulture = dict()
+            for c in CONST.cultures:
+                simpleCulture[c] = 0
+            simpleCulture[culture] = 1
+            self.vCulture = simpleCulture
+        else:
+            self.vCulture = culture
+
         #parse keyword arguments
 
         if "family" in kwargs.keys():
             self.vFamily = kwargs["family"]
         else:
-            self.vFamily = Familes.Family()
+            self.vFamily = Familes.Family(nameGenerator.getLastName(self.vCulture))
 
         if "town" in kwargs.keys():
             self.town = kwargs["town"] 
@@ -214,7 +225,8 @@ class Villager:
         '''attempt a romantic relationship with another villager'''
         #if both parties are high enough relationship
         if self.reciprocatesRomance(otherVillager) and otherVillager.reciprocatesRomance(self):
-            self.town.addVillager(Villager(nameGenerator.makeName(),  25,'M',self.vFamily,self.currentLocation,self.town))
+            newCulture = mixCultures(self.vCulture, otherVillager.vCulture)
+            self.town.addVillager(Villager(nameGenerator.makeName(newCulture), 25,gender='M',family=self.vFamily,startLocation=self.currentLocation,town=self.town))
         else:
             #otherwise the villager loses 100 relation 
             self.changeRelation(otherVillager, -100)
@@ -250,4 +262,8 @@ class Villager:
         return result
 
 
-
+def mixCultures(culture1,culture2):
+    newCulture = dict()
+    for minorCulture in culture1:
+        newCulture[minorCulture] = (culture1[minorCulture] + culture2[minorCulture])/2
+    return newCulture
