@@ -7,7 +7,7 @@ sys.path.append(root_folder)
 import CONST
 
 def generatePath(culture):
-    cultureFile = "data/Cultures/"
+    cultureFile = root_folder+"/data/Cultures/"
     if culture == CONST.cultures.ROMAN:
         cultureFile += "Roman/"
     if culture == CONST.cultures.NOMAD:
@@ -15,43 +15,44 @@ def generatePath(culture):
     if culture == CONST.cultures.LIBERTARIAD:
         cultureFile += "Libertariad/"
     return cultureFile 
+
 #generate a name from the nameGen.txt file
 def makeName(culture):
-    sets = []
-    #open the syllable file 
-    cultureFolderPath = generatePath(culture)
-    with open(cultureFolderPath+"nameGen.txt") as f:
-        sets = []
-        set = []
-        pos = 0
-        #write in lines until it reaches a syllable boundary (limits on which syllables appear in which part of the name)
-        for line in f.readlines():
-            #reached a boundary
-            if line[0] == "$":
-                #randomly decide to stop at n syllables or extend again
-                r = random.randrange(0,100)
-                if (r > 100 - (100**(1/3))**pos):
-                    #end the name
-                    break
-                else:
-                    #extend another syllable, add set to sets
-                    pos += 1
-                    sets.append(set)
-                    set = []
-            #a syllable
-            else:
-                #if the length of the syllable is more than one letter, add it to the set
-                #not neccesary, but I think it makes the names look nicer
-                if len(line.strip()) > 1:
-                    set.append(line.strip())
-                pass
+    '''Generate a name as a mix of syllables dictated by the culture dict provided'''
+    #if the supplied culture is a basic constant, construct a simple culture and pass it
+    if type(culture) == CONST.cultures:
+        simpleCulture = dict()
+        for c in CONST.cultures:
+            simpleCulture[c] = 0
+        simpleCulture[culture] = 1
+        culture = simpleCulture
 
-    #construct the name
-    result = ""
-    for set in sets:
-        #pick a random syllable from each set of syllables 
-        result += set[random.randint(0,len(set)-1)]
-    return result
+    majorCulture = CONST.cultures.NOMAD
+    majorCultureVal = 0
+
+    length = 0
+    r = random.randrange(0,100)
+    name = ""
+    while (r < 100 - (100**(1/3))**length):
+        keys = list(culture.keys())
+        values = list(culture.values())        
+        minorCulture = random.choices(keys,values)[0]
+        
+        #open the chosen minor culture file
+        cultureFolderPath = generatePath(minorCulture)
+        with open(cultureFolderPath+"nameGen.txt") as f:
+            #write in lines until you find the one 
+            lineNum = 0
+            lines = f.readlines()
+            try:
+                options = lines[length].split(",")
+                name += random.choice(options).strip()
+            except Exception() as e:
+                print(e)
+        
+        r = random.randrange(0,100)
+        length += 1
+    return name
 
 #make a name and print it
 def main():
@@ -91,15 +92,29 @@ def getPlaceName(culture):
             pattern = pattern.format(NOUN=getNoun(culture))
         return pattern
 
+def getMajorCulture(culture):
+    majorCulture = CONST.cultures.NOMAD
+    majorCultureVal = 0
+    for minorCulture in culture:
+        if culture[minorCulture] > majorCultureVal:
+            majorCulture = minorCulture
+            majorCultureVal = culture[minorCulture]
+    return majorCulture
+
+
 def testNames(culture,iterations):
     '''creates iterations number of person and location names'''
+    majorCulture = getMajorCulture(culture)
     for x in range(iterations):
         first = makeName(culture)
-        last = getLastName(culture)
-        #location = "ipanema"
-        location = getPlaceName(culture)
+        last = getLastName(majorCulture)
+        location = getPlaceName(majorCulture)
         print("{first} {last} from {location}".format(first=first,last=last,location=location))
 
 
-if __name__ == "__main__":
-    testNames(CONST.cultures.NOMAD,10)
+if __name__ == "__main__":            
+    testCulture = dict()
+    testCulture[CONST.cultures.NOMAD] =  0
+    testCulture[CONST.cultures.LIBERTARIAD] = .5
+    testCulture[CONST.cultures.ROMAN] = .5
+    testNames(testCulture,10)

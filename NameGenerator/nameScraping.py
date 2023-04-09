@@ -2,6 +2,7 @@ from uuid import NAMESPACE_URL
 from nltk.tokenize import LegalitySyllableTokenizer
 from nltk.corpus import words
 import re
+import csv
 
 class NameScraper():
     '''a class to scrape the names.txt file into syllables'''
@@ -43,13 +44,9 @@ class NameScraper():
     #output the syllable list into a file
     def output(self,output):
         with open(output, "w") as f:
-            for pos in range(len(self.lists)):
-                f.write("$Len{pos}\n".format(pos=pos))
-                for i in range(len(self.lists[pos])):
-                    f.write(self.lists[pos][i])
-                    f.write("\n")
+            csvWriter = csv.writer(f,delimiter=',')
+            csvWriter.writerows(self.lists)
 
-#Scrape and output the result to nameGen.txt
 def main():
     #NS = NameScraper()
     #NS.scrapeSyllables("data/names.txt")
