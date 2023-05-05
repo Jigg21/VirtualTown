@@ -65,47 +65,62 @@ class ShipWindow():
         self.tab4 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab4,text="Map")
         self.map = MapCanvas(self.tab4) 
-    
+
+        #Weather Tab
+        self.tab5 = tk.Frame(self.tabControl,bg=bgColor)
+        self.tabControl.add(self.tab5,text="Weather")
+        self.weatherMap = WeatherMap(self.tab5)
     #update the ui to a new state
     def update(self):
         
         self.context = self.ship.getSimState()
+        tabCurrent = self.tabControl.index(self.tabControl.select())
+        render = (time.time() - self.LastDrawTime)  > 1/float(config["UI"]["REFRESHRATE"])
         #Update the townhall
         self.header.updateTownHall(self.context["gold"],self.context["temp"],self.context["Time"])
         self.header.pack(expand=False)
-
-        #update the villager list
-        self.villagers.updateList(self.context["VillagerList"])
-        self.villagers.pack(expand=False)
-
-        #update the detailed villager tab
-        self.villagerDisplay.update(self.context)
-        self.villagers.pack(expand=False)
-
-        #update cargo
-        self.cargo.updateMarquee(self.context["cargo"])
-        self.cargo.pack(expand=False)
-
-        self.events.updateMarquee(self.context["eventHandler"].getEventDescriptions())
-        self.events.pack(expand=False)
-
-        #update the buildings
-        self.buildingTab.updateText(self.context["BuildingString"])
-        self.buildingTab.pack(expand=False)
         
 
-        #update the Farm
-        if (time.time() - self.LastDrawTime)  > 1:
-            self.crops.updateCrops(self.context["crops"],self.context["Time"])
-            self.crops.pack(expand=False)
-            self.LastDrawTime = time.time()
-        
-        #update the task list
-        self.bTask.updateTasks(self.context["town"].bulletin.getTaskList())
-        self.bTask.pack()
+        if tabCurrent == 0:
+            #update the main page
+            #update the villager list
+            self.villagers.updateList(self.context["VillagerList"])
+            self.villagers.pack(expand=False)
 
-        #update the map
-        self.map.draw(self.context)
+            #update the detailed villager tab
+            self.villagerDisplay.update(self.context)
+            self.villagers.pack(expand=False)
+
+            #update cargo
+            self.cargo.updateMarquee(self.context["cargo"])
+            self.cargo.pack(expand=False)
+
+            self.events.updateMarquee(self.context["eventHandler"].getEventDescriptions())
+            self.events.pack(expand=False)
+
+            #update the buildings
+            self.buildingTab.updateText(self.context["BuildingString"])
+            self.buildingTab.pack(expand=False)
+                
+
+            #update the Farm
+            if render:
+                self.crops.updateCrops(self.context["crops"],self.context["Time"])
+                self.crops.pack(expand=False)
+                self.LastDrawTime = time.time()
+        
+        if tabCurrent == 1:
+            #update the task list
+            self.bTask.updateTasks(self.context["town"].bulletin.getTaskList())
+            self.bTask.pack()
+
+        if tabCurrent == 3 and render:
+            #update the map
+            self.map.draw(self.context)
+
+        if tabCurrent == 4 and render:
+            #update the weather map
+            self.weatherMap.draw(self.context)
 
         #Start it all over again
         self.root.after(1,self.update)
@@ -249,6 +264,92 @@ class MapCanvas(tk.Frame):
                     pCoordsX = (building[0] - upperCorner[0]) * unitSize
                     pCoordsY = (upperCorner[1] - building[1]) * unitSize
                     self.mapCanvas.create_rectangle(pCoordsX,pCoordsY,pCoordsX+unitSize,pCoordsY+unitSize,fill="black")
+
+#Display the world and weather
+class WeatherMap(tk.Frame):
+    def __init__(self,root):
+        self.mapCanvas = tk.Canvas(root,bg="grey",width=512,height=512)
+        self.mapCanvas.pack()
+        self.zoomLevel = 3
+        self.center = (1,1)
+
+        self.controlPanel = tk.Frame(root)
+        self.controlPanel.configure(bg=config["UI"]["DARKBACKGROUND"])
+        self.zoomButtons = tk.Frame(root)
+        self.zoomButtons.configure(bg=config["UI"]["DARKBACKGROUND"])
+
+        self.zoomInButton = tk.Button(self.zoomButtons,text="+",command=self.zoomIn)
+        self.zoomInButton.pack()
+
+        self.zoomOutButton = tk.Button(self.zoomButtons,text="-",command=self.zoomOut)
+        self.zoomOutButton.pack()
+
+        self.moveButtons = tk.Frame(self.controlPanel)
+        self.moveButtons.configure(bg=config["UI"]["DARKBACKGROUND"])
+
+        self.moveUpButton = tk.Button(self.moveButtons,text="^",command=self.moveCenterUp)
+        self.moveUpButton.pack()
+
+        self.moveDownButton = tk.Button(self.moveButtons,text="v",command=self.moveCenterDown)
+        self.moveDownButton.pack(side=tk.BOTTOM) 
+
+        self.moveLeftButton = tk.Button(self.moveButtons,text=">",command=self.moveCenterLeft)
+        self.moveLeftButton.pack(side=tk.RIGHT)
+
+        self.moveRightButton = tk.Button(self.moveButtons,text="<",command=self.moveCenterRight)
+        self.moveRightButton.pack(side=tk.LEFT) 
+        self.zoomButtons.pack(side=tk.LEFT)
+        self.moveButtons.pack(side=tk.RIGHT)
+        self.controlPanel.pack()
+
+    def zoomOut(self):
+        self.zoomLevel += 1
+    
+    def zoomIn(self):
+        self.zoomLevel -= 1
+
+    def moveCenterUp(self):
+        self.center = (self.center[0],self.center[1]+1)
+    
+    def moveCenterDown(self):
+        self.center = (self.center[0],self.center[1]-1)
+    
+    def moveCenterLeft(self):
+        self.center = (self.center[0]+1,self.center[1])
+    
+    def moveCenterRight(self):
+        self.center = (self.center[0] -1 ,self.center[1])
+
+    #draw a rectangle
+    def createBuilding(self,coords):
+        #TODO: Make it look better
+        self.mapCanvas.create_rectangle()
+    
+    def draw(self,data):
+        '''draw the town'''
+        #TODO: Improve performance
+        acres = []
+        for a in data["weather"].map:
+            for acre in a:
+                acres.append(acre)
+        
+        #reset the window
+        self.mapCanvas.delete("all")
+        #calculate the draw window
+        #if the zoom level is 9, just check the center
+        if self.zoomLevel == 0:
+            if self.center in acres:
+                self.mapCanvas.create_rectangle(0,0,512,512,fill="black")
+        else:
+            #determine the draw window by number of units 
+            upperCorner = (self.center[0] - self.zoomLevel, self.center[1] + self.zoomLevel)
+            lowerCorner = (self.center[0] + self.zoomLevel, self.center[1] - self.zoomLevel)
+            unitSize = 512/2**(self.zoomLevel)
+            for a in acres:
+                if Utilities.coordsInRange(upperCorner,lowerCorner,a.pos):
+                    pCoordsX = (a.pos[0] - upperCorner[0]) * unitSize
+                    pCoordsY = (upperCorner[1] - a.pos[1]) * unitSize
+                    self.mapCanvas.create_rectangle(pCoordsX,pCoordsY,pCoordsX+unitSize,pCoordsY+unitSize,fill=a.getWeatherColor())
 
 #displays the time and date
 class TimeObj(tk.Frame):
