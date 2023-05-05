@@ -70,6 +70,11 @@ class ShipWindow():
         self.tab5 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab5,text="Weather")
         self.weatherMap = WeatherMap(self.tab5)
+
+        #Weather Tab
+        self.tab5 = tk.Frame(self.tabControl,bg=bgColor)
+        self.tabControl.add(self.tab5,text="Weather")
+        self.weatherMap = WeatherMap(self.tab5)
     #update the ui to a new state
     def update(self):
         

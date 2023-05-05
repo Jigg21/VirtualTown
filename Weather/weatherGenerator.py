@@ -15,6 +15,21 @@ class WeatherAcre():
             return "#30e351"
         else:
             return "#30b9e3"
+import random
+
+class WeatherAcre():
+    def __init__(self,pos,temp=0,humidity=0,pressure=0) -> None:
+        self.pos = pos
+        self.temp = 0
+        self.humidity = 0
+        self.pressure = 0
+    
+    def getWeatherColor(self):
+        if self.temp > .5:
+            return "#30e351"
+        else:
+            return "#30b9e3"
+
 
 class weatherManager():
     def __init__(self,startingSeason = CONST.season.EARLYSPRING) -> None:
