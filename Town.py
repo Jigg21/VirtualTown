@@ -43,6 +43,7 @@ class Ship:
         self.treasury = 1000
         self.bulletin = TaskMngmt.bulletinBoard(self)
         self.eventHandler = ShipEvents.EventHandler()
+        self.weatherMan = weatherGenerator.weatherManager()
 
         #buildings
         townHall = Buildings.TownHall("Town Hall",False,0,self,(0,0))
@@ -58,6 +59,8 @@ class Ship:
         townTavern = Buildings.Tavern("Tavern",False,5,self, (-1,-2))
         self.addBuilding(townTavern)
         self.createAdvisor()
+
+
 
         #villagers
         family1 = Familes.Family(nameGenerator.getLastName(CONST.cultures.NOMAD))
@@ -220,6 +223,7 @@ class Ship:
         return self.context
 
     def getSimState(self):
+        '''Generate the context dictionary given the current game state'''
         townData = dict()
         townData["town"] = self
         townData["Time"] = self.townAgeReadable
@@ -234,6 +238,7 @@ class Ship:
         townData["temp"] = self.getShipTemp()
         townData["cargo"] = self.cargo
         townData["eventHandler"] = self.eventHandler
+        townData["weather"] = self.weatherMan
         return townData
 
     def createAdvisor(self):
