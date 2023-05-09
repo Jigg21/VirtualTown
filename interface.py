@@ -4,7 +4,7 @@ from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext, messagebox, 
 import Utilities
 import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
-from threading import Thread
+from PIL import Image, ImageTk
 import signal
 import pickle
 import os
@@ -65,11 +65,6 @@ class ShipWindow():
         self.tab4 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab4,text="Map")
         self.map = MapCanvas(self.tab4) 
-
-        #Weather Tab
-        self.tab5 = tk.Frame(self.tabControl,bg=bgColor)
-        self.tabControl.add(self.tab5,text="Weather")
-        self.weatherMap = WeatherMap(self.tab5)
 
         #Weather Tab
         self.tab5 = tk.Frame(self.tabControl,bg=bgColor)
@@ -309,6 +304,7 @@ class WeatherMap(tk.Frame):
 
 
     def initialize(self,data):
+        return
         self.mapDict = dict()
         acres = []
         for row in data["weather"].map:
@@ -360,27 +356,13 @@ class WeatherMap(tk.Frame):
         '''draw the town'''
         #TODO: Improve performance
         acres = []
-        for a in data["weather"].map:
-            for acre in a:
-                acres.append(acre)
+        pixels = Image.new(mode="RGB",size=(1024,1024)) # create the pixel map
+
+        for i in range(1024): # for every pixel:
+            for j in range(1024):
+                pixels.putpixel((i, j), (255, 0, 0))
         
-        #reset the window
-        self.mapCanvas.delete("all")
-        #calculate the draw window
-        #if the zoom level is 9, just check the center
-        if self.zoomLevel == 0:
-            if self.center in acres:
-                self.mapCanvas.create_rectangle(0,0,512,512,fill="black")
-        else:
-            #determine the draw window by number of units 
-            upperCorner = (self.center[0] - self.zoomLevel, self.center[1] + self.zoomLevel)
-            lowerCorner = (self.center[0] + self.zoomLevel, self.center[1] - self.zoomLevel)
-            unitSize = 512/2**(self.zoomLevel)
-            for a in acres:
-                if Utilities.coordsInRange(upperCorner,lowerCorner,a.pos):
-                    pCoordsX = (a.pos[0] - upperCorner[0]) * unitSize
-                    pCoordsY = (upperCorner[1] - a.pos[1]) * unitSize
-                    self.mapCanvas.create_rectangle(pCoordsX,pCoordsY,pCoordsX+unitSize,pCoordsY+unitSize,fill=a.getWeatherColor())
+        #self.mapCanvas.create_image()
 
 #displays the time and date
 class TimeObj(tk.Frame):

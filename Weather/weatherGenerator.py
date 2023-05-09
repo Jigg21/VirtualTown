@@ -41,6 +41,7 @@ class weatherManager():
             for y in range(0,1024):
                 row.append(WeatherAcre((x,y),temp=random.random()))
             self.map.append(row)
+            
     def getDayLightHours(self):
         day = 59
         declination = -23.45 * math.cos(360/365*(day+10))
