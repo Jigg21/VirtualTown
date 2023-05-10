@@ -4,7 +4,7 @@ from Networking import TownNetworkingClient as ONC
 from threading import Thread, Event
 from NameGenerator import nameGenerator
 from Events import ShipEvents
-from Weather import weatherGenerator
+from WorldGen import weatherGenerator
 import CaptainsLog
 import time
 import math

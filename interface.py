@@ -356,9 +356,9 @@ class WeatherMap(tk.Frame):
         '''draw the town'''
         #TODO: Improve performance
         weatherData = data["weather"]
-        img = Image.new(mode="RGB",size=(256,256)) # create the pixel map
+        img = Image.new(mode="RGB",size=(int(config["WORLDGEN"]["WORLDSIZE"]),int(config["WORLDGEN"]["WORLDSIZE"]))) # create the pixel map
         img = img.convert("RGB")
-        d = img.getdata()
+        #d = img.getdata()
         new_image = []
         for x in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
             for y in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
@@ -368,7 +368,7 @@ class WeatherMap(tk.Frame):
         img.putdata(new_image)
         map = ImageTk.PhotoImage(image=img)
         self.mapCanvas.config(image=map)
-        self.mapCanvas.pack(x=0,y=0)
+        self.mapCanvas.pack()
         #self.mapCanvas.create_image()
 
 #displays the time and date

@@ -70,3 +70,10 @@ class cultures(Enum):
     LIBERTARIAD = 0
     NOMAD = 1
     ROMAN = 2
+
+class Biomes(Enum):
+    LAKE = 0
+    DESERT = 1
+    FORREST = 2
+    PLAINS = 3
+    MOUNTAINS = 4
