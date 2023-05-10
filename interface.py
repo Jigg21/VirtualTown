@@ -268,7 +268,7 @@ class MapCanvas(tk.Frame):
 #Display the world and weather
 class WeatherMap(tk.Frame):
     def __init__(self,root):
-        self.mapCanvas = tk.Canvas(root,bg="grey",width=512,height=512)
+        self.mapCanvas = tk.Label(root)
         self.mapCanvas.pack()
         self.zoomLevel = 3
         self.center = (1,1)
@@ -355,13 +355,20 @@ class WeatherMap(tk.Frame):
     def draw(self,data):
         '''draw the town'''
         #TODO: Improve performance
-        acres = []
-        pixels = Image.new(mode="RGB",size=(1024,1024)) # create the pixel map
-
-        for i in range(1024): # for every pixel:
-            for j in range(1024):
-                pixels.putpixel((i, j), (255, 0, 0))
-        
+        weatherData = data["weather"]
+        img = Image.new(mode="RGB",size=(256,256)) # create the pixel map
+        img = img.convert("RGB")
+        d = img.getdata()
+        new_image = []
+        for x in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
+            for y in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
+                new_image.append(weatherData.map[(x,y)].getWeatherColor())
+ 
+        # update image data
+        img.putdata(new_image)
+        map = ImageTk.PhotoImage(image=img)
+        self.mapCanvas.config(image=map)
+        self.mapCanvas.pack(x=0,y=0)
         #self.mapCanvas.create_image()
 
 #displays the time and date
