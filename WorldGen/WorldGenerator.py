@@ -1,4 +1,3 @@
-
 from PIL import Image
 import os
 import sys
@@ -7,61 +6,62 @@ sys.path.append(root_folder)
 from ConfigReader import ConfigData as config
 import random
 import CONST
+import opensimplex
+from perlin_noise import PerlinNoise
+import matplotlib.pyplot as plt
+from progress.bar import PixelBar
 
 class WorldObj():
     def __init__(self) -> None:
         self.map = Image.new(mode="RGB",size=(int(config["WORLDGEN"]["WORLDSIZE"]),int(config["WORLDGEN"]["WORLDSIZE"]))) # create the pixel map
+        #pos:mapacre dictionary
         self.mapObj = dict()
         #self.map = self.map.convert("RGB")
-        seeds = dict()
+        regions = []
+        #noise = PerlinNoise(octaves=12)
+        
+        for i in range(config["WORLDGEN"]["BIOMECOUNT"]):
+            self.regions = MapRegion(random.randrange(0,config["WORLDGEN"]["WORLDSIZE"]))
+        
 
-        #generate a given number of biome seeds
-        for biome in range(int(config["WORLDGEN"]["BIOMECOUNT"])+1):
-            pos = (random.randrange(0,int(config["WORLDGEN"]["WORLDSIZE"])), random.randrange(0,int(config["WORLDGEN"]["WORLDSIZE"])))
-            biomeChoice = random.choice(list(CONST.Biomes))
-            seeds[pos] = biomeChoice
-            print("{BIOME} centered at {POS}".format(BIOME=biomeChoice,POS=pos))
 
-        newImage = []
-        i=0
-        #for each biome on the world map
-        for x in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
-            for y in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
-                biome = None
-                if (x,y) not in seeds:
-                    closest = getClosestSeed((x,y),seeds)
-                    self.mapObj[(x,y)] = MapAcre((x,y),seeds[closest])
-                    biome = seeds[closest]
-                else:
-                    self.mapObj[(x,y)] = MapAcre((x,y),seeds[(x,y)])
-                    biome = seeds[(x,y)]
-                if biome == CONST.Biomes.DESERT:
-                    newImage.append((196, 193, 100))
-                elif biome == CONST.Biomes.FORREST:
-                    newImage.append((9, 189, 81))
-                elif biome == CONST.Biomes.LAKE:
-                    newImage.append((0, 0, 200))
-                elif biome == CONST.Biomes.PLAINS:
-                    newImage.append((93, 158, 89))
-                else:
-                    newImage.append((0,0,0))
-                
+        newImage=[]
+        size = int(config["WORLDGEN"]["WORLDSIZE"])
+        with PixelBar('Generating terrain',max=size**2) as bar:
+            for i in range(size):
+                for j in range(size):
+                    newImage.append((int(opensimplex.noise2(i,j)*255),0,0))
+                    bar.next()
 
-        print(len(newImage))
         self.map.putdata(newImage)
         self.map.save("Map.png")
 
 
 class MapAcre():
+    '''Class that defines the smallest unit of the map'''
     def __init__(self,pos,biome) -> None:
         self.pos = pos
         self.biome = biome
+        self.region = None
+        self.Plate = None
+
+    def setRegion(self,region):
+        self.region = region
+
+class MapRegion():
+    '''Class that splits the map into polygon regions'''
+    def __init__(self,center) -> None:
+        self.center = center
+        self.acres = []
+
+    def distanceToPoint(self,pos):
+        CONST.getPythagoreanDistance(self.center,self.pos)
 
 def getClosestSeed(pos,seeds):
     closest = None
     closestVal = 10000000
     for seed in seeds.keys():
-        dist = getPythagoreanDistance(pos,seed)
+        dist = CONST.getPythagoreanDistance(pos,seed)
         if  dist < closestVal:
             closestVal = dist
             closest = seed
@@ -69,8 +69,7 @@ def getClosestSeed(pos,seeds):
     return closest
 
 
-def getPythagoreanDistance(pos1,pos2):
-    return ((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)**.5
+
 
 def main():
     WorldObj()

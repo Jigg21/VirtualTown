@@ -69,7 +69,8 @@ class ShipWindow():
         #Weather Tab
         self.tab5 = tk.Frame(self.tabControl,bg=bgColor)
         self.tabControl.add(self.tab5,text="Weather")
-        self.weatherMap = WeatherMap(self.tab5)
+        self.worldMap = WorldMap(self.tab5)
+    
     #update the ui to a new state
     def update(self):
         
@@ -118,9 +119,12 @@ class ShipWindow():
             #update the map
             self.map.draw(self.context)
 
-        if tabCurrent == 4 and render:
-            #update the weather map
-            self.weatherMap.draw(self.context)
+        
+        if tabCurrent == 4:
+            #update the map
+            self.worldMap.getData(self.context)
+        
+        
 
         #Start it all over again
         self.root.after(1,self.update)
@@ -266,7 +270,7 @@ class MapCanvas(tk.Frame):
                     self.mapCanvas.create_rectangle(pCoordsX,pCoordsY,pCoordsX+unitSize,pCoordsY+unitSize,fill="black")
 
 #Display the world and weather
-class WeatherMap(tk.Frame):
+class WorldMap(tk.Frame):
     def __init__(self,root):
         self.mapCanvas = tk.Label(root)
         self.mapCanvas.pack()
@@ -298,13 +302,18 @@ class WeatherMap(tk.Frame):
 
         self.moveRightButton = tk.Button(self.moveButtons,text="<",command=self.moveCenterRight)
         self.moveRightButton.pack(side=tk.LEFT) 
+
+        self.updateButton = tk.Button(self.moveButtons,text="Update",command=self.manualUpdate)
+        self.updateButton.pack(side=tk.LEFT) 
+
         self.zoomButtons.pack(side=tk.LEFT)
+
         self.moveButtons.pack(side=tk.RIGHT)
         self.controlPanel.pack()
-
+        
+        self.context = None
 
     def initialize(self,data):
-        return
         self.mapDict = dict()
         acres = []
         for row in data["weather"].map:
@@ -334,6 +343,13 @@ class WeatherMap(tk.Frame):
     
     def zoomIn(self):
         self.zoomLevel -= 1
+
+    def manualUpdate(self):
+        self.draw(self.context)
+
+
+    def getData(self,context):
+        self.context = context
 
     def moveCenterUp(self):
         self.center = (self.center[0],self.center[1]+1)

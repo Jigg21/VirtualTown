@@ -1,6 +1,7 @@
 Saves/*
 NameGenerator/input.txt
 NameGenerator/output.txt
+Resources/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

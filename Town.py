@@ -19,6 +19,7 @@ import signal
 import TaskMngmt
 import Familes
 import pickle
+from WorldGen import WorldGenerator
 
 #contains all ship-wide events and variables
 class Ship:
@@ -44,6 +45,7 @@ class Ship:
         self.bulletin = TaskMngmt.bulletinBoard(self)
         self.eventHandler = ShipEvents.EventHandler()
         self.weatherMan = weatherGenerator.weatherManager()
+        self.WorldGen = WorldGenerator.WorldObj()
 
         #buildings
         townHall = Buildings.TownHall("Town Hall",False,0,self,(0,0))
