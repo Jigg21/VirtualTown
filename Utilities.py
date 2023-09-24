@@ -86,9 +86,17 @@ def truncateDecimal(f,places):
     return result
 
 
-def coordsInRange(upperCorner,lowerCorner,Coord):
+def coordsInRange(Coord,upperCorner,lowerCorner=(0,0)):
     '''returns true if coord is within a box defined by upperCorner and lowerCorner
         coords should be given in a tuple of ints'''
     x = upperCorner[0] <= Coord[0] and Coord[0] <= lowerCorner[0]
     y = upperCorner[1] >= Coord[1] and Coord[1] >= lowerCorner[1]
     return x and y
+
+def coordsOnScreen(sizeX,sizeY,coord):
+    x = coord[0] >= 0 and coord[0] < sizeX
+    y = coord[1] >= 0 and coord[1] < sizeY
+    return x and y
+
+def getPythagoreanDistance(pos1,pos2):
+    return ((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)**.5

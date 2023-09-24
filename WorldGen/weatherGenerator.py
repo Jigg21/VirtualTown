@@ -23,8 +23,8 @@ class weatherManager():
         self.map = dict()
         #create random weather patterns
         #TODO: Make the weather be influenced by the landscape
-        for x in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
-            for y in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
+        for x in range(0,int(config["WORLDGEN"]["WORLDSIZEX"])):
+            for y in range(0,int(config["WORLDGEN"]["WORLDSIZEY"])):
                 self.map[(x,y)] = WeatherAcre((x,y),temp=random.random())
         
     def getDayLightHours(self):

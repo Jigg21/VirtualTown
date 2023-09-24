@@ -264,7 +264,7 @@ class MapCanvas(tk.Frame):
             lowerCorner = (self.center[0] + self.zoomLevel, self.center[1] - self.zoomLevel)
             unitSize = 512/2**(self.zoomLevel)
             for building in buildings:
-                if Utilities.coordsInRange(upperCorner,lowerCorner,building):
+                if Utilities.coordsInRange(building,upperCorner,lowerCorner):
                     pCoordsX = (building[0] - upperCorner[0]) * unitSize
                     pCoordsY = (upperCorner[1] - building[1]) * unitSize
                     self.mapCanvas.create_rectangle(pCoordsX,pCoordsY,pCoordsX+unitSize,pCoordsY+unitSize,fill="black")
@@ -334,7 +334,7 @@ class WorldMap(tk.Frame):
             lowerCorner = (self.center[0] + self.zoomLevel, self.center[1] - self.zoomLevel)
             unitSize = 512/2**(self.zoomLevel)
             for a in acres:
-                if Utilities.coordsInRange(upperCorner,lowerCorner,a.pos):
+                if Utilities.coordsInRange(a.pos,upperCorner,lowerCorner):
                     pCoordsX = (a.pos[0] - upperCorner[0]) * unitSize
                     pCoordsY = (upperCorner[1] - a.pos[1]) * unitSize
     
@@ -372,12 +372,12 @@ class WorldMap(tk.Frame):
         '''draw the town'''
         #TODO: Improve performance
         weatherData = data["weather"]
-        img = Image.new(mode="RGB",size=(int(config["WORLDGEN"]["WORLDSIZE"]),int(config["WORLDGEN"]["WORLDSIZE"]))) # create the pixel map
+        img = Image.new(mode="RGB",size=(int(config["WORLDGEN"]["WORLDSIZEX"]),int(config["WORLDGEN"]["WORLDSIZEY"]))) # create the pixel map
         img = img.convert("RGB")
         #d = img.getdata()
         new_image = []
-        for x in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
-            for y in range(0,int(config["WORLDGEN"]["WORLDSIZE"])):
+        for x in range(0,int(config["WORLDGEN"]["WORLDSIZEX"])):
+            for y in range(0,int(config["WORLDGEN"]["WORLDSIZEY"])):
                 new_image.append(weatherData.map[(x,y)].getWeatherColor())
  
         # update image data
