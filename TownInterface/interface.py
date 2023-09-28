@@ -1,5 +1,5 @@
 import tkinter as tk
-from ConfigReader import ConfigData as config
+from Utilities.ConfigReader import ConfigData as config
 from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext, messagebox, filedialog
 import Utilities
 import time

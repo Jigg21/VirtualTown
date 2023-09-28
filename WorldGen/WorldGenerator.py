@@ -3,10 +3,9 @@ import os
 import sys
 root_folder = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_folder)
-from ConfigReader import ConfigData as config
+from Utilities.ConfigReader import ConfigData as config
 import random
-import CONST
-import opensimplex
+from Utilities import CONST
 from perlin_noise import PerlinNoise
 import matplotlib.pyplot as plt
 from progress.bar import PixelBar
@@ -123,7 +122,7 @@ class MapRegion():
         neighbors = []
         for dir in CARDINAL:
             newPos = tuple(sum(x) for x in zip(pos, dir))
-            if Utilities.coordsOnScreen(SIZEX,SIZEY,newPos):
+            if Utilities.Utilities.coordsOnScreen(SIZEX,SIZEY,newPos):
                 if world[newPos].region == None:
                     neighbors.append(world[newPos])
         return neighbors

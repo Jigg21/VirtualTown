@@ -1,9 +1,9 @@
 import math
-import CargoItems
+import Buildings.Market.CargoItems as CargoItems
 import csv
 import random
-from ConfigReader import ConfigData as config
-import CONST
+from Utilities.ConfigReader import ConfigData as config
+from Utilities import CONST
 from NameGenerator import nameGenerator
 
 class tradeOffer():

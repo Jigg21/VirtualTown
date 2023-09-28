@@ -1,11 +1,11 @@
-from ConfigReader import ConfigData as config
-from VillagerNodes import tree_VillagerBehaviorTree
+from Utilities.ConfigReader import ConfigData as config
+from BehaviorTree.VillagerNodes import tree_VillagerBehaviorTree
 from NameGenerator import nameGenerator
 from BehaviorTree import BT
-import CONST
+from Utilities import CONST
 import math
 import Utilities
-import Familes
+from Townspeople import Familes
 import random
 #villager class
 class Villager:

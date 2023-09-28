@@ -1,6 +1,6 @@
 import math
 import random
-from ConfigReader import ConfigData as config
+from Utilities.ConfigReader import ConfigData as config
 
 #converts readable time to ticks
 def convertTimeToTicks(timeString):

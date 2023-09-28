@@ -1,5 +1,5 @@
-from CONST import EventTypes, EventSeverity
-from ConfigReader import ConfigData as config
+from Utilities.CONST import EventTypes, EventSeverity
+from Utilities.ConfigReader import ConfigData as config
 import random
 
 '''BASE CLASES'''
@@ -10,7 +10,7 @@ class EventHandler():
 
         #Events that can activate randomly
         self.randomEvents = list()
-        self.randomEvents.append(GoldHitsShip)
+        self.randomEvents.append(GoldMeteoroidHitsShip)
     
     def addEvent(self,event):
         self.activeEvents.append(event)
@@ -26,7 +26,7 @@ class EventHandler():
         for randomEvent in self.randomEvents:
             #if the random event happens
             if randomEvent.rollForActivation(context):
-                self.activeEvents.append(randomEvent(context))
+                self.activeEvents.append(randomEvent[0](context))
     
     def getEventDescriptions(self):
         '''gets a string representation of the active events'''
@@ -45,7 +45,6 @@ class ShipEvents():
     severity = EventSeverity.NEGLIGIBLE
     def __init__(self,context) -> None:
         startTime = context["Cycle"]
-
         #if the event is completed
         self.finished = False
         #assigns the timing information for non-conditional events
@@ -73,9 +72,9 @@ class ShipEvents():
 
     def rollForActivation(context) -> (bool):
         '''roll for if the event should activate'''
-        roll = 1-random.random()
-        if ShipEvents.probability > roll:
-            if ShipEvents.precondition(context):
+        roll = 1-random.random
+        if cls.probability > roll:
+            if cls.precondition(context):
                 return True
         return False
 
@@ -100,8 +99,8 @@ class ShipEvents():
 
 '''EVENT DECLARATIONS'''
 
-class GoldHitsShip(ShipEvents):
-    desc = "BREAKING! A rock has hit the ship, initial scans suggest it to be made of solid gold!"
+class GoldMeteoroidHitsShip(ShipEvents):
+    desc = "BREAKING! A meteoroid has hit the ship, initial scans suggest it to be made of solid gold!"
     eventType = EventTypes.INSTANT
     probability = 0.0001
     severity = EventSeverity.MINOR
@@ -110,10 +109,11 @@ class GoldHitsShip(ShipEvents):
         ship.addTreasury(1000)
 
 class LibertariadTradeWar(ShipEvents):
-    desc = "The Libertariad has decreed our Town a threat to oceanic security"
+    desc = "The Libertariad has decreed our Town a threat to galactic security"
     eventType = EventTypes.TEMPORARY
     probability = 0.000001
     severity = EventSeverity.EMERGENCY
     duration = 10000
     def activate(self,context):
-        ship = context["town"]     
+        ship = context["town"]
+        

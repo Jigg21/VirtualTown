@@ -1,11 +1,11 @@
 import math
 import random
-from ConfigReader import ConfigData as config
-import Villagers
-import CaptainsLog
-import Utilities
-import CONST
-import CargoItems
+from Utilities.ConfigReader import ConfigData as config
+from Townspeople import Villagers
+from Town import CaptainsLog
+from Utilities import Utilities
+from Utilities import CONST
+from Buildings.Market  import CargoItems
 
 TAVERNCOMRADETHRESHOLD = 0
 
