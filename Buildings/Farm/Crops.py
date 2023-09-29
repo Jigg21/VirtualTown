@@ -1,6 +1,4 @@
-import json
 import csv
-import Utilities
 import os
 
 CROPDATA = None

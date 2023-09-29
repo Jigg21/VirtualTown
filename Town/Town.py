@@ -1,23 +1,23 @@
-from ConfigReader import ConfigData as config
-from Advisor import TownAdvisor
+from Utilities.ConfigReader import ConfigData as config
+from Town.Advisor import TownAdvisor
 from Networking import TownNetworkingClient as ONC
 from threading import Thread, Event
 from NameGenerator import nameGenerator
 from Events import ShipEvents
 from WorldGen import weatherGenerator
-import CaptainsLog
+from Town import CaptainsLog
 import time
 import math
-import Utilities
-import interface as UI
+from Utilities import Utilities
+from TownInterface import interface as UI
 import traceback
 import Buildings
-import Villagers
+from Townspeople import Villagers
 import traceback
-import CONST
+from Utilities import CONST
 import signal
-import TaskMngmt
-import Familes
+from Townspeople import TaskMngmt
+from Townspeople import Familes
 import pickle
 from WorldGen import WorldGenerator
 
@@ -48,17 +48,17 @@ class Ship:
         self.WorldGen = WorldGenerator.WorldObj()
 
         #buildings
-        townHall = Buildings.TownHall("Town Hall",False,0,self,(0,0))
+        townHall = Buildings.Buildings.TownHall("Town Hall",False,0,self,(0,0))
         self.setTownHall(townHall)
-        townRestaurant = Buildings.Restaurant("Restaurant",False,1,self, (1,1))
-        townFarm = Buildings.Farm("Farm",False,2,self, (2,2))
-        townMine = Buildings.Mine("Mine",False,3,self, (-1,-1))
+        townRestaurant = Buildings.Buildings.Restaurant("Restaurant",False,1,self, (1,1))
+        townFarm = Buildings.Buildings.Farm("Farm",False,2,self, (2,2))
+        townMine = Buildings.Buildings.Mine("Mine",False,3,self, (-1,-1))
         self.addBuilding(townRestaurant)
         self.addBuilding(townMine)
         self.addBuilding(townFarm)
-        townTradeHub = Buildings.TradeHub("Trade Hub",False,4,self,(-1,0))
+        townTradeHub = Buildings.Buildings.TradeHub("Trade Hub",False,4,self,(-1,0))
         self.addBuilding(townTradeHub)
-        townTavern = Buildings.Tavern("Tavern",False,5,self, (-1,-2))
+        townTavern = Buildings.Buildings.Tavern("Tavern",False,5,self, (-1,-2))
         self.addBuilding(townTavern)
         self.createAdvisor()
 

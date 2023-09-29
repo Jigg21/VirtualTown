@@ -1,4 +1,4 @@
-import CONST
+from Utilities import CONST
 
 class Task:
     '''base class for all tasks villagers can do'''

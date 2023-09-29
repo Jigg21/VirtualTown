@@ -1,11 +1,10 @@
 import math
-from Buildings import TradeHub
-from Crops import *
+from Buildings.Buildings import TradeHub
+from Buildings.Farm import Crops
 import Utilities
-import CaptainsLog
-import Villagers
-import CargoItems
-import TaskMngmt
+from Town import CaptainsLog
+from Buildings.Market import CargoItems
+from Townspeople import TaskMngmt
 
 class TownAdvisor():
     ship = None
@@ -46,8 +45,8 @@ class TownAdvisor():
         #ensure that crops will grown before town starves
         starvationTime = self.calculateTimeToStarvation()
         possibleCrops = dict()
-        data = getCropData()
-        for c in getCropData():
+        data = Crops.getCropData()
+        for c in Crops.getCropData():
             crop = data[c]
             #if the crop can be grown before starvation, calculate the ratio of value over growunits
             if (crop["cropRipe"]/5)*1440 < starvationTime:
@@ -56,7 +55,7 @@ class TownAdvisor():
         if len(possibleCrops) == 0:
             fastestGrowth = math.inf
             fastestCrop = None
-            for c in getCropData():
+            for c in Crops.getCropData():
                 crop = data[c]
                 if crop["cropRipe"] < fastestGrowth:
                     fastestGrowth = crop["cropRipe"]
@@ -108,7 +107,7 @@ class TownAdvisor():
             #Plant up to the maximum crops    
             if (len(farm.crops) < farm.maximumCrops):
                 for i in range(0,farm.maximumCrops- len(farm.crops)):
-                    newCrop = Crop(farm, self.chooseBestCrop(),townData["Cycle"])
+                    newCrop = Crops.Crop(farm, self.chooseBestCrop(),townData["Cycle"])
                     self.ship.bulletin.postJob(TaskMngmt.Task(farm.plantCrop,newCrop.harvestLaborReq,farm,"Planting {crop}".format(crop=newCrop.cropName),5,[newCrop]))
         
         #TODO: Add mine logic

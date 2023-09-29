@@ -4,7 +4,7 @@ import sys
 root_folder = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_folder)
 
-import CONST
+from Utilities import CONST
 
 def generatePath(culture):
     cultureFile = root_folder+"/data/Cultures/"

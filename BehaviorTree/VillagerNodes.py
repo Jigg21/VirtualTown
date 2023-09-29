@@ -1,5 +1,5 @@
 from BehaviorTree import BT
-import CONST
+from Utilities import CONST
 
 #TODO: make a formal Test function for test tree
 class TestNode_ConstantState(BT.Node):

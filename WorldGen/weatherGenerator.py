@@ -1,8 +1,8 @@
 import sys
-import CONST
+from Utilities import CONST
 import math
 import random
-from ConfigReader import ConfigData as config
+from Utilities.ConfigReader import ConfigData as config
 
 class WeatherAcre():
     def __init__(self,pos,temp=0,humidity=0,pressure=0) -> None:
