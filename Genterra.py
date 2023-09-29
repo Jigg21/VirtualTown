@@ -4,19 +4,20 @@ from Town import CaptainsLog
 from Town import Town
 import sys
 import time
-from Events import ShipEvents
 from TownInterface import interface as UI
 import traceback
 import signal
+import threading
+
 
 
 def main(args):
-    print(args)
     command = args[1]
     if command == "renderPlanet":
+        print("Doing My Best!")
         RenderInterface.Renderer().initialize()
     elif command == "play":
-           #test = weatherGenerator.weatherManager()
+        #test = weatherGenerator.weatherManager()
         #print(test.getDayLightHours())
         #return 
         online = config.getboolean("NETWORKING","ONLINE")
@@ -42,7 +43,7 @@ def main(args):
         else:
             try:
                 #start the offline update thread
-                pauseEvent = ShipEvents.Event()
+                pauseEvent = threading.Event()
                 sim = Town.OfflineUpdate(testTown,pauseEvent)
                 sim.start()
                 if config.getboolean("VALUES","USEUI"):

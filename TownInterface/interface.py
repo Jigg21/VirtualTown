@@ -1,7 +1,7 @@
 import tkinter as tk
 from Utilities.ConfigReader import ConfigData as config
 from tkinter import OptionMenu, StringVar, Text, ttk, scrolledtext, messagebox, filedialog
-import Utilities
+from Utilities import Utilities
 import time
 from tkinter.constants import BOTH, DISABLED, END, INSERT, LEFT, VERTICAL
 from PIL import Image, ImageTk

@@ -2,9 +2,8 @@ from Utilities.ConfigReader import ConfigData as config
 from BehaviorTree.VillagerNodes import tree_VillagerBehaviorTree
 from NameGenerator import nameGenerator
 from BehaviorTree import BT
-from Utilities import CONST
+from Utilities import CONST, Utilities
 import math
-import Utilities
 from Townspeople import Familes
 import random
 #villager class
