@@ -2,25 +2,24 @@ from TownInterface import RenderInterface
 from Utilities.ConfigReader import ConfigData as config
 from Town import CaptainsLog
 from Town import Town
-import sys
 import time
 from TownInterface import interface as UI
 import traceback
 import signal
 import threading
-
+import argparse
 
 
 def main(args):
-    command = args[1]
-    if command == "renderPlanet":
+    if args.render:
         print("Doing My Best!")
         RenderInterface.Renderer().initialize()
-    elif command == "play":
+    else:
+
         #test = weatherGenerator.weatherManager()
         #print(test.getDayLightHours())
         #return 
-        online = config.getboolean("NETWORKING","ONLINE")
+        online = args.online
         #initialize a test ship
         testTown = Town.Ship("New New New York",online=online)
 
@@ -67,5 +66,14 @@ def main(args):
             return
 
 if __name__ == "__main__":
-    args = sys.argv
+    parser = argparse.ArgumentParser(description='Genterra parsing',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-o","--online",action="store_true",help="online mode")
+    parser.add_argument("-t","--terminal",action="store_true",help="terminal mode, no graphics")
+    parser.add_argument("-s","--server",action="store_true",help="server mode")
+    parser.add_argument("-r","--render",action="store_true",help="render a planet")
+
+
+
+
+    args = parser.parse_args()
     main(args)

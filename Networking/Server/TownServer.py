@@ -15,7 +15,7 @@ class NetworkResponses(Enum):
     WAITING = 1
     TIMEOUT = 2
 
-class OceaniaServer():
+class GenTerraServer():
     '''server to coordinate various ship instances'''
     def __init__(self) -> None:
         #ship objects
@@ -153,7 +153,7 @@ class ShipClient():
             print("Exception in Client Update: ",e)
         
 def main():
-    server = OceaniaServer()
+    server = GenTerraServer()
     server.launch()
 
 if __name__ == "__main__":
