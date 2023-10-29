@@ -4,6 +4,7 @@ import pyvista as pv
 import matplotlib.pyplot as plt
 import math
 import sys
+from Utilities import CONST
 
 PI = math.pi
 
@@ -49,14 +50,14 @@ class Renderer(ShowBase):
         # mesh = cloud.delaunay_2d()
         # mesh.save('mesh.ply')
         # Load the environment model.
-        self.scene = self.loader.loadModel("planet.fbx")
+        self.scene = self.loader.loadModel("Resources/plane.fbx")
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
         # Apply scale and position transforms on the model.
         self.scene.setScale(0.1, 0.1, 0.1)
         self.scene.setPos(-8, 42, 0)
-        self.scene.setHpr(90,0,0)
-        planetTexture = self.loader.loadTexture("Map.png")
+        self.scene.setHpr(0,0,0)
+        planetTexture = self.loader.loadTexture("Resources/Map.png")
         self.scene.setTexture(planetTexture)
 
     def initialize(self):
