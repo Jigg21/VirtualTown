@@ -76,7 +76,7 @@ class WorldObj():
 
 
         self.map.putdata(newImage)
-        self.map.save("Map.png")
+        self.map.save("Resources/Map.png")
 
 
 class MapAcre():

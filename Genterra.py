@@ -8,11 +8,15 @@ import traceback
 import signal
 import threading
 import argparse
-
+from WorldGen import WorldGenerator
 
 def main(args):
     if args.render:
+        print("Let's See!")
+        RenderInterface.Renderer().initialize()
+    elif args.generate:
         print("Doing My Best!")
+        WorldGen = WorldGenerator.WorldObj()
         RenderInterface.Renderer().initialize()
     else:
 
@@ -71,6 +75,9 @@ if __name__ == "__main__":
     parser.add_argument("-t","--terminal",action="store_true",help="terminal mode, no graphics")
     parser.add_argument("-s","--server",action="store_true",help="server mode")
     parser.add_argument("-r","--render",action="store_true",help="render a planet")
+    parser.add_argument("-g","--generate",action="store_true",help="generate a planet and render it")
+
+
 
 
 
