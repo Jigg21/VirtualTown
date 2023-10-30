@@ -5,12 +5,11 @@ root_folder = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__
 sys.path.append(root_folder)
 from Utilities.ConfigReader import ConfigData as config
 import random
-from Utilities import CONST
+import Utilities.Utilities
 from perlin_noise import PerlinNoise
 import matplotlib.pyplot as plt
 from progress.bar import PixelBar
 import numpy as np
-import Utilities
 
 
 SIZEX = int(config["WORLDGEN"]["WORLDSIZEX"])
@@ -40,32 +39,20 @@ class WorldObj():
                     bar.next()
 
         #create regions
-        for i in range(int(config["WORLDGEN"]["BIOMECOUNT"])):
-            region = MapRegion((random.choice(range(SIZEX)),random.choice(range(SIZEY))),self.mapObj)
-            self.regions.append(region)
+        # for i in range(int(config["WORLDGEN"]["BIOMECOUNT"])):
+        #s     region = MapRegion((random.choice(range(SIZEX)),random.choice(range(SIZEY))),self.mapObj)
+        #     self.regions.append(region)
 
-        #assign all the acres to regions
-        emptyAcres = SIZEX * SIZEY
-        with PixelBar('Filling Regions',max=emptyAcres) as bar:
-            while emptyAcres > 0:
-                for region in self.regions:
-                    new = region.getRandomFrontier(self.mapObj)
-                    if new != None:
-                        emptyAcres -= 1
-                        bar.next()
+
 
         
         
         #create plates    
         for t in range(int(config["WORLDGEN"]["PLATECOUNT"])):
-            self.plates.append(MapPlate(random.choice(self.regions)))
-
+            self.plates.append(MapPlate((random.choice(range(SIZEX)),random.choice(range(SIZEY)))))
+            
         #assign regions to plates
-        emptyRegions = int(config["WORLDGEN"]["BIOMECOUNT"])
-        quota = emptyRegions // int(config["WORLDGEN"]["PLATECOUNT"])
-        while emptyRegions > 0:
-            break
-
+        self.makeVoronoiPlates()
 
         newImage=[]
 
@@ -78,6 +65,34 @@ class WorldObj():
         self.map.putdata(newImage)
         self.map.save("Resources/Map.png")
 
+    def assignAcresViaFrontier(self):
+        emptyAcres = SIZEX * SIZEY
+        with PixelBar('Filling Regions',max=emptyAcres) as bar:
+            while emptyAcres > 0:
+                for region in self.regions:
+                    new = region.getRandomFrontier(self.mapObj)
+                    if new != None:
+                        emptyAcres -= 1
+                        bar.next()
+    
+    def makeVoronoiPlates(self):
+        emptyAcres = SIZEX * SIZEY
+        #for each acre on the map
+        with PixelBar('Filling Regions',max=emptyAcres) as bar:
+            for acre in self.mapObj.values():
+                closest = None
+                closestVal = 10000000
+                for seed in self.plates:
+                    #get rtw distance
+                    dist = Utilities.Utilities.getRoundtheWorldDistance(acre.pos,seed.center,SIZEX)
+                    if  dist < closestVal:
+                        closestVal = dist
+                        closest = seed
+                acre.setRegion(closest)
+                
+            
+
+
 
 class MapAcre():
     '''Class that defines the smallest unit of the map'''
@@ -89,6 +104,8 @@ class MapAcre():
         self.region = region
 
     def getColor(self):
+        if self.region.center == self.pos:
+            return (255,255,255)
         return self.region.color
     
     def isOwned(self):
@@ -98,6 +115,7 @@ class MapAcre():
         closest = None
         closestVal = 10000000
         for seed in regions:
+            #get rtw distance
             dist = Utilities.getPythagoreanDistance(self.pos,seed.center)
             if  dist < closestVal:
                 closestVal = dist
@@ -155,11 +173,14 @@ class MapRegion():
 
 class MapPlate():
     '''simulates Tectonic plates'''
-    def __init__(self, centralRegion) -> None:
-        self.center = centralRegion.center
-        self.regions = []
-        self.frontier = []
+    def __init__(self, center,color = None) -> None:
+        self.center = center
+        #Representative color
+        if color == None:
+            self.color = tuple(np.random.choice(range(256), size=3))
 
+    def addAcre(self,acreCoords):
+        self.acres.append(acreCoords)
 
 
 

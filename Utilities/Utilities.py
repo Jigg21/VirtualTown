@@ -100,3 +100,15 @@ def coordsOnScreen(sizeX,sizeY,coord):
 
 def getPythagoreanDistance(pos1,pos2):
     return ((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)**.5
+
+def getRoundtheWorldDistance(pos1,pos2,max):
+    x = abs(pos1[0]-pos2[0])
+    y = abs(pos1[1]-pos2[1])
+    rtwX = max-x
+    rtwY = max-y
+    forwardDist = x + y
+    rtwDist = rtwX + rtwY
+    if forwardDist < rtwDist:
+        return forwardDist
+    else:
+        return rtwDist
