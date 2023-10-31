@@ -10,6 +10,7 @@ from perlin_noise import PerlinNoise
 import matplotlib.pyplot as plt
 from progress.bar import PixelBar
 import numpy as np
+import math
 
 
 SIZEX = int(config["WORLDGEN"]["WORLDSIZEX"])
@@ -80,18 +81,37 @@ class WorldObj():
         #for each acre on the map
         with PixelBar('Filling Regions',max=emptyAcres) as bar:
             for acre in self.mapObj.values():
+                bar.next() 
                 closest = None
                 closestVal = 10000000
                 for seed in self.plates:
-                    #get rtw distance
-                    dist = Utilities.Utilities.getRoundtheWorldDistance(acre.pos,seed.center,SIZEX)
+                    #get forward distance
+                    dist = Utilities.Utilities.getPythagoreanDistance(seed.center,acre.pos)
                     if  dist < closestVal:
                         closestVal = dist
                         closest = seed
-                acre.setRegion(closest)
-                
-            
 
+                    x = abs(seed.center[0] - acre.pos[0])
+                    y = abs(seed.center[1] - acre.pos[1])
+                    xPrime = SIZEX - x
+                    yPrime = SIZEY - y
+                    xMin, yMin = 0, 0
+                    if x > xPrime:
+                        xMin = xPrime
+                    else:
+                        xMin = x
+                    
+                    if y > yPrime:
+                        yMin = yPrime
+                    else:
+                        yMin = y
+                    
+                    rtwDist = (xMin**2 + yMin**2)**0.5
+                    if rtwDist < closestVal:
+                        closestVal = rtwDist
+                        closest = seed
+                    #print("P1:P2 - {Pa}:{Pb} | FDist : {dist} RtWDist : {rtwDist}".format(Pa=acre.pos,Pb=seed.center,dist=dist,rtwDist=rtwDist))
+                acre.setRegion(closest)
 
 
 class MapAcre():
@@ -185,8 +205,3 @@ class MapPlate():
 
 
 
-def main():
-    WorldObj()
-
-if __name__ == "__main__":
-    main()
