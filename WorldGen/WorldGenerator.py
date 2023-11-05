@@ -37,23 +37,13 @@ class WorldObj():
                 for j in range(SIZEY):
                     acre = MapAcre((i,j))
                     self.mapObj[(i,j)] = acre
-                    bar.next()
+                bar.next(SIZEY)
 
-        #create regions
-        # for i in range(int(config["WORLDGEN"]["BIOMECOUNT"])):
-        #s     region = MapRegion((random.choice(range(SIZEX)),random.choice(range(SIZEY))),self.mapObj)
-        #     self.regions.append(region)
-
-
-
-        
-        
-        #create plates    
-        for t in range(int(config["WORLDGEN"]["PLATECOUNT"])):
-            self.plates.append(MapPlate((random.choice(range(SIZEX)),random.choice(range(SIZEY)))))
             
         #assign regions to plates
-        self.makeVoronoiPlates()
+        regionCount = int(config["WORLDGEN"]["BIOMECOUNT"])
+        plateCount = int(config["WORLDGEN"]["PLATECOUNT"])
+        self.GenerateMacroStructures(regionCount,plateCount)
 
         newImage=[]
 
@@ -75,16 +65,28 @@ class WorldObj():
                     if new != None:
                         emptyAcres -= 1
                         bar.next()
+
+    def GenerateMacroStructures(self,regionCount,plateCount):
+        #create regions
+        for i in range(regionCount):
+             region = MapRegion((random.choice(range(SIZEX)),random.choice(range(SIZEY))),self.mapObj)
+             self.regions.append(region)
+             
+        #create plates    
+        for t in range(plateCount):
+            self.plates.append(MapPlate((random.choice(range(SIZEX)),random.choice(range(SIZEY)))))
+
+        self.makeVoronoiRegions()
+        self.makeVoronoiPlates()
     
-    def makeVoronoiPlates(self):
+    def makeVoronoiRegions(self):
         emptyAcres = SIZEX * SIZEY
         #for each acre on the map
-        with PixelBar('Filling Regions',max=emptyAcres) as bar:
+        with PixelBar('Filling Regions',max=emptyAcres*len(self.regions)) as bar:
             for acre in self.mapObj.values():
-                bar.next() 
                 closest = None
                 closestVal = 10000000
-                for seed in self.plates:
+                for seed in self.regions:
                     #get forward distance
                     dist = Utilities.Utilities.getPythagoreanDistance(seed.center,acre.pos)
                     if  dist < closestVal:
@@ -112,8 +114,43 @@ class WorldObj():
                         closest = seed
                     #print("P1:P2 - {Pa}:{Pb} | FDist : {dist} RtWDist : {rtwDist}".format(Pa=acre.pos,Pb=seed.center,dist=dist,rtwDist=rtwDist))
                 acre.setRegion(closest)
+                bar.next(len(self.regions))
 
 
+    def makeVoronoiPlates(self):
+        with PixelBar('Assigning Regions',max=len(self.plates)*len(self.regions)) as bar:
+            for region in self.regions:
+                closest = None
+                closestVal = 10000000
+                for seed in self.plates:
+                    bar.next() 
+                    #get forward distance
+                    dist = Utilities.Utilities.getPythagoreanDistance(seed.center,region.center)
+                    if  dist < closestVal:
+                        closestVal = dist
+                        closest = seed
+
+                    x = abs(seed.center[0] - region.center[0])
+                    y = abs(seed.center[1] - region.center[1])
+                    xPrime = SIZEX - x
+                    yPrime = SIZEY - y
+                    xMin, yMin = 0, 0
+                    if x > xPrime:
+                        xMin = xPrime
+                    else:
+                        xMin = x
+                    
+                    if y > yPrime:
+                        yMin = yPrime
+                    else:
+                        yMin = y
+                    
+                    rtwDist = (xMin**2 + yMin**2)**0.5
+                    if rtwDist < closestVal:
+                        closestVal = rtwDist
+                        closest = seed
+                    region.assignPlate(closest)
+                    
 class MapAcre():
     '''Class that defines the smallest unit of the map'''
     def __init__(self,pos) -> None:
@@ -126,7 +163,7 @@ class MapAcre():
     def getColor(self):
         if self.region.center == self.pos:
             return (255,255,255)
-        return self.region.color
+        return self.region.getColor()
     
     def isOwned(self):
         return self.region == None
@@ -149,12 +186,21 @@ class MapRegion():
         self.center = center
         self.acres = []
         self.frontier = self.getEligibileNeighbors(center,world)
-        if color == None:
-            self.color = tuple(np.random.choice(range(256), size=3))
+        self.colorShift = random.randint(-16,16)
+        self.plate = None 
 
     def distanceToPoint(self,pos):
         Utilities.getPythagoreanDistance(self.center,pos)
     
+    def getColor(self):
+        r = self.plate.color[0] + self.colorShift
+        g = self.plate.color[1] + self.colorShift
+        b = self.plate.color[2] + self.colorShift
+        r = Utilities.Utilities.clamp(0,255,r)
+        g = Utilities.Utilities.clamp(0,255,g)
+        b = Utilities.Utilities.clamp(0,255,b)
+        return (r,g,b)
+        
 
     def getEligibileNeighbors(self,pos,world):
         neighbors = []
@@ -165,7 +211,8 @@ class MapRegion():
                     neighbors.append(world[newPos])
         return neighbors
                     
-
+    def assignPlate(self,plate):
+        self.plate = plate
 
     def getRandomFrontier(self,world):
         #if there's no Frontier, just pass
@@ -189,8 +236,6 @@ class MapRegion():
             self.frontier.extend(newNeighbors)
         return randomAcre
         
-        
-
 class MapPlate():
     '''simulates Tectonic plates'''
     def __init__(self, center,color = None) -> None:
